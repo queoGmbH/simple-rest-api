@@ -39,4 +39,3 @@ php-8.4:
   extends: .php-test
   variables:
     PHP_VERSION: "8.4"
-  allow_failure: true
