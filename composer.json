@@ -24,7 +24,8 @@
         "bin-dir": ".Build/bin",
         "allow-plugins": {
             "typo3/class-alias-loader": true,
-            "typo3/cms-composer-installers": true
+            "typo3/cms-composer-installers": true,
+            "phpro/grumphp-shim": true
         }
     },
     "extra": {
@@ -45,6 +46,7 @@
         "typo3/cms-info": "^13.4",
         "typo3/cms-workspaces": "^13.4",
         "typo3/cms-backend": "^13.4",
-        "typo3/testing-framework": "^9.1"
+        "typo3/testing-framework": "^9.1",
+        "phpro/grumphp-shim": "^2.13"
     }
 }
