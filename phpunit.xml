@@ -12,7 +12,7 @@
          failOnRisky="true"
          failOnWarning="true"
          colors="true"
-         test-dox="true">
+         testdox="true">
     <testsuites>
         <testsuite name="default">
             <directory>Tests</directory>

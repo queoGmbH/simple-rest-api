@@ -5,7 +5,7 @@ stages:
 variables:
   COMPOSER_ALLOW_SUPERUSER: 1
   COMPOSER_CACHE_DIR: ".composer-cache"
-  TYPO3_PATH_ROOT: "$CI_PROJECT_DIR/.Build/web"
+  TYPO3_PATH_ROOT: "$CI_PROJECT_DIR/.Build/Web"
 
 .php-test:
   stage: test
@@ -17,7 +17,10 @@ variables:
   before_script:
     - composer install --no-progress --no-interaction
   script:
-    - .Build/bin/phpunit -c phpunit.xml
+    - ls -la
+    - ls -la .Build/
+    - ls -la .Build/bin/
+    - php ./.Build/bin/phpunit -c phpunit.xml
 
 validate:composer:
   stage: validate
