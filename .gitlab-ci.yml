@@ -1,0 +1,67 @@
+# GitLab CI/CD Konfiguration für TYPO3-Extension
+
+stages:
+  - validate
+  - test
+
+variables:
+  COMPOSER_ALLOW_SUPERUSER: 1
+  COMPOSER_CACHE_DIR: ".composer-cache"
+  TYPO3_PATH_ROOT: "$CI_PROJECT_DIR/.Build/web"
+
+# Basis-Template für PHP-Tests
+.php-test:
+  stage: test
+  image: php:${PHP_VERSION}-cli-alpine
+  cache:
+    key: composer-cache-${PHP_VERSION}
+    paths:
+      - .composer-cache/
+  before_script:
+    # Alpine-Abhängigkeiten installieren
+    - apk add --no-cache git unzip libzip-dev
+
+    # PHP-Erweiterungen installieren (TYPO3 benötigt diese)
+    - apk add --no-cache icu-dev libxml2-dev
+    - docker-php-ext-install zip intl xml
+
+    # Composer installieren
+    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+    # Composer-Abhängigkeiten installieren
+    - composer install --no-progress --no-interaction
+  script:
+    # PHPUnit-Tests ausführen
+    - .Build/bin/phpunit -c phpunit.xml
+#  artifacts:
+#    reports:
+#      junit: .Build/junit/*.xml
+#    paths:
+#      - .Build/logs/
+#    when: always
+#    expire_in: 1 week
+
+# Composer-Validierung
+validate:composer:
+  stage: validate
+  image: composer:latest
+  script:
+    - composer validate --strict
+
+# Matrix für PHP-Versionen
+php-8.2:
+  extends: .php-test
+  variables:
+    PHP_VERSION: "8.2"
+
+php-8.3:
+  extends: .php-test
+  variables:
+    PHP_VERSION: "8.3"
+
+php-8.4:
+  extends: .php-test
+  variables:
+    PHP_VERSION: "8.4"
+  # PHP 8.4 ist noch experimentell, daher darf der Job fehlschlagen
+  allow_failure: true
