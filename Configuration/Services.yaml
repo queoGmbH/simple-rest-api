@@ -1,0 +1,13 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+  Queo\SimpleRestApi\:
+    resource: '../Classes/*'
+    exclude:
+      - '../Classes/Domain/Model/*'
+      - '../Classes/Attribute/*'
+
+  Queo\SimpleRestApi\Middleware\ApiResolverMiddleware:
+    public: true

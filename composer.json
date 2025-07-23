@@ -1,0 +1,27 @@
+{
+    "name": "queo/simple-rest-api",
+    "description": "This extension provides a simple REST API to create simple endpoints API calls.",
+    "type": "typo3-cms-extension",
+    "license": [
+        "GPL-2.0-or-later"
+    ],
+    "require": {
+        "typo3/cms-core": "^13.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Queo\\SimpleRestApi\\": "Classes/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Queo\\SimpleRestApi\\Tests\\": "Tests/"
+        }
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "simple_rest_api"
+        }
+    },
+    "version": "13.4.0"
+}
