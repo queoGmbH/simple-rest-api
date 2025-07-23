@@ -6,7 +6,8 @@
         "GPL-2.0-or-later"
     ],
     "require": {
-        "typo3/cms-core": "^13.0"
+        "typo3/cms-core": "^13.4",
+        "typo3/cms-frontend": "^13.4"
     },
     "autoload": {
         "psr-4": {
@@ -18,10 +19,23 @@
             "Queo\\SimpleRestApi\\Tests\\": "Tests/"
         }
     },
-    "extra": {
-        "typo3/cms": {
-            "extension-key": "simple_rest_api"
+    "config": {
+        "vendor-dir": ".Build/vendor",
+        "bin-dir": ".Build/bin",
+        "allow-plugins": {
+            "typo3/class-alias-loader": true,
+            "typo3/cms-composer-installers": true
         }
     },
-    "version": "13.4.0"
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "simple_rest_api",
+            "cms-package-dir": "{$vendor-dir}/typo3/cms",
+            "web-dir": ".Build/Web",
+            "app-dir": ".Build"
+        }
+    },
+    "replace": {
+        "typo3-ter/container": "self.version"
+    }
 }
