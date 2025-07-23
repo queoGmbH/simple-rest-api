@@ -2,3 +2,5 @@ composer.lock
 .Build
 .ddev
 .idea
+.phpunit.cache
+var
