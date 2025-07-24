@@ -21,4 +21,3 @@ if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][
 }
 
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['routing']['enhancers']['SimpleRestApiEnhancer'] = SimpleRestApiEnhancer::class;
-

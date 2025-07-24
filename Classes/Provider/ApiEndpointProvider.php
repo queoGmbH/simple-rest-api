@@ -9,17 +9,7 @@ use Queo\SimpleRestApi\Value\ApiEndpoint;
 
 final class ApiEndpointProvider
 {
-    protected ContainerInterface $container;
-
-    /**
-     * @var array
-     */
-    protected array $endpoints = [];
-
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
+    private array $endpoints = [];
 
     public function addEndpoint(string $className, string $methodName, string $httpMethod, string $path): void
     {

@@ -14,7 +14,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class ApiAspectMiddleware implements MiddlewareInterface
 {
-    public function __construct(private Context $context)
+    public function __construct(private readonly Context $context)
     {
     }
 

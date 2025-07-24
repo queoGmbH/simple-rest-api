@@ -1,2 +1,74 @@
+parameters:
+  convention.rector_ignore_pattern: [ ]
+  convention.rector_enabled: true
+  convention.rector_config: 'rector.php'
+  convention.rector_clear-cache: false
+
 grumphp:
-    tasks: { composer: null, composer_normalize: null, composer_require_checker: null, git_blacklist: null, git_commit_message: null, jsonlint: null, phpcs: null, phpcsfixer2: null, phplint: null, phpstan: null, securitychecker: null, xmllint: null, yamllint: null, psalm: null, rector: null }
+  tasks:
+    composer:
+      file: ./composer.json
+      no_check_all: false
+      no_check_lock: false
+      no_check_publish: false
+      no_local_repository: false
+      with_dependencies: false
+      strict: false
+    composer_normalize:
+      indent_size: ~
+      indent_style: ~
+      no_check_lock: true
+      no_update_lock: false
+      verbose: false
+    composer_require_checker:
+      composer_file: 'composer.json'
+      config_file: ~
+      ignore_parse_errors: false
+      triggered_by: [ 'composer.json', 'composer.lock', '*.php' ]
+    git_blacklist:
+      keywords:
+        - "die\\("
+        - "var_dump\\("
+        - "exit;"
+        - "DebuggerUtility"
+        - "<f:debug"
+      whitelist_patterns: [ ]
+      triggered_by: [ 'php' ]
+      regexp_type: G
+      match_word: false
+      ignore_patterns: [ ]
+    git_commit_message:
+      allow_empty_message: false
+      enforce_capitalized_subject: true
+      enforce_no_subject_punctuations: false
+      enforce_no_subject_trailing_period: true
+      enforce_single_lined_subject: true
+      type_scope_conventions: [ ]
+      skip_on_merge_commit: true
+      max_body_width: 72
+      max_subject_width: 60
+      case_insensitive: true
+      multiline: true
+      additional_modifiers: ''
+    jsonlint:
+      ignore_patterns: [ ]
+      detect_key_conflicts: false
+    phpcs:
+      standard: "PSR12"
+      warning_severity: 0
+      tab_width: 4
+    phplint: ~
+    xmllint: ~
+    yamllint: ~
+    securitychecker_enlightn:
+      run_always: true
+    phpstan:
+      memory_limit: "-1"
+      configuration: phpstan.neon
+    rector:
+      metadata:
+        enabled: "%convention.rector_enabled%"
+      config: "%convention.rector_config%"
+      triggered_by: [ 'php' ]
+      clear_cache: "%convention.rector_clear-cache%"
+      ignore_patterns: "%convention.rector_ignore_pattern%"

@@ -7,13 +7,13 @@ namespace Queo\SimpleRestApi\Attribute;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_METHOD)]
-final class AsApiEndpoint
+final readonly class AsApiEndpoint
 {
-    const TAG_NAME = 'api.endpoint';
+    public const TAG_NAME = 'api.endpoint';
 
     public function __construct(
-        public readonly string $method,
-        public readonly string $path
+        public string $method,
+        public string $path
     ) {
     }
 }

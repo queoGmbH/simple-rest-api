@@ -1,0 +1,109 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Cannot call method getName\(\) on ReflectionType\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Classes/Middleware/ApiResolverMiddleware.php
+
+		-
+			message: '#^Parameter \#1 \$className of static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:makeInstance\(\) expects class\-string\<object\>, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Classes/Middleware/ApiResolverMiddleware.php
+
+		-
+			message: '#^Unable to resolve the template type T in call to method static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:makeInstance\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: Classes/Middleware/ApiResolverMiddleware.php
+
+		-
+			message: '#^Cannot access offset ''FE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: Classes/Middleware/CacheHashFixer.php
+
+		-
+			message: '#^Cannot access offset ''cacheHash'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Classes/Middleware/CacheHashFixer.php
+
+		-
+			message: '#^Cannot access offset ''enforceValidation'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Classes/Middleware/CacheHashFixer.php
+
+		-
+			message: '#^Cannot access offset ''pageNotFoundOnCHashError'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Classes/Middleware/CacheHashFixer.php
+
+		-
+			message: '#^Instanceof between TYPO3\\CMS\\Core\\Site\\Entity\\Site and TYPO3\\CMS\\Core\\Site\\Entity\\NullSite will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 1
+			path: Classes/Middleware/CacheHashFixer.php
+
+		-
+			message: '#^Left side of && is always true\.$#'
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 1
+			path: Classes/Middleware/CacheHashFixer.php
+
+		-
+			message: '#^Property Queo\\SimpleRestApi\\Provider\\ApiEndpointProvider\:\:\$endpoints type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Classes/Provider/ApiEndpointProvider.php
+
+		-
+			message: '#^Cannot call method setPath\(\) on Symfony\\Component\\Routing\\Route\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Classes/Routing/Enhancer/SimpleRestApiEnhancer.php
+
+		-
+			message: '#^Cannot call method setRequirement\(\) on Symfony\\Component\\Routing\\Route\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Classes/Routing/Enhancer/SimpleRestApiEnhancer.php
+
+		-
+			message: '#^Cannot clone Symfony\\Component\\Routing\\Route\|null\.$#'
+			identifier: clone.nonObject
+			count: 1
+			path: Classes/Routing/Enhancer/SimpleRestApiEnhancer.php
+
+		-
+			message: '#^Method Queo\\SimpleRestApi\\Routing\\Enhancer\\SimpleRestApiEnhancer\:\:enhanceForGeneration\(\) has parameter \$parameters with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Classes/Routing/Enhancer/SimpleRestApiEnhancer.php
+
+		-
+			message: '#^Parameter \#1 \$object of function spl_object_hash expects object, Symfony\\Component\\Routing\\Route\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Classes/Routing/Enhancer/SimpleRestApiEnhancer.php
+
+		-
+			message: '#^Parameter \#2 \$route of method TYPO3\\CMS\\Core\\Routing\\RouteCollection\:\:add\(\) expects Symfony\\Component\\Routing\\Route\|TYPO3\\CMS\\Backend\\Routing\\Route, Symfony\\Component\\Routing\\Route\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Classes/Routing/Enhancer/SimpleRestApiEnhancer.php
+
+		-
+			message: '#^Call to an undefined method Queo\\SimpleRestApi\\Value\\ApiEndpoint\:\:getArgumentNames\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php
+
+		-
+			message: '#^Class Queo\\SimpleRestApi\\Value\\ApiEndpoint constructor invoked with 4 parameters, 5 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php

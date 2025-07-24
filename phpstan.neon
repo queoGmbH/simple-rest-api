@@ -1,0 +1,9 @@
+parameters:
+    level: 9
+    paths:
+      - Classes
+      - Tests
+    excludePaths:
+      - ext_localconf.php
+includes:
+  - phpstan-baseline.neon

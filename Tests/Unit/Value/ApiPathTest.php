@@ -14,7 +14,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 final class ApiPathTest extends UnitTestCase
 {
     #[Test]
-    public function knows_if_request_uri_is_api_uri(): void
+    public function knows_if_request_uri_is_api_uri(): void //phpcs:ignore
     {
         $siteBase = new Uri('/de/');
         $requestUri = new Uri('/de/api/v1/my-endpoint');
@@ -26,7 +26,7 @@ final class ApiPathTest extends UnitTestCase
     }
 
     #[Test]
-    public function holds_endpoint_path(): void
+    public function holds_endpoint_path(): void //phpcs:ignore
     {
         $siteBase = new Uri('/de/');
         $requestUri = new Uri('/de/api/v1/my-endpoint');
