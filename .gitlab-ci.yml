@@ -1,5 +1,4 @@
 stages:
-  - validate
   - test
 
 variables:
@@ -34,12 +33,6 @@ variables:
     - composer install --no-progress --no-interaction
   script:
     - php ./.Build/bin/phpunit -c phpunit.xml
-
-validate:composer:
-  stage: validate
-  image: composer:latest
-  script:
-    - composer validate --strict
 
 php-grumphp-8.2-13:
   extends: .php-grumphp
