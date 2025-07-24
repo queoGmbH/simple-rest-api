@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Queo\SimpleRestApi\Provider;
 
 use Psr\Container\ContainerInterface;
+use Queo\SimpleRestApi\Http\ApiRequest;
+use Queo\SimpleRestApi\Http\ApiRequestInterface;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
 
 final class ApiEndpointProvider
@@ -17,7 +19,7 @@ final class ApiEndpointProvider
 
         $identifierPathParts = [];
         $parameterNames = [];
-        $parameterPosition = 1;
+        $parameterPosition = 0;
 
         foreach ($pathParts as $pathPart) {
             if (!preg_match('/{([0-9a-zA-Z]+)}/', $pathPart, $matches)) {
@@ -33,19 +35,19 @@ final class ApiEndpointProvider
         $this->endpoints[$this->getIdentifier($httpMethod, $identifierPath)] = $endpoint;
     }
 
-    public function getEndpoint(string $httpMethod, string $incomePath): ?ApiEndpoint
+    public function getEndpoint(ApiRequestInterface $apiRequest): ?ApiEndpoint
     {
-        $endpoint = $this->endpoints[$this->getIdentifier($httpMethod, $incomePath)] ?? null;
+        $endpoint = $this->endpoints[$this->getIdentifier($apiRequest->getHttpMethod(), $apiRequest->getEndpointPath())] ?? null;
 
         if (!$endpoint instanceof ApiEndpoint) {
-            $pathParts = explode('/', trim($incomePath, '/'));
+            $pathParts = explode('/', trim($apiRequest->getEndpointPath(), '/'));
             $undetectedPathPartCount = count($pathParts);
 
             $checkEndpointPath = '';
 
             foreach ($pathParts as $pathPart) {
                 $checkEndpointPath .= '/' . $pathPart;
-                $endpoint = $this->endpoints[$this->getIdentifier($httpMethod, $checkEndpointPath)] ?? null;
+                $endpoint = $this->endpoints[$this->getIdentifier($apiRequest->getHttpMethod(), $checkEndpointPath)] ?? null;
                 $undetectedPathPartCount--;
                 if ($endpoint instanceof ApiEndpoint && $endpoint->parameterCount() === $undetectedPathPartCount) {
                     break;

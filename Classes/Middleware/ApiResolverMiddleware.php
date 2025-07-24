@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Middleware;
 
+use Queo\SimpleRestApi\Http\ApiRequest;
 use ReflectionMethod;
 use ReflectionException;
 use Psr\Http\Message\ResponseInterface;
@@ -12,11 +13,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Queo\SimpleRestApi\Configuration\ExtensionConfiguration;
 use Queo\SimpleRestApi\Provider\ApiEndpointProvider;
-use Queo\SimpleRestApi\Registry\EndpointRegistry;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
-use Queo\SimpleRestApi\Value\ApiPath;
 use RuntimeException;
-use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class ApiResolverMiddleware implements MiddlewareInterface
@@ -32,17 +30,14 @@ class ApiResolverMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        /** @var Site $site */
-        $site = $request->getAttribute('site');
-
-        $apiPath = new ApiPath($site->getBase(), $request->getUri(), $this->extensionConfiguration->getApiBasePath());
+        $apiRequest = GeneralUtility::makeInstance(ApiRequest::class, $request, $this->extensionConfiguration);
 
         // Check whether it is an API path (optional, for path prefix)
-        if (!$apiPath->isApiPath()) {
+        if (!$apiRequest->isApiRequest()) {
             return $handler->handle($request);
         }
 
-        $endpoint = $this->endpointProvider->getEndpoint($request->getMethod(), $apiPath->getEndpointPath());
+        $endpoint = $this->endpointProvider->getEndpoint($apiRequest);
 
         if ($endpoint instanceof ApiEndpoint) {
             // Create controller instance
@@ -50,9 +45,11 @@ class ApiResolverMiddleware implements MiddlewareInterface
             $controller = GeneralUtility::makeInstance($endpoint->className);
             $methodName = $endpoint->method;
 
-            $parameters = [];
+            $methodParameters = [];
 
+            // @todo: Add request object (ServerRequestInterface) to parameters if method requests it
             // @todo: Move this somewhere else
+            // @todo: Add event before an after parameter mapping to give other developers the possibility to adjust parameters
             if ($endpoint->parameterCount() > 0) {
                 $parameters = $apiPath->getParameterValuesFromPath($endpoint->parameterCount());
                 $reflectionMethod = new ReflectionMethod($endpoint->className, $methodName);
@@ -61,7 +58,7 @@ class ApiResolverMiddleware implements MiddlewareInterface
                 foreach ($reflectionParams as $key => $reflectionParam) {
                     $type = $reflectionParam->getType()->getName();
 
-                    $parameters[$key] = match ($type) {
+                    $methodParameters[] = match ($type) {
                         'int' => (int)$parameters[$key],
                         'string' => (string)$parameters[$key],
                         'float' => (float)$parameters[$key],
@@ -72,7 +69,7 @@ class ApiResolverMiddleware implements MiddlewareInterface
             }
 
             // Call method with parameters
-            $result = $controller->$methodName(...$parameters);
+            $result = $controller->$methodName(...$methodParameters);
 
             // If the result is already a response, return it.
             if ($result instanceof ResponseInterface) {
