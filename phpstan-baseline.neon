@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Cannot call method getName\(\) on ReflectionType\|null\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: Classes/Middleware/ApiResolverMiddleware.php
-
-		-
 			message: '#^Parameter \#1 \$className of static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:makeInstance\(\) expects class\-string\<object\>, string given\.$#'
 			identifier: argument.type
 			count: 1

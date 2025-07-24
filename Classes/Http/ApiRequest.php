@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Http;
 
+use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Queo\SimpleRestApi\Collection\Parameters;
@@ -11,17 +12,27 @@ use Queo\SimpleRestApi\Configuration\ExtensionConfigurationInterface;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
 
-final class ApiRequest implements ApiRequestInterface
+final readonly class ApiRequest implements ApiRequestInterface
 {
     private SiteInterface $site;
+
     private UriInterface $requestUri;
+
     private UriInterface $baseUri;
+
     private string $apiBasePath;
+
     private string $compareBasePath;
 
-    public function __construct(private readonly ServerRequestInterface $request, private readonly ExtensionConfigurationInterface $extensionConfiguration)
+    public function __construct(private ServerRequestInterface $request, private ExtensionConfigurationInterface $extensionConfiguration)
     {
-        $this->site = $this->request->getAttribute('site');
+        $site = $this->request->getAttribute('site');
+
+        if (!$site instanceof SiteInterface) {
+            throw new RuntimeException('No site provided!', 1072552822);
+        }
+
+        $this->site = $site;
         $this->requestUri = $this->request->getUri();
         $this->baseUri = $this->site->getBase();
         $this->apiBasePath = $this->extensionConfiguration->getApiBasePath();
@@ -51,7 +62,7 @@ final class ApiRequest implements ApiRequestInterface
         }
 
         if (str_starts_with($comparePath, $apiBasePath)) {
-            $comparePath = substr($comparePath, strlen($apiBasePath));
+            return substr($comparePath, strlen($apiBasePath));
         }
 
         return $comparePath;

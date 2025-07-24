@@ -23,7 +23,7 @@ final class ApiRequestTest extends UnitTestCase
      * @throws Exception
      */
     #[Test]
-    public function request_detects_current_incoming_request_is_an_api_request(): void
+    public function request_detects_current_incoming_request_is_an_api_request(): void // phpcs:ignore
     {
         $currentRequest = $this->createMock(ServerRequestInterface::class);
         $site = $this->createMock(SiteInterface::class);
@@ -43,7 +43,7 @@ final class ApiRequestTest extends UnitTestCase
      * @throws Exception
      */
     #[Test]
-    public function request_detects_current_incoming_request_as_non_api_request(): void
+    public function request_detects_current_incoming_request_as_non_api_request(): void // phpcs:ignore
     {
         $currentRequest = $this->createMock(ServerRequestInterface::class);
         $site = $this->createMock(SiteInterface::class);
@@ -63,7 +63,7 @@ final class ApiRequestTest extends UnitTestCase
      * @throws Exception
      */
     #[Test]
-    public function request_know_http_method(): void
+    public function request_know_http_method(): void // phpcs:ignore
     {
         $currentRequest = $this->createMock(ServerRequestInterface::class);
         $site = $this->createMock(SiteInterface::class);
@@ -82,7 +82,7 @@ final class ApiRequestTest extends UnitTestCase
     }
 
     #[Test]
-    public function request_can_provide_api_endpoint_path_for_comparison(): void
+    public function request_can_provide_api_endpoint_path_for_comparison(): void // phpcs:ignore
     {
         $currentRequest = $this->createMock(ServerRequestInterface::class);
         $site = $this->createMock(SiteInterface::class);
@@ -99,7 +99,7 @@ final class ApiRequestTest extends UnitTestCase
     }
 
     #[Test]
-    public function request_can_provide_parameters_for_endpoint(): void
+    public function request_can_provide_parameters_for_endpoint(): void // phpcs:ignore
     {
         $currentRequest = $this->createMock(ServerRequestInterface::class);
         $site = $this->createMock(SiteInterface::class);

@@ -13,7 +13,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 final class ApiEndpointTest extends UnitTestCase
 {
     #[Test]
-    public function provides_endpoint_path_without_parameters(): void
+    public function provides_endpoint_path_without_parameters(): void // phpcs:ignore
     {
         $apiEndpoint = new ApiEndpoint('MyApiController', 'myApiMethod', '/v1/my-endpoint/{someArg}/{otherArg}', 'GET', ['someArg', 'otherArg']);
 

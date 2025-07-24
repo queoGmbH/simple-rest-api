@@ -15,7 +15,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 final class ApiEndpointProviderTest extends UnitTestCase
 {
     #[Test]
-    public function finds_endpoint_from_api_request(): void
+    public function finds_endpoint_from_api_request(): void // phpcs:ignore
     {
         $apiEndpointProvider = new ApiEndpointProvider();
 
@@ -39,7 +39,7 @@ final class ApiEndpointProviderTest extends UnitTestCase
     }
 
     #[Test]
-    public function finds_endpoint_with_parameters_from_api_request(): void
+    public function finds_endpoint_with_parameters_from_api_request(): void // phpcs:ignore
     {
         $apiEndpointProvider = new ApiEndpointProvider();
 
@@ -57,7 +57,7 @@ final class ApiEndpointProviderTest extends UnitTestCase
             '/v1/my-api-endpoint/{param1}/{param2}',
             'GET',
             [
-                0=> 'param1',
+                0 => 'param1',
                 1 => 'param2'
             ]
         );

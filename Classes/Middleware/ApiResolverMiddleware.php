@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Queo\SimpleRestApi\Middleware;
 
 use Queo\SimpleRestApi\Http\ApiRequest;
-use ReflectionMethod;
 use ReflectionException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -30,6 +29,7 @@ class ApiResolverMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        /** @var ApiRequest $apiRequest */
         $apiRequest = GeneralUtility::makeInstance(ApiRequest::class, $request, $this->extensionConfiguration);
 
         // Check whether it is an API path (optional, for path prefix)
@@ -41,42 +41,27 @@ class ApiResolverMiddleware implements MiddlewareInterface
 
         if ($endpoint instanceof ApiEndpoint) {
             // Create controller instance
-            /** @var object $controller */
-            $controller = GeneralUtility::makeInstance($endpoint->className);
+            /** @var object $className */
+            $className = GeneralUtility::makeInstance($endpoint->className);
             $methodName = $endpoint->method;
 
-            $methodParameters = [];
-
-            // @todo: Add request object (ServerRequestInterface) to parameters if method requests it
-            // @todo: Move this somewhere else
             // @todo: Add event before an after parameter mapping to give other developers the possibility to adjust parameters
-            if ($endpoint->parameterCount() > 0) {
-                $parameters = $apiPath->getParameterValuesFromPath($endpoint->parameterCount());
-                $reflectionMethod = new ReflectionMethod($endpoint->className, $methodName);
-                $reflectionParams = $reflectionMethod->getParameters();
-
-                foreach ($reflectionParams as $key => $reflectionParam) {
-                    $type = $reflectionParam->getType()->getName();
-
-                    $methodParameters[] = match ($type) {
-                        'int' => (int)$parameters[$key],
-                        'string' => (string)$parameters[$key],
-                        'float' => (float)$parameters[$key],
-                        'bool' => (bool)$parameters[$key],
-                        default => $parameters[$key],
-                    };
-                }
-            }
+            $methodParameters = $apiRequest->getParameters($endpoint)->buildMethodParameters($className::class, $methodName);
 
             // Call method with parameters
-            $result = $controller->$methodName(...$methodParameters);
+            $result = $className->$methodName(...$methodParameters);
 
             // If the result is already a response, return it.
             if ($result instanceof ResponseInterface) {
                 return $result;
             }
 
-            throw new RuntimeException('Your controller ' . $endpoint->className . ' method ' . $endpoint->method . ' has to return a ResponseInterface!', 4976710617);
+            throw new RuntimeException(
+                'Your controller ' . $endpoint->className
+                . ' method ' . $endpoint->method
+                . ' has to return a ResponseInterface!',
+                4976710617
+            );
         }
 
         // If no endpoint was found, forward request
