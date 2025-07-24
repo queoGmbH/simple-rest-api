@@ -12,6 +12,7 @@
         "psr/http-server-handler": "^1.0",
         "psr/http-server-middleware": "^1.0",
         "symfony/dependency-injection": "^6.0 || ^7.0",
+        "symfony/polyfill-php80": "^1.32",
         "typo3/cms-core": "^13.4",
         "typo3/cms-frontend": "^13.4"
     },
@@ -56,6 +57,7 @@
             "typo3/cms-composer-installers": true
         },
         "bin-dir": ".Build/bin",
+        "sort-packages": true,
         "vendor-dir": ".Build/vendor"
     },
     "extra": {
