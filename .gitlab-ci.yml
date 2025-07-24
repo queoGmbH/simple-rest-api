@@ -1,10 +1,13 @@
 stages:
   - test
+  - release
 
 variables:
   COMPOSER_ALLOW_SUPERUSER: 1
   COMPOSER_CACHE_DIR: ".composer-cache"
   TYPO3_PATH_ROOT: "$CI_PROJECT_DIR/.Build/Web"
+  GIT_STRATEGY: fetch   # Tags werden benötigt
+  GIT_DEPTH: 0          # Voller Clone, um Tags zu bekommen
 
 .php-grumphp:
   stage: test
@@ -64,3 +67,42 @@ php-unit-test-8.4-14:
     PHP_VERSION: "8.4"
     TYPO3_VERSION: "14.0.x-dev"
   allow_failure: true
+
+release_composer_package:
+  stage: release
+  image: curlimages/curl:latest
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v?\d+\.\d+\.\d+(-[\w\.\d]+)?$/i'
+      when: always
+    - when: never
+  script:
+    - |
+      echo "Publish Composer Package Release for Tag $CI_COMMIT_TAG..."
+      if [[ -z "$CI_COMMIT_TAG" ]]; then
+        echo "No tag found, skip release script."
+        exit 0
+      fi
+
+      # Fetch projekt id
+      PROJECT_ID=$CI_PROJECT_ID
+
+      # Token for API authentifizierung
+      # Use CI_JOB_TOKEN for authentication
+      TOKEN="${CI_JOB_TOKEN}"
+
+      # Generate API url
+      API_URL="https://gitlab.cloud.queo.org/api/v4/projects/$PROJECT_ID/packages/composer"
+
+      # Send POST request for publishing the composer package
+      response=$(curl --silent --show-error --fail -w "%{http_code}" -X POST "$API_URL" --header "JOB-TOKEN: $TOKEN" --data-urlencode "tag=$CI_COMMIT_TAG")
+
+      # Check HTTP response code (last 3 characters)
+      http_code="${response: -3}"
+
+      if [ "$http_code" == "201" ] || [ "$http_code" == "200" ]; then
+        echo "Composer Package release successfully published."
+      else
+        echo "Error during publish process, HTTP Code: $http_code"
+        echo "Response: $response"
+        exit 1
+      fi
