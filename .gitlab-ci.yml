@@ -71,6 +71,10 @@ php-unit-test-8.4-14:
 release_composer_package:
   stage: release
   image: curlimages/curl:latest  # schlankes Curl-Image
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v?\d+\.\d+\.\d+(-[\w\.\d]+)?$/i'
+      when: always
+    - when: never
   script:
     - |
       echo "Publish Composer Package Release for Tag $CI_COMMIT_TAG..."
@@ -79,31 +83,26 @@ release_composer_package:
         exit 0
       fi
 
-      # Projekt-ID ermitteln (alternativ statisch setzen)
+      # Fetch projekt id
       PROJECT_ID=$CI_PROJECT_ID
-      echo "${PROJECT_ID}"
 
-      # Token für API-Authentifizierung
-      # Nutze das CI_JOB_TOKEN oder Personal Access Token als VARIABLE
+      # Token for API authentifizierung
+      # Use CI_JOB_TOKEN for authentication
       TOKEN="${CI_JOB_TOKEN}"
-      echo "${TOKEN}"
 
-      # API-Endpoint für Composer Package Registry Release
+      # Generate API url
       API_URL="https://gitlab.cloud.queo.org/api/v4/projects/$PROJECT_ID/packages/composer"
-      echo "${API_URL}"
 
-      # Sende POST-Anfrage zum Veröffentlichen des Composer Packages
+      # Send POST request for publishing the composer package
       response=$(curl --silent --show-error --fail -w "%{http_code}" -X POST "$API_URL" --header "JOB-TOKEN: $TOKEN" --data-urlencode "tag=$CI_COMMIT_TAG")
 
-      # Prüfe HTTP Response-Code (letzte 3 Zeichen)
+      # Check HTTP response code (last 3 characters)
       http_code="${response: -3}"
 
       if [ "$http_code" == "201" ] || [ "$http_code" == "200" ]; then
-        echo "Composer Package Release erfolgreich veröffentlicht."
+        echo "Composer Package release successfully published."
       else
-        echo "Fehler beim Veröffentlichungsversuch, HTTP Code: $http_code"
+        echo "Error during publish process, HTTP Code: $http_code"
         echo "Response: $response"
         exit 1
       fi
-  only:
-    - tags
