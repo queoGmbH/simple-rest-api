@@ -22,13 +22,10 @@ class SimpleRestApiEnhancer extends AbstractEnhancer implements RoutingEnhancerI
     public const ENHANCER_NAME = 'SimpleRestApiEnhancer';
 
     /**
-     * @var array
+     * @param array<string> $configuration
      */
-    protected $configuration;
-
-    public function __construct(array $configuration)
+    public function __construct(protected array $configuration)
     {
-        $this->configuration = $configuration;
     }
 
     /**
@@ -45,6 +42,7 @@ class SimpleRestApiEnhancer extends AbstractEnhancer implements RoutingEnhancerI
         $variant = clone $collection->get('default');
         $variant->setPath($basePath . '{params?}');
         $variant->setRequirement('params', '.*');
+
         $collection->add('enhancer_' . $basePath . spl_object_hash($variant), $variant);
     }
 

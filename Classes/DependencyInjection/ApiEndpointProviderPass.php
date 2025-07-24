@@ -8,7 +8,7 @@ use Queo\SimpleRestApi\Provider\ApiEndpointProvider;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-final class ApiEndpointProviderPass implements CompilerPassInterface
+final readonly class ApiEndpointProviderPass implements CompilerPassInterface
 {
     public function __construct(private string $tagName)
     {

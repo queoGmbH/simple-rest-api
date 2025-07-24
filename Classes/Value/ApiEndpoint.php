@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Value;
 
-final class ApiEndpoint
+final readonly class ApiEndpoint
 {
+    /**
+     * @param array<string> $parameterList
+     */
     public function __construct(
-        public readonly string $className,
-        public readonly string $method,
-        public readonly string $path,
-        public readonly string $httpMethod,
-        public readonly array $parameterList
-    )
-    {
+        public string $className,
+        public string $method,
+        public string $path,
+        public string $httpMethod,
+        public array $parameterList
+    ) {
     }
 
     public function parameterCount(): int

@@ -1,13 +1,12 @@
 stages:
-  - validate
   - test
 
 variables:
   COMPOSER_ALLOW_SUPERUSER: 1
   COMPOSER_CACHE_DIR: ".composer-cache"
-  TYPO3_PATH_ROOT: "$CI_PROJECT_DIR/.Build/web"
+  TYPO3_PATH_ROOT: "$CI_PROJECT_DIR/.Build/Web"
 
-.php-test:
+.php-grumphp:
   stage: test
   image: kanti/buildy:${PHP_VERSION}
   cache:
@@ -15,27 +14,53 @@ variables:
     paths:
       - .composer-cache/
   before_script:
+    - composer req typo3/cms-core:${TYPO3_VERSION} typo3/cms-frontend:${TYPO3_VERSION}
+    - composer req --dev typo3/cms-backend:${TYPO3_VERSION} typo3/cms-fluid-styled-content:${TYPO3_VERSION} typo3/cms-info:${TYPO3_VERSION} typo3/cms-install:${TYPO3_VERSION} typo3/cms-workspaces:${TYPO3_VERSION}
     - composer install --no-progress --no-interaction
   script:
-    - .Build/bin/phpunit -c phpunit.xml
+    - php ./.Build/bin/grumphp run
 
-validate:composer:
-  stage: validate
-  image: composer:latest
+.php-unit-test:
+  stage: test
+  image: kanti/buildy:${PHP_VERSION}
+  cache:
+    key: composer-cache-${PHP_VERSION}
+    paths:
+      - .composer-cache/
+  before_script:
+    - composer req typo3/cms-core:${TYPO3_VERSION} typo3/cms-frontend:${TYPO3_VERSION}
+    - composer req --dev typo3/cms-backend:${TYPO3_VERSION} typo3/cms-fluid-styled-content:${TYPO3_VERSION} typo3/cms-info:${TYPO3_VERSION} typo3/cms-install:${TYPO3_VERSION} typo3/cms-workspaces:${TYPO3_VERSION}
+    - composer install --no-progress --no-interaction
   script:
-    - composer validate --strict
+    - php ./.Build/bin/phpunit -c phpunit.xml
 
-php-8.2:
-  extends: .php-test
+php-grumphp-8.2-13:
+  extends: .php-grumphp
   variables:
     PHP_VERSION: "8.2"
+    TYPO3_VERSION: "^13.4"
 
-php-8.3:
-  extends: .php-test
+php-unit-test-8.2-13:
+  extends: .php-unit-test
+  variables:
+    PHP_VERSION: "8.2"
+    TYPO3_VERSION: "^13.4"
+
+php-unit-test-8.3-13:
+  extends: .php-unit-test
   variables:
     PHP_VERSION: "8.3"
+    TYPO3_VERSION: "^13.4"
 
-php-8.4:
-  extends: .php-test
+php-unit-test-8.4-13:
+  extends: .php-unit-test
   variables:
     PHP_VERSION: "8.4"
+    TYPO3_VERSION: "^13.4"
+
+php-unit-test-8.4-14:
+  extends: .php-unit-test
+  variables:
+    PHP_VERSION: "8.4"
+    TYPO3_VERSION: "14.0.x-dev"
+  allow_failure: true

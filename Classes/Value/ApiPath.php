@@ -6,7 +6,7 @@ namespace Queo\SimpleRestApi\Value;
 
 use Psr\Http\Message\UriInterface;
 
-final class ApiPath
+final readonly class ApiPath
 {
     private string $compareBasePath;
 
@@ -25,12 +25,15 @@ final class ApiPath
         $endpointPath = ltrim($this->requestUri->getPath(), $this->siteBase->getPath());
 
         if (!str_starts_with($endpointPath, '/')) {
-            $endpointPath = '/' . $endpointPath;
+            return '/' . $endpointPath;
         }
 
         return $endpointPath;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getParameterValuesFromPath(int $parameterCount): array
     {
         $endpointPathArray = explode('/', trim($this->getEndpointPath(), '/'));

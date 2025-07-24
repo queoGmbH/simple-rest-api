@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Middleware;
 
+use ReflectionMethod;
+use ReflectionException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -26,7 +28,7 @@ class ApiResolverMiddleware implements MiddlewareInterface
     }
 
     /**
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
@@ -53,7 +55,7 @@ class ApiResolverMiddleware implements MiddlewareInterface
             // @todo: Move this somewhere else
             if ($endpoint->parameterCount() > 0) {
                 $parameters = $apiPath->getParameterValuesFromPath($endpoint->parameterCount());
-                $reflectionMethod = new \ReflectionMethod($endpoint->className, $methodName);
+                $reflectionMethod = new ReflectionMethod($endpoint->className, $methodName);
                 $reflectionParams = $reflectionMethod->getParameters();
 
                 foreach ($reflectionParams as $key => $reflectionParam) {
@@ -77,7 +79,7 @@ class ApiResolverMiddleware implements MiddlewareInterface
                 return $result;
             }
 
-            throw new RuntimeException('Your controller ' . $endpoint->className . ' method ' . $endpoint->method . ' has to return a ResponseInterface!');
+            throw new RuntimeException('Your controller ' . $endpoint->className . ' method ' . $endpoint->method . ' has to return a ResponseInterface!', 4976710617);
         }
 
         // If no endpoint was found, forward request
