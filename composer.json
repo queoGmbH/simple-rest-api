@@ -35,9 +35,6 @@
         "typo3/cms-workspaces": "^13.4",
         "typo3/testing-framework": "^9.1"
     },
-    "replace": {
-        "queo/simple-rest-api": "self.version"
-    },
     "autoload": {
         "psr-4": {
             "Queo\\SimpleRestApi\\": "Classes/"
