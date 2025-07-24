@@ -41,7 +41,7 @@ final class RectorSettings
             if (str_starts_with((string)$arg, '--level=')) {
                 $cliLevel = (int)(substr((string)$arg, 8));
                 if ($cliLevel < 0) {
-                    throw new InvalidArgumentException('Level must be bigger than 0');
+                    throw new InvalidArgumentException('Level must be bigger than 0', 8347603616);
                 }
 
                 //filter out argument so rector does not complain
