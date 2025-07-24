@@ -7,7 +7,7 @@ variables:
   COMPOSER_CACHE_DIR: ".composer-cache"
   TYPO3_PATH_ROOT: "$CI_PROJECT_DIR/.Build/Web"
 
-.php-test:
+.php-grumphp:
   stage: test
   image: kanti/buildy:${PHP_VERSION}
   cache:
@@ -17,9 +17,18 @@ variables:
   before_script:
     - composer install --no-progress --no-interaction
   script:
-    - ls -la
-    - ls -la .Build/
-    - ls -la .Build/bin/
+    - php ./.Build/bin/grumphp run
+
+.php-unit-test:
+  stage: test
+  image: kanti/buildy:${PHP_VERSION}
+  cache:
+    key: composer-cache-${PHP_VERSION}
+    paths:
+      - .composer-cache/
+  before_script:
+    - composer install --no-progress --no-interaction
+  script:
     - php ./.Build/bin/phpunit -c phpunit.xml
 
 validate:composer:
@@ -28,17 +37,32 @@ validate:composer:
   script:
     - composer validate --strict
 
-php-8.2:
-  extends: .php-test
+php-grumphp-8.2:
+  extends: .php-grumphp
   variables:
     PHP_VERSION: "8.2"
 
-php-8.3:
-  extends: .php-test
+php-grumphp-8.3:
+  extends: .php-grumphp
   variables:
     PHP_VERSION: "8.3"
 
-php-8.4:
-  extends: .php-test
+php-grumphp-8.4:
+  extends: .php-grumphp
+  variables:
+    PHP_VERSION: "8.4"
+
+php-unit-test-8.2:
+  extends: .php-unit-test
+  variables:
+    PHP_VERSION: "8.2"
+
+php-unit-test-8.3:
+  extends: .php-unit-test
+  variables:
+    PHP_VERSION: "8.3"
+
+php-unit-test-8.4:
+  extends: .php-unit-test
   variables:
     PHP_VERSION: "8.4"
