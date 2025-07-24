@@ -3,4 +3,5 @@ composer.lock
 .ddev
 .idea
 .phpunit.cache
+.phpunit-integration.cache
 var
