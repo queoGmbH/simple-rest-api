@@ -15,6 +15,8 @@ variables:
     paths:
       - .composer-cache/
   before_script:
+    - composer req typo3/cms-core:${TYPO3_VERSION} typo3/cms-frontend:${TYPO3_VERSION}
+    - composer req --dev typo3/cms-backend:${TYPO3_VERSION} typo3/cms-fluid-styled-content:${TYPO3_VERSION} typo3/cms-info:${TYPO3_VERSION} typo3/cms-install:${TYPO3_VERSION} typo3/cms-workspaces:${TYPO3_VERSION}
     - composer install --no-progress --no-interaction
   script:
     - php ./.Build/bin/grumphp run
@@ -37,32 +39,26 @@ validate:composer:
   script:
     - composer validate --strict
 
-php-grumphp-8.2:
+php-grumphp-8.2-13:
   extends: .php-grumphp
   variables:
     PHP_VERSION: "8.2"
+    TYPO3_VERSION: "^13.4"
 
-php-grumphp-8.3:
-  extends: .php-grumphp
-  variables:
-    PHP_VERSION: "8.3"
-
-php-grumphp-8.4:
-  extends: .php-grumphp
-  variables:
-    PHP_VERSION: "8.4"
-
-php-unit-test-8.2:
+php-unit-test-8.2-13:
   extends: .php-unit-test
   variables:
     PHP_VERSION: "8.2"
+    TYPO3_VERSION: "^13.4"
 
-php-unit-test-8.3:
+php-unit-test-8.3-13:
   extends: .php-unit-test
   variables:
     PHP_VERSION: "8.3"
+    TYPO3_VERSION: "^13.4"
 
-php-unit-test-8.4:
+php-unit-test-8.4-13:
   extends: .php-unit-test
   variables:
     PHP_VERSION: "8.4"
+    TYPO3_VERSION: "^13.4"
