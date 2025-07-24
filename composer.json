@@ -36,7 +36,7 @@
         "typo3/testing-framework": "^9.1"
     },
     "replace": {
-        "typo3-ter/container": "self.version"
+        "queo/simple-rest-api": "self.version"
     },
     "autoload": {
         "psr-4": {
