@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Middleware;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Queo\SimpleRestApi\Event\AfterParameterMappingEvent;
+use Queo\SimpleRestApi\Event\BeforeParameterMappingEvent;
 use Queo\SimpleRestApi\Http\ApiRequest;
 use ReflectionException;
 use Psr\Http\Message\ResponseInterface;
@@ -20,7 +23,8 @@ class ApiResolverMiddleware implements MiddlewareInterface
 {
     public function __construct(
         private readonly ApiEndpointProvider $endpointProvider,
-        private readonly ExtensionConfiguration $extensionConfiguration
+        private readonly ExtensionConfiguration $extensionConfiguration,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
@@ -44,9 +48,15 @@ class ApiResolverMiddleware implements MiddlewareInterface
             /** @var object $className */
             $className = GeneralUtility::makeInstance($endpoint->className);
             $methodName = $endpoint->method;
+            $pathParameters = $apiRequest->getParameters($endpoint);
 
-            // @todo: Add event before an after parameter mapping to give other developers the possibility to adjust parameters
-            $methodParameters = $apiRequest->getParameters($endpoint)->buildMethodParameters($className::class, $methodName);
+            $event = $this->eventDispatcher->dispatch(new BeforeParameterMappingEvent($pathParameters, $endpoint, $apiRequest));
+            $pathParameters = $event->getPathParameters();
+
+            $methodParameters = $pathParameters->buildMethodParameters($className::class, $methodName);
+
+            $event = $this->eventDispatcher->dispatch(new AfterParameterMappingEvent($methodParameters, $endpoint, $apiRequest));
+            $methodParameters = $event->getMethodParameters();
 
             // Call method with parameters
             $result = $className->$methodName(...$methodParameters);

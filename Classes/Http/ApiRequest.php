@@ -77,4 +77,9 @@ final readonly class ApiRequest implements ApiRequestInterface
 
         return new Parameters($parameterList, $parameterPathPartArray, $this->request);
     }
+
+    public function getRequest(): ServerRequestInterface
+    {
+        return $this->request;
+    }
 }
