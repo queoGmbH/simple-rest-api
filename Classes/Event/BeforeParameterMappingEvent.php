@@ -14,8 +14,7 @@ final class BeforeParameterMappingEvent
         private Parameters $pathParameters,
         private readonly ApiEndpoint $apiEndpoint,
         private readonly ApiRequest $apiRequest
-    )
-    {
+    ) {
     }
 
     public function getPathParameters(): Parameters

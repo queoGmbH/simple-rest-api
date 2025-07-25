@@ -44,17 +44,18 @@ class ApiResolverMiddleware implements MiddlewareInterface
         $endpoint = $this->endpointProvider->getEndpoint($apiRequest);
 
         if ($endpoint instanceof ApiEndpoint) {
-            // Create controller instance
             /** @var object $className */
             $className = GeneralUtility::makeInstance($endpoint->className);
             $methodName = $endpoint->method;
             $pathParameters = $apiRequest->getParameters($endpoint);
 
+            /** @var BeforeParameterMappingEvent $event */
             $event = $this->eventDispatcher->dispatch(new BeforeParameterMappingEvent($pathParameters, $endpoint, $apiRequest));
             $pathParameters = $event->getPathParameters();
 
             $methodParameters = $pathParameters->buildMethodParameters($className::class, $methodName);
 
+            /** @var AfterParameterMappingEvent $event */
             $event = $this->eventDispatcher->dispatch(new AfterParameterMappingEvent($methodParameters, $endpoint, $apiRequest));
             $methodParameters = $event->getMethodParameters();
 

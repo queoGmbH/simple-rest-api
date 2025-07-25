@@ -9,14 +9,19 @@ use Queo\SimpleRestApi\Value\ApiEndpoint;
 
 final class AfterParameterMappingEvent
 {
+    /**
+     * @param mixed[] $methodParameters
+     */
     public function __construct(
         private array $methodParameters,
         private readonly ApiEndpoint $endpoint,
         private readonly ApiRequest $apiRequest
-    )
-    {
+    ) {
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getMethodParameters(): array
     {
         return $this->methodParameters;
@@ -32,6 +37,9 @@ final class AfterParameterMappingEvent
         return $this->apiRequest;
     }
 
+    /**
+     * @param mixed[] $methodParameters
+     */
     public function overrideMethodParameters(array $methodParameters): void
     {
         $this->methodParameters = $methodParameters;
