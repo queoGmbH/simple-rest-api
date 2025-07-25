@@ -36,6 +36,7 @@ variables:
     - composer install --no-progress --no-interaction
   script:
     - php ./.Build/bin/phpunit -c phpunit.xml
+    - php ./.Build/bin/phpunit -c phpunit-integration.xml
 
 php-grumphp-8.2-13:
   extends: .php-grumphp
