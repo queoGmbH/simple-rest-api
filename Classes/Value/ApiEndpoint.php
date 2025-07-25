@@ -22,4 +22,19 @@ final readonly class ApiEndpoint
     {
         return count($this->parameterList);
     }
+
+    public function getPathWithoutParameters(): string
+    {
+        $pathParts = explode('/', trim($this->path, '/'));
+
+        $identifierPathParts = [];
+
+        foreach ($pathParts as $pathPart) {
+            if (!preg_match('/{([0-9a-zA-Z]+)}/', $pathPart)) {
+                $identifierPathParts[] = $pathPart;
+            }
+        }
+
+        return '/' . implode('/', $identifierPathParts);
+    }
 }

@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Configuration;
 
-final class ExtensionConfiguration
+final class ExtensionConfiguration implements ExtensionConfigurationInterface
 {
     public function getApiBasePath(): string
     {
+        // @todo: Fetch configuration from site set
         return '/api/';
     }
 }

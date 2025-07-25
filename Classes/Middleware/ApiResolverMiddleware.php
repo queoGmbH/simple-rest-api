@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Middleware;
 
-use ReflectionMethod;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Queo\SimpleRestApi\Event\AfterParameterMappingEvent;
+use Queo\SimpleRestApi\Event\BeforeParameterMappingEvent;
+use Queo\SimpleRestApi\Http\ApiRequest;
 use ReflectionException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -12,18 +15,16 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Queo\SimpleRestApi\Configuration\ExtensionConfiguration;
 use Queo\SimpleRestApi\Provider\ApiEndpointProvider;
-use Queo\SimpleRestApi\Registry\EndpointRegistry;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
-use Queo\SimpleRestApi\Value\ApiPath;
 use RuntimeException;
-use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class ApiResolverMiddleware implements MiddlewareInterface
 {
     public function __construct(
         private readonly ApiEndpointProvider $endpointProvider,
-        private readonly ExtensionConfiguration $extensionConfiguration
+        private readonly ExtensionConfiguration $extensionConfiguration,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
@@ -32,54 +33,46 @@ class ApiResolverMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        /** @var Site $site */
-        $site = $request->getAttribute('site');
-
-        $apiPath = new ApiPath($site->getBase(), $request->getUri(), $this->extensionConfiguration->getApiBasePath());
+        /** @var ApiRequest $apiRequest */
+        $apiRequest = GeneralUtility::makeInstance(ApiRequest::class, $request, $this->extensionConfiguration);
 
         // Check whether it is an API path (optional, for path prefix)
-        if (!$apiPath->isApiPath()) {
+        if (!$apiRequest->isApiRequest()) {
             return $handler->handle($request);
         }
 
-        $endpoint = $this->endpointProvider->getEndpoint($request->getMethod(), $apiPath->getEndpointPath());
+        $endpoint = $this->endpointProvider->getEndpoint($apiRequest);
 
         if ($endpoint instanceof ApiEndpoint) {
-            // Create controller instance
-            /** @var object $controller */
-            $controller = GeneralUtility::makeInstance($endpoint->className);
+            /** @var object $className */
+            $className = GeneralUtility::makeInstance($endpoint->className);
             $methodName = $endpoint->method;
+            $pathParameters = $apiRequest->getParameters($endpoint);
 
-            $parameters = [];
+            /** @var BeforeParameterMappingEvent $event */
+            $event = $this->eventDispatcher->dispatch(new BeforeParameterMappingEvent($pathParameters, $endpoint, $apiRequest));
+            $pathParameters = $event->getPathParameters();
 
-            // @todo: Move this somewhere else
-            if ($endpoint->parameterCount() > 0) {
-                $parameters = $apiPath->getParameterValuesFromPath($endpoint->parameterCount());
-                $reflectionMethod = new ReflectionMethod($endpoint->className, $methodName);
-                $reflectionParams = $reflectionMethod->getParameters();
+            $methodParameters = $pathParameters->buildMethodParameters($className::class, $methodName);
 
-                foreach ($reflectionParams as $key => $reflectionParam) {
-                    $type = $reflectionParam->getType()->getName();
-
-                    $parameters[$key] = match ($type) {
-                        'int' => (int)$parameters[$key],
-                        'string' => (string)$parameters[$key],
-                        'float' => (float)$parameters[$key],
-                        'bool' => (bool)$parameters[$key],
-                        default => $parameters[$key],
-                    };
-                }
-            }
+            /** @var AfterParameterMappingEvent $event */
+            $event = $this->eventDispatcher->dispatch(new AfterParameterMappingEvent($methodParameters, $endpoint, $apiRequest));
+            $methodParameters = $event->getMethodParameters();
 
             // Call method with parameters
-            $result = $controller->$methodName(...$parameters);
+            $result = $className->$methodName(...$methodParameters);
 
             // If the result is already a response, return it.
             if ($result instanceof ResponseInterface) {
                 return $result;
             }
 
-            throw new RuntimeException('Your controller ' . $endpoint->className . ' method ' . $endpoint->method . ' has to return a ResponseInterface!', 4976710617);
+            throw new RuntimeException(
+                'Your controller ' . $endpoint->className
+                . ' method ' . $endpoint->method
+                . ' has to return a ResponseInterface!',
+                4976710617
+            );
         }
 
         // If no endpoint was found, forward request

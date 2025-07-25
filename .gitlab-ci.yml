@@ -61,12 +61,12 @@ php-unit-test-8.4-13:
     PHP_VERSION: "8.4"
     TYPO3_VERSION: "^13.4"
 
-php-unit-test-8.4-14:
-  extends: .php-unit-test
-  variables:
-    PHP_VERSION: "8.4"
-    TYPO3_VERSION: "14.0.x-dev"
-  allow_failure: true
+#php-unit-test-8.4-14:
+#  extends: .php-unit-test
+#  variables:
+#    PHP_VERSION: "8.4"
+#    TYPO3_VERSION: "14.0.x-dev"
+#  allow_failure: true
 
 release_composer_package:
   stage: release

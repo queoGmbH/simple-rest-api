@@ -21,7 +21,7 @@ final readonly class TestController
         $this->request = $simpleRestApi->getRequest();
     }
 
-    #[AsApiEndpoint(method: 'GET', path: '/api/v1/my-get-endpoint')]
+    #[AsApiEndpoint(method: 'GET', path: '/v1/my-get-endpoint')]
     public function myEndpoint(): JsonResponse
     {
         $languageId = $this->context->getPropertyFromAspect('language', 'id');
@@ -33,7 +33,7 @@ final readonly class TestController
         ]);
     }
 
-    #[AsApiEndpoint(method: 'POST', path: '/api/v1/my-post-endpoint')]
+    #[AsApiEndpoint(method: 'POST', path: '/v1/my-post-endpoint')]
     public function someOtherEndpoint(): JsonResponse
     {
         $languageId = $this->context->getPropertyFromAspect('language', 'id');
@@ -45,7 +45,7 @@ final readonly class TestController
         ]);
     }
 
-    #[AsApiEndpoint(method: 'GET', path: '/api/v1/my-param-endpoint/{param1}/{param2}')]
+    #[AsApiEndpoint(method: 'GET', path: '/v1/my-param-endpoint/{param1}/{param2}')]
     public function someParamEndpoint(int $param1, string $param2): JsonResponse
     {
         $languageId = $this->context->getPropertyFromAspect('language', 'id');
