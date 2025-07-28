@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Queo\SimpleRestApi\Middleware;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Queo\SimpleRestApi\Collection\Parameters;
 use Queo\SimpleRestApi\Event\AfterParameterMappingEvent;
 use Queo\SimpleRestApi\Event\BeforeParameterMappingEvent;
 use Queo\SimpleRestApi\Http\ApiRequest;
@@ -47,22 +48,13 @@ class ApiResolverMiddleware implements MiddlewareInterface
             /** @var object $className */
             $className = GeneralUtility::makeInstance($endpoint->className);
             $methodName = $endpoint->method;
-            $pathParameters = $apiRequest->getParameters($endpoint);
-
-            /** @var BeforeParameterMappingEvent $event */
-            $event = $this->eventDispatcher->dispatch(new BeforeParameterMappingEvent($pathParameters, $endpoint, $apiRequest));
-            $pathParameters = $event->getPathParameters();
-
-            $methodParameters = $pathParameters->buildMethodParameters($className::class, $methodName);
+            $parameters = Parameters::buildFromRequestAndEndpoint($apiRequest, $endpoint, $request);
 
             /** @var AfterParameterMappingEvent $event */
-            $event = $this->eventDispatcher->dispatch(new AfterParameterMappingEvent($methodParameters, $endpoint, $apiRequest));
-            $methodParameters = $event->getMethodParameters();
+            $event = $this->eventDispatcher->dispatch(new AfterParameterMappingEvent($parameters, $endpoint, $apiRequest));
 
-            // Call method with parameters
-            $result = $className->$methodName(...$methodParameters);
+            $result = $className->$methodName(...$event->getParameters()->getMethodParameterArray());
 
-            // If the result is already a response, return it.
             if ($result instanceof ResponseInterface) {
                 return $result;
             }

@@ -4,27 +4,22 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Event;
 
+use Queo\SimpleRestApi\Collection\Parameters;
 use Queo\SimpleRestApi\Http\ApiRequest;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
 
 final class AfterParameterMappingEvent
 {
-    /**
-     * @param mixed[] $methodParameters
-     */
     public function __construct(
-        private array $methodParameters,
+        private Parameters $parameters,
         private readonly ApiEndpoint $endpoint,
         private readonly ApiRequest $apiRequest
     ) {
     }
 
-    /**
-     * @return mixed[]
-     */
-    public function getMethodParameters(): array
+    public function getParameters(): Parameters
     {
-        return $this->methodParameters;
+        return $this->parameters;
     }
 
     public function getEndpoint(): ApiEndpoint
@@ -37,11 +32,8 @@ final class AfterParameterMappingEvent
         return $this->apiRequest;
     }
 
-    /**
-     * @param mixed[] $methodParameters
-     */
-    public function overrideMethodParameters(array $methodParameters): void
+    public function overrideMethodParameters(Parameters $parameters): void
     {
-        $this->methodParameters = $methodParameters;
+        $this->parameters = $parameters;
     }
 }

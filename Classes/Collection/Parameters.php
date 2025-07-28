@@ -5,62 +5,62 @@ declare(strict_types=1);
 namespace Queo\SimpleRestApi\Collection;
 
 use Psr\Http\Message\ServerRequestInterface;
-use ReflectionException;
+use Queo\SimpleRestApi\Http\ApiRequestInterface;
+use Queo\SimpleRestApi\Value\ApiEndpoint;
+use Queo\SimpleRestApi\Value\Parameter;
+use Queo\SimpleRestApi\Value\ServerRequestInterfaceInjectionException;
 use ReflectionMethod;
 use ReflectionNamedType;
 use RuntimeException;
 
-final readonly class Parameters
+final class Parameters
 {
     /**
-     * @param array<string> $endpointParameters
-     * @param array<string> $parameterValues
+     * @var Parameter[]
      */
-    public function __construct(
-        private array $endpointParameters,
-        private array $parameterValues,
-        private ServerRequestInterface $request
-    ) {
-    }
+    private array $parameters = [];
 
-    /**
-     * @return array<mixed>
-     * @throws ReflectionException
-     */
-    public function buildMethodParameters(string $className, string $methodName): array
+    public static function buildFromRequestAndEndpoint(ApiRequestInterface $apiRequest, ApiEndpoint $apiEndpoint, ServerRequestInterface $request): Parameters
     {
-        $reflectionMethod = new ReflectionMethod($className, $methodName);
+        $self = new Parameters();
+
+        $reflectionMethod = new ReflectionMethod($apiEndpoint->className, $apiEndpoint->method);
         $reflectionParams = $reflectionMethod->getParameters();
-        $methodParameters = [];
+
+        $pathParameters = trim(str_replace($apiEndpoint->getPathWithoutParameters(), '', $apiRequest->getEndpointPath()), '/');
+        $pathParametersArray = explode('/', $pathParameters);
 
         foreach ($reflectionParams as $key => $reflectionParam) {
-            $type = null;
-            $reflectionType = $reflectionParam->getType();
 
-            if ($reflectionType instanceof ReflectionNamedType) {
-                $type = $reflectionType->getName();
+            try {
+                $param = Parameter::createFromReflectionParameter($reflectionParam, $pathParametersArray[$key]);
+            } catch (ServerRequestInterfaceInjectionException) {
+                $param = Parameter::createFromReflectionParameter($reflectionParam, $request);
             }
 
-            $paramName = $reflectionParam->getName();
-
-            if ($type === ServerRequestInterface::class) {
-                $methodParameters[] = $this->request;
-                continue;
+            if ($param->getName() !== $apiEndpoint->parameterList[$key]) {
+                throw new RuntimeException('Parameter name ' . $param->getName() . ' does not match endpoint param ' . $apiEndpoint->parameterList[$key], 7288828913);
             }
 
-            if ($paramName !== $this->endpointParameters[$key]) {
-                throw new RuntimeException('Parameter name ' . $paramName . ' does not match endpoint param ' . $this->endpointParameters[$key], 7288828913);
-            }
-
-            $methodParameters[] = match ($type) {
-                'int' => (int)$this->parameterValues[$key],
-                'string' => (string)$this->parameterValues[$key],
-                'float' => (float)$this->parameterValues[$key],
-                'bool' => (bool)$this->parameterValues[$key],
-                default => $this->parameterValues[$key],
-            };
+            $self->parameters[$param->getName()] = $param;
         }
 
-        return $methodParameters;
+        return $self;
+    }
+
+    public function getMethodParameterArray(): array
+    {
+        return $this->parameters;
+    }
+
+    public function withNewParameterValue(Parameter $parameterToReplace): Parameters
+    {
+        if (!isset($this->parameters[$parameterToReplace->getName()])) {
+            throw new RuntimeException('Parameter ' . $parameterToReplace->getName() . ' does not exist!', 6269803019);
+        }
+
+        $self = clone $this;
+        $self->parameters[$parameterToReplace->getName()] = $parameterToReplace;
+        return $self;
     }
 }

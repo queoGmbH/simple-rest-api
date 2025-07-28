@@ -72,10 +72,10 @@ final readonly class ApiRequest implements ApiRequestInterface
     {
         $parameterList = $apiEndpoint->parameterList;
         $endpointPath = $this->getEndpointPath();
-        $parameterPathPart = trim(str_replace($apiEndpoint->getPathWithoutParameters(), '', $endpointPath), '/');
-        $parameterPathPartArray = explode('/', $parameterPathPart);
+        $pathParameters = trim(str_replace($apiEndpoint->getPathWithoutParameters(), '', $endpointPath), '/');
+        $pathParametersArray = explode('/', $pathParameters);
 
-        return new Parameters($parameterList, $parameterPathPartArray, $this->request);
+        return new Parameters($parameterList, $pathParametersArray, $this->request);
     }
 
     public function getRequest(): ServerRequestInterface
