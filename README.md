@@ -150,3 +150,18 @@ final class MyApiController
 ```
 
 Test your api endpoint with https://example.com/api/v1/my-api-endpoint/123/my-string.
+
+### Events
+
+#### BeforeParameterMappingEvent / AfterParameterMappingEvent
+
+These events can be used to manipulate the parameters from url path on its way to your api endpoint method.
+
+**TBD**
+
+## Open features/topics
+
+* Allow to configure the api base path in site configuration.
+* Test and make work all HTTP methods.
+* Make parameter events working, add tests for them and document their functionality.
+* Documentation for TYPO3 extension repository.
