@@ -25,7 +25,19 @@ Once installed, you can configure methods via `AsApiEndpoint` attribute as API e
 
 ### Quick start guide
 
-#### 1. Create a class with a method for your endpoint.
+#### 1. Configure route enhancer
+
+To get the api working the route enhancer needs to be configured for your project. Either you import the file
+`Configuration/Yaml/RouteEnhancer.yaml` from this extension in your site configuration or put the following code
+directly into it:
+
+```yaml
+routeEnhancers:
+  SimpleRestApiEnhancer:
+    type: SimpleRestApiEnhancer
+```
+
+#### 2. Create a class with a method for your endpoint.
 
 ```php
 <?php
@@ -46,7 +58,7 @@ final class MyApiController
 }
 ```
 
-#### 2. Select an http method (GET, POST, ...) and think of an api endpoint path (configure it WITHOUT api base path '/api/'!)
+#### 3. Select an http method (GET, POST, ...) and think of an api endpoint path (configure it WITHOUT api base path '/api/'!)
 
 ```php
 <?php
@@ -71,7 +83,7 @@ final class MyApiController
 
 After cache clearing your api endpoint should be reachable via https://example.com/api/v1/my-api-endpoint
 
-#### 3. Add some simple scalar parameters to your path. Objects (like Extbase MVC domain object) are not respected!
+#### 4. Add some simple scalar parameters to your path. Objects (like Extbase MVC domain object) are not respected!
 
 ```php
 <?php
@@ -104,7 +116,7 @@ final class MyApiController
 
 Test your api endpoint with https://example.com/api/v1/my-api-endpoint/123/my-string.
 
-#### 4. You need the middleware request object in your endpoint? Just add it as method parameter
+#### 5. You need the middleware request object in your endpoint? Just add it as method parameter
 
 ```php
 <?php
