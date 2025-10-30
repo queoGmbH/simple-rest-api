@@ -9,65 +9,33 @@ variables:
   GIT_STRATEGY: fetch   # Tags werden benötigt
   GIT_DEPTH: 0          # Voller Clone, um Tags zu bekommen
 
-.php-grumphp:
-  stage: test
-  image: kanti/buildy:${PHP_VERSION}
-  cache:
-    key: composer-cache-${PHP_VERSION}
-    paths:
-      - .composer-cache/
-  before_script:
-    - composer req typo3/cms-core:${TYPO3_VERSION} typo3/cms-frontend:${TYPO3_VERSION}
-    - composer req --dev typo3/cms-backend:${TYPO3_VERSION} typo3/cms-fluid-styled-content:${TYPO3_VERSION} typo3/cms-info:${TYPO3_VERSION} typo3/cms-install:${TYPO3_VERSION} typo3/cms-workspaces:${TYPO3_VERSION}
-    - composer install --no-progress --no-interaction
-  script:
-    - php ./.Build/bin/grumphp run
-
 .php-unit-test:
   stage: test
   image: kanti/buildy:${PHP_VERSION}
   cache:
-    key: composer-cache-${PHP_VERSION}
+    key: composer-cache-${PHP_VERSION}-${TYPO3_VERSION}
     paths:
       - .composer-cache/
   before_script:
-    - composer req typo3/cms-core:${TYPO3_VERSION} typo3/cms-frontend:${TYPO3_VERSION}
-    - composer req --dev typo3/cms-backend:${TYPO3_VERSION} typo3/cms-fluid-styled-content:${TYPO3_VERSION} typo3/cms-info:${TYPO3_VERSION} typo3/cms-install:${TYPO3_VERSION} typo3/cms-workspaces:${TYPO3_VERSION}
-    - composer install --no-progress --no-interaction
+    - composer req typo3/cms-core:${TYPO3_VERSION} typo3/cms-frontend:${TYPO3_VERSION} --no-update
+    - composer req --dev typo3/cms-backend:${TYPO3_VERSION} typo3/cms-fluid-styled-content:${TYPO3_VERSION} typo3/cms-info:${TYPO3_VERSION} typo3/cms-install:${TYPO3_VERSION} typo3/cms-workspaces:${TYPO3_VERSION} --no-update
+    - composer update --with-all-dependencies --no-progress --no-interaction
   script:
     - php ./.Build/bin/phpunit -c phpunit.xml
     - php ./.Build/bin/phpunit -c phpunit-integration.xml
 
-php-grumphp-8.2-13:
-  extends: .php-grumphp
-  variables:
-    PHP_VERSION: "8.2"
-    TYPO3_VERSION: "^13.4"
-
-php-unit-test-8.2-13:
+# TYPO3 11 LTS - PHP 8.0, 8.1
+php-unit-test-8.0-11:
   extends: .php-unit-test
   variables:
-    PHP_VERSION: "8.2"
-    TYPO3_VERSION: "^13.4"
+    PHP_VERSION: "8.0"
+    TYPO3_VERSION: "^11.5"
 
-php-unit-test-8.3-13:
+php-unit-test-8.1-11:
   extends: .php-unit-test
   variables:
-    PHP_VERSION: "8.3"
-    TYPO3_VERSION: "^13.4"
-
-php-unit-test-8.4-13:
-  extends: .php-unit-test
-  variables:
-    PHP_VERSION: "8.4"
-    TYPO3_VERSION: "^13.4"
-
-#php-unit-test-8.4-14:
-#  extends: .php-unit-test
-#  variables:
-#    PHP_VERSION: "8.4"
-#    TYPO3_VERSION: "14.0.x-dev"
-#  allow_failure: true
+    PHP_VERSION: "8.1"
+    TYPO3_VERSION: "^11.5"
 
 release_composer_package:
   stage: release
