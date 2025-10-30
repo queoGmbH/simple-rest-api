@@ -59,6 +59,10 @@ final class ApiRequest implements ApiRequestInterface
 
         if (str_starts_with($incomePath, $basePath)) {
             $comparePath = substr($incomePath, strlen($basePath));
+            // Ensure comparePath has a leading slash for proper API base path matching
+            if (!str_starts_with($comparePath, '/')) {
+                $comparePath = '/' . $comparePath;
+            }
         }
 
         if (str_starts_with($comparePath, $apiBasePath)) {

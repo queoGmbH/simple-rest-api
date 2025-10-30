@@ -103,6 +103,25 @@ final class ApiRequestTest extends UnitTestCase
     /**
      * @test
      */
+    public function request_can_provide_api_endpoint_path_when_base_path_is_root(): void // phpcs:ignore
+    {
+        $currentRequest = $this->createMock(ServerRequestInterface::class);
+        $site = $this->createMock(SiteInterface::class);
+        $extensionConfiguration = $this->createMock(ExtensionConfigurationInterface::class);
+
+        $currentRequest->expects(self::once())->method('getAttribute')->with('site')->willReturn($site);
+        $currentRequest->expects(self::once())->method('getUri')->willReturn(new Uri('https://example.com/api/v1/my/example/endpoint'));
+        $site->expects(self::once())->method('getBase')->willReturn(new Uri('https://example.com/'));
+        $extensionConfiguration->expects(self::once())->method('getApiBasePath')->willReturn('/api/');
+
+        $apiRequest = new ApiRequest($currentRequest, $extensionConfiguration);
+
+        $this->assertSame('/v1/my/example/endpoint', $apiRequest->getEndpointPath());
+    }
+
+    /**
+     * @test
+     */
     public function request_can_provide_parameters_for_endpoint(): void // phpcs:ignore
     {
         $currentRequest = $this->createMock(ServerRequestInterface::class);
