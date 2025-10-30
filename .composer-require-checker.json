@@ -1,0 +1,19 @@
+{
+    "symbol-whitelist": [
+        "TYPO3\\CMS\\Backend\\Template\\ModuleTemplateFactory",
+        "InvalidArgumentException",
+        "ReflectionMethod",
+        "ReflectionNamedType",
+        "RuntimeException",
+        "spl_object_hash"
+    ],
+    "php-core-extensions": [
+        "core",
+        "standard",
+        "pcre",
+        "json",
+        "SPL",
+        "Reflection"
+    ],
+    "scan-files": []
+}

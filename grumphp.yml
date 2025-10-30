@@ -22,7 +22,7 @@ grumphp:
       verbose: false
     composer_require_checker:
       composer_file: 'composer.json'
-      config_file: ~
+      config_file: '.composer-require-checker.json'
       ignore_parse_errors: false
       triggered_by: [ 'composer.json', 'composer.lock', '*.php' ]
     git_blacklist:
