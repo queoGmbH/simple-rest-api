@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Tests\Unit\Collection;
 
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
 use Queo\SimpleRestApi\Collection\Parameters;
 use Queo\SimpleRestApi\Tests\Unit\Collection\Fixture\DummyController;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-#[CoversClass(Parameters::class)]
+/**
+ * @covers \Queo\SimpleRestApi\Collection\Parameters
+ */
 final class ParametersTest extends UnitTestCase
 {
-    #[Test]
+    /**
+     * @test
+     */
     public function parameters_generate_parameter_array_for_api_method_with_request_object(): void //phpcs:ignore
     {
         $currentRequest = $this->createMock(ServerRequestInterface::class);
@@ -44,7 +46,9 @@ final class ParametersTest extends UnitTestCase
         );
     }
 
-    #[Test]
+    /**
+     * @test
+     */
     public function parameters_generate_parameter_array_for_api_method_without_request_object(): void //phpcs:ignore
     {
         $currentRequest = $this->createMock(ServerRequestInterface::class);

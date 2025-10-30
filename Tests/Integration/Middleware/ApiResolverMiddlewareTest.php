@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Tests\Integration\Middleware;
 
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Test;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Queo\SimpleRestApi\Configuration\ExtensionConfiguration;
@@ -19,10 +17,14 @@ use TYPO3\CMS\Core\Site\Entity\SiteInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-#[CoversClass(ApiResolverMiddleware::class)]
+/**
+ * @covers \Queo\SimpleRestApi\Middleware\ApiResolverMiddleware
+ */
 final class ApiResolverMiddlewareTest extends UnitTestCase
 {
-    #[Test]
+    /**
+     * @test
+     */
     public function middleware_routs_api_request_to_endpoint(): void //phpcs:ignore
     {
         $apiEndpointProvider = GeneralUtility::makeInstance(ApiEndpointProvider::class);
@@ -58,7 +60,9 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
         $this->assertEquals((new JsonResponse(['success' => true]))->getBody()->getContents(), $response->getBody()->getContents());
     }
 
-    #[Test]
+    /**
+     * @test
+     */
     public function middleware_routes_api_request_with_path_parameters_to_endpoint(): void //phpcs:ignore
     {
         $apiEndpointProvider = GeneralUtility::makeInstance(ApiEndpointProvider::class);

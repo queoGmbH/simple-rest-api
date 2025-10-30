@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace Unit\Value;
 
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Test;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-#[CoversClass(ApiEndpoint::class)]
+/**
+ * @covers \Queo\SimpleRestApi\Value\ApiEndpoint
+ */
 final class ApiEndpointTest extends UnitTestCase
 {
-    #[Test]
+    /**
+     * @test
+     */
     public function provides_endpoint_path_without_parameters(): void // phpcs:ignore
     {
         $apiEndpoint = new ApiEndpoint('MyApiController', 'myApiMethod', '/v1/my-endpoint/{someArg}/{otherArg}', 'GET', ['someArg', 'otherArg']);

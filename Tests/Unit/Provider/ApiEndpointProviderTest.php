@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Tests\Unit\Provider;
 
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Test;
 use Queo\SimpleRestApi\Http\ApiRequestInterface;
 use Queo\SimpleRestApi\Provider\ApiEndpointProvider;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-#[CoversClass(ApiEndpointProvider::class)]
+/**
+ * @covers \Queo\SimpleRestApi\Provider\ApiEndpointProvider
+ */
 final class ApiEndpointProviderTest extends UnitTestCase
 {
-    #[Test]
+    /**
+     * @test
+     */
     public function finds_endpoint_from_api_request(): void // phpcs:ignore
     {
         $apiEndpointProvider = new ApiEndpointProvider();
@@ -38,7 +40,9 @@ final class ApiEndpointProviderTest extends UnitTestCase
         $this->assertEquals($expectedEndpoint, $actualEndpoint);
     }
 
-    #[Test]
+    /**
+     * @test
+     */
     public function finds_endpoint_with_parameters_from_api_request(): void // phpcs:ignore
     {
         $apiEndpointProvider = new ApiEndpointProvider();

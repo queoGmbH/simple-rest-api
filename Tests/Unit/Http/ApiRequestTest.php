@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Tests\Unit\Http;
 
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Queo\SimpleRestApi\Collection\Parameters;
@@ -16,13 +14,15 @@ use TYPO3\CMS\Core\Site\Entity\SiteInterface;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 use Queo\SimpleRestApi\Http\ApiRequest;
 
-#[CoversClass(ApiRequest::class)]
+/**
+ * @covers \Queo\SimpleRestApi\Http\ApiRequest
+ */
 final class ApiRequestTest extends UnitTestCase
 {
     /**
+     * @test
      * @throws Exception
      */
-    #[Test]
     public function request_detects_current_incoming_request_is_an_api_request(): void // phpcs:ignore
     {
         $currentRequest = $this->createMock(ServerRequestInterface::class);
@@ -40,9 +40,9 @@ final class ApiRequestTest extends UnitTestCase
     }
 
     /**
+     * @test
      * @throws Exception
      */
-    #[Test]
     public function request_detects_current_incoming_request_as_non_api_request(): void // phpcs:ignore
     {
         $currentRequest = $this->createMock(ServerRequestInterface::class);
@@ -60,9 +60,9 @@ final class ApiRequestTest extends UnitTestCase
     }
 
     /**
+     * @test
      * @throws Exception
      */
-    #[Test]
     public function request_know_http_method(): void // phpcs:ignore
     {
         $currentRequest = $this->createMock(ServerRequestInterface::class);
@@ -81,7 +81,9 @@ final class ApiRequestTest extends UnitTestCase
         $this->assertSame('GET', $apiRequest->getHttpMethod());
     }
 
-    #[Test]
+    /**
+     * @test
+     */
     public function request_can_provide_api_endpoint_path_for_comparison(): void // phpcs:ignore
     {
         $currentRequest = $this->createMock(ServerRequestInterface::class);
@@ -98,7 +100,9 @@ final class ApiRequestTest extends UnitTestCase
         $this->assertSame('/v1/my/example/endpoint', $apiRequest->getEndpointPath());
     }
 
-    #[Test]
+    /**
+     * @test
+     */
     public function request_can_provide_parameters_for_endpoint(): void // phpcs:ignore
     {
         $currentRequest = $this->createMock(ServerRequestInterface::class);
