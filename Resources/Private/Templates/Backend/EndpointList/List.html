@@ -1,0 +1,60 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:section name="Content">
+    <h1><f:translate key="LLL:EXT:simple_rest_api/Resources/Private/Language/locallang_mod.xlf:module.title" /></h1>
+
+    <f:if condition="{endpoints}">
+        <f:then>
+            <div class="table-fit">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th><f:translate key="LLL:EXT:simple_rest_api/Resources/Private/Language/locallang_mod.xlf:list.header.method" /></th>
+                            <th><f:translate key="LLL:EXT:simple_rest_api/Resources/Private/Language/locallang_mod.xlf:list.header.path" /></th>
+                            <th><f:translate key="LLL:EXT:simple_rest_api/Resources/Private/Language/locallang_mod.xlf:list.header.controller" /></th>
+                            <th><f:translate key="LLL:EXT:simple_rest_api/Resources/Private/Language/locallang_mod.xlf:list.header.action" /></th>
+                            <th><f:translate key="LLL:EXT:simple_rest_api/Resources/Private/Language/locallang_mod.xlf:list.header.parameters" /></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <f:for each="{endpoints}" as="endpoint">
+                            <tr>
+                                <td>
+                                    <span class="badge badge-{f:if(condition: '{endpoint.httpMethod} == \'GET\'', then: 'info', else: f:if(condition: '{endpoint.httpMethod} == \'POST\'', then: 'success', else: f:if(condition: '{endpoint.httpMethod} == \'PUT\'', then: 'warning', else: f:if(condition: '{endpoint.httpMethod} == \'DELETE\'', then: 'danger', else: 'secondary'))))}">
+                                        {endpoint.httpMethod}
+                                    </span>
+                                </td>
+                                <td><code>{endpoint.path}</code></td>
+                                <td><small>{endpoint.className}</small></td>
+                                <td><code>{endpoint.method}()</code></td>
+                                <td>
+                                    <f:if condition="{endpoint.parameterList}">
+                                        <f:then>
+                                            <f:for each="{endpoint.parameterList}" as="parameter">
+                                                <span class="badge badge-secondary">{parameter}</span>
+                                            </f:for>
+                                        </f:then>
+                                        <f:else>
+                                            <span class="text-muted">-</span>
+                                        </f:else>
+                                    </f:if>
+                                </td>
+                            </tr>
+                        </f:for>
+                    </tbody>
+                </table>
+            </div>
+        </f:then>
+        <f:else>
+            <div class="alert alert-info">
+                <f:translate key="LLL:EXT:simple_rest_api/Resources/Private/Language/locallang_mod.xlf:list.noEndpoints" />
+            </div>
+        </f:else>
+    </f:if>
+</f:section>
+
+</html>

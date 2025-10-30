@@ -58,6 +58,14 @@ final class ApiEndpointProvider
         return $endpoint;
     }
 
+    /**
+     * @return array<ApiEndpoint>
+     */
+    public function getAllEndpoints(): array
+    {
+        return array_values($this->endpoints);
+    }
+
     private function getIdentifier(string $httpMethod, string $path): string
     {
         return $httpMethod . '_' . $path;
