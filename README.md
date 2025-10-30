@@ -1,5 +1,7 @@
 # EXT: simple_rest_api - Simple REST API for TYPO3 provides simple endpoint configuration for api requests
 
+**Compatible with TYPO3 11.5 LTS and PHP 8.0/8.1**
+
 ## Features
 
 * Simple method configuration as api endpoint via `AsApiEndpoint` attribute.
@@ -157,6 +159,45 @@ Test your api endpoint with https://example.com/api/v1/my-api-endpoint/123/my-st
 
 These events can be used to manipulate the parameters from url path on its way to your api endpoint method.
 
+##### BeforeParameterMappingEvent
+
+Use this event to manipulate the parameters before the path values are mapped. If you want to map some extbase
+domain object
+
+```php
+<?php
+
+use TYPO3\CMS\Core\Attribute\AsEventListener;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Queo\SimpleRestApi\Event\BeforeParameterMappingEvent;
+use Queo\SimpleRestApi\Collection\Parameters;
+use Vendor\MyExtension\Domain\Repository\MyRepository;
+
+class DomainObjectEventListener
+{
+
+    #[AsEventListener(identifier: 'my-extension/modify-api-request-parameters')]
+    public function __invoke(BeforeParameterMappingEvent $event)
+    {
+        $parameters = $event->getPathParameters();
+        
+        $newPathParameterValues = [];
+
+        foreach ($parameters->endpointParameterNames as $key => $parameterName) {
+            if ($parameterName === 'myDomainObjectParam') {
+                $repository = GeneralUtility::makeInstance(MyRepository::class)
+                
+                $uid = (int)$parameters->pathParameterValues[$key];
+                $myDomainObject = $repository->findByUid($uid);
+                
+                $newParameters = $parameters->withNewParameterValue($key, $myDomainObject);
+                $event->overrideParameters($newParameters);
+                break;
+            }
+        }
+    }
+}
+```
 **TBD**
 
 ## Open features/topics

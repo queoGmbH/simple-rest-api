@@ -10,7 +10,7 @@ use Queo\SimpleRestApi\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Context\AspectInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-final readonly class SimpleRestApiAspect implements AspectInterface
+final class SimpleRestApiAspect implements AspectInterface
 {
     public const ASPECT_IDENTIFIER = 'simple_rest_api';
 

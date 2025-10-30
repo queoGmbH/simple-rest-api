@@ -14,8 +14,8 @@ final class AfterParameterMappingEvent
      */
     public function __construct(
         private array $methodParameters,
-        private readonly ApiEndpoint $endpoint,
-        private readonly ApiRequest $apiRequest
+        private ApiEndpoint $endpoint,
+        private ApiRequest $apiRequest
     ) {
     }
 

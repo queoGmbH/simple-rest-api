@@ -7,7 +7,7 @@ namespace Queo\SimpleRestApi\Attribute;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_METHOD)]
-final readonly class AsApiEndpoint
+final class AsApiEndpoint
 {
     public const TAG_NAME = 'api.endpoint';
 

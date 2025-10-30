@@ -12,7 +12,7 @@ use Queo\SimpleRestApi\Configuration\ExtensionConfigurationInterface;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
 
-final readonly class ApiRequest implements ApiRequestInterface
+final class ApiRequest implements ApiRequestInterface
 {
     private SiteInterface $site;
 

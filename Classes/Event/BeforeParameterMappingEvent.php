@@ -12,8 +12,8 @@ final class BeforeParameterMappingEvent
 {
     public function __construct(
         private Parameters $pathParameters,
-        private readonly ApiEndpoint $apiEndpoint,
-        private readonly ApiRequest $apiRequest
+        private ApiEndpoint $apiEndpoint,
+        private ApiRequest $apiRequest
     ) {
     }
 

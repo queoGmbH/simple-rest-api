@@ -10,7 +10,7 @@ use ReflectionMethod;
 use ReflectionNamedType;
 use RuntimeException;
 
-final readonly class Parameters
+final class Parameters
 {
     /**
      * @param array<string> $endpointParameters

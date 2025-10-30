@@ -22,9 +22,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class ApiResolverMiddleware implements MiddlewareInterface
 {
     public function __construct(
-        private readonly ApiEndpointProvider $endpointProvider,
-        private readonly ExtensionConfiguration $extensionConfiguration,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private ApiEndpointProvider $endpointProvider,
+        private ExtensionConfiguration $extensionConfiguration,
+        private EventDispatcherInterface $eventDispatcher
     ) {
     }
 

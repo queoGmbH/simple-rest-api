@@ -10,7 +10,7 @@ use Queo\SimpleRestApi\Context\SimpleRestApiAspect;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Http\JsonResponse;
 
-final readonly class TestController
+final class TestController
 {
     private ServerRequestInterface $request;
 

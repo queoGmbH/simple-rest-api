@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Value;
 
-final readonly class ApiEndpoint
+final class ApiEndpoint
 {
     /**
      * @param array<string> $parameterList
