@@ -62,16 +62,37 @@ release_composer_package:
       # Generate API url
       API_URL="https://gitlab.cloud.queo.org/api/v4/projects/$PROJECT_ID/packages/composer"
 
+      # Debug output
+      echo "=== Debug Information ==="
+      echo "Project ID: $PROJECT_ID"
+      echo "Tag: $CI_COMMIT_TAG"
+      echo "API URL: $API_URL"
+      echo "Token length: ${#TOKEN}"
+      echo "========================="
+
       # Send POST request for publishing the composer package
-      response=$(curl --silent --show-error --fail -w "%{http_code}" -X POST "$API_URL" --header "JOB-TOKEN: $TOKEN" --data-urlencode "tag=$CI_COMMIT_TAG")
+      # Use -o to separate body from status code
+      echo "Sending POST request to GitLab API..."
+      response_body=$(mktemp)
+      http_code=$(curl --silent --show-error -w "%{http_code}" -o "$response_body" -X POST "$API_URL" --header "JOB-TOKEN: $TOKEN" --data-urlencode "tag=$CI_COMMIT_TAG")
 
-      # Check HTTP response code (last 3 characters)
-      http_code="${response: -3}"
+      # Show response details
+      echo "=== Response Details ==="
+      echo "HTTP Status Code: $http_code"
+      echo "Response Body:"
+      cat "$response_body"
+      echo ""
+      echo "========================"
 
+      # Check HTTP response code
       if [ "$http_code" == "201" ] || [ "$http_code" == "200" ]; then
-        echo "Composer Package release successfully published."
+        echo "✓ Composer Package release successfully published."
       else
-        echo "Error during publish process, HTTP Code: $http_code"
-        echo "Response: $response"
+        echo "✗ Error during publish process, HTTP Code: $http_code"
+        echo "Response Body:"
+        cat "$response_body"
+        rm "$response_body"
         exit 1
       fi
+
+      rm "$response_body"
