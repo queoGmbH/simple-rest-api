@@ -7,7 +7,7 @@ parameters:
 			path: Classes/Middleware/ApiResolverMiddleware.php
 
 		-
-			message: '#^Unable to resolve the template type T in call to method static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:makeInstance\(\)$#'
+			message: '#^Unable to resolve the template type T in call to static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:makeInstance\(\)$#'
 			identifier: argument.templateType
 			count: 1
 			path: Classes/Middleware/ApiResolverMiddleware.php
@@ -15,7 +15,7 @@ parameters:
 		-
 			message: '#^Cannot access offset ''FE'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
+			count: 1
 			path: Classes/Middleware/CacheHashFixer.php
 
 		-
