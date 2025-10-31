@@ -46,6 +46,7 @@ parameters from the URL, while leaving everything else to the developer.
    Installation/Index
    Configuration/Index
    Usage/Index
+   Events/Index
    Developer/Index
    KnownProblems/Index
    Changelog/Index

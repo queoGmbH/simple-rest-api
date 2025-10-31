@@ -270,182 +270,26 @@ Parameter descriptions are extracted from PHPDoc blocks:
 Events
 ======
 
-The extension provides PSR-14 events for customization:
+The extension provides PSR-14 events for customization and extension of API behavior.
 
-ModifyApiResponseEvent
-----------------------
+Available Events
+----------------
 
-Location: `Classes/Event/ModifyApiResponseEvent.php`
+The extension dispatches three events during request processing:
 
-**Fired after the API endpoint method has been invoked and before the response is returned to the client.**
+* **BeforeParameterMappingEvent** - Before URL parameters are extracted
+* **AfterParameterMappingEvent** - After parameters are mapped but before endpoint invocation
+* **ModifyApiResponseEvent** - After endpoint execution, before sending response
 
-This event allows you to modify the response, add headers, change status codes, or perform any other response modifications.
+For complete documentation including:
 
-.. code-block:: php
+* Event API reference
+* Detailed use cases and examples
+* Event lifecycle and timing
+* Testing strategies
+* Best practices
 
-   final class ModifyApiResponseEvent
-   {
-       public function __construct(
-           private ResponseInterface $response,
-           private readonly ApiEndpoint $endpoint,
-           private readonly ApiRequestInterface $apiRequest
-       ) {}
-
-       public function getResponse(): ResponseInterface
-       public function setResponse(ResponseInterface $response): void
-       public function getEndpoint(): ApiEndpoint
-       public function getApiRequest(): ApiRequestInterface
-   }
-
-**Common Use Cases:**
-
-* Adding CORS headers to all API responses
-* Adding custom headers (X-API-Version, X-Request-ID, etc.)
-* Adding caching headers based on HTTP method or endpoint
-* Logging response details
-* Modifying response content or status codes
-
-**Example: Adding CORS Headers**
-
-.. code-block:: php
-
-   <?php
-
-   declare(strict_types=1);
-
-   namespace MyVendor\MyExtension\EventListener;
-
-   use Queo\SimpleRestApi\Event\ModifyApiResponseEvent;
-
-   final readonly class CorsHeaderListener
-   {
-       public function addCorsHeaders(ModifyApiResponseEvent $event): void
-       {
-           $response = $event->getResponse();
-
-           // Add CORS headers
-           $response = $response
-               ->withHeader('Access-Control-Allow-Origin', '*')
-               ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-               ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-           $event->setResponse($response);
-       }
-   }
-
-Register in `Configuration/Services.yaml`:
-
-.. code-block:: yaml
-
-   services:
-     MyVendor\MyExtension\EventListener\CorsHeaderListener:
-       tags:
-         - name: event.listener
-           identifier: 'my-extension/cors-headers'
-           event: Queo\SimpleRestApi\Event\ModifyApiResponseEvent
-           method: 'addCorsHeaders'
-
-**Example: Conditional Caching Headers**
-
-.. code-block:: php
-
-   public function addCachingHeaders(ModifyApiResponseEvent $event): void
-   {
-       $endpoint = $event->getEndpoint();
-       $response = $event->getResponse();
-
-       // Only cache GET requests
-       if ($endpoint->httpMethod === 'GET') {
-           $response = $response
-               ->withHeader('Cache-Control', 'public, max-age=300')
-               ->withHeader('Expires', gmdate('D, d M Y H:i:s \\G\\M\\T', time() + 300));
-       } else {
-           // Don't cache POST, PUT, PATCH, DELETE
-           $response = $response
-               ->withHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
-               ->withHeader('Pragma', 'no-cache')
-               ->withHeader('Expires', '0');
-       }
-
-       $event->setResponse($response);
-   }
-
-**Example: Adding Request Tracking**
-
-.. code-block:: php
-
-   public function addRequestTracking(ModifyApiResponseEvent $event): void
-   {
-       $response = $event->getResponse();
-
-       // Add unique request ID
-       $requestId = uniqid('req_', true);
-       $response = $response->withHeader('X-Request-ID', $requestId);
-
-       // Add API version
-       $response = $response->withHeader('X-API-Version', '1.0');
-
-       $event->setResponse($response);
-   }
-
-See the included example: `Classes/EventListener/ApiResponseModifierExample.php`
-
-BeforeParameterMappingEvent
----------------------------
-
-Location: `Classes/Event/BeforeParameterMappingEvent.php`
-
-Fired before parameters are mapped from the URL to method arguments.
-
-.. code-block:: php
-
-   final class BeforeParameterMappingEvent
-   {
-       public function __construct(
-           private ApiRequest $apiRequest,
-           private array $parameters
-       ) {}
-
-       public function getApiRequest(): ApiRequest
-       public function getParameters(): array
-       public function setParameters(array $parameters): void
-   }
-
-AfterParameterMappingEvent
---------------------------
-
-Location: `Classes/Event/AfterParameterMappingEvent.php`
-
-Fired after parameters are mapped.
-
-Event Listener Example
-----------------------
-
-.. code-block:: php
-
-   final class ParameterMappingListener
-   {
-       public function __invoke(BeforeParameterMappingEvent $event): void
-       {
-           $parameters = $event->getParameters();
-
-           // Modify parameters
-           $parameters['modified'] = true;
-
-           $event->setParameters($parameters);
-       }
-   }
-
-Register in `Configuration/Services.yaml`:
-
-.. code-block:: yaml
-
-   services:
-     MyVendor\MyExtension\EventListener\ParameterMappingListener:
-       tags:
-         - name: event.listener
-           identifier: 'my-extension/parameter-mapping'
-           event: Queo\SimpleRestApi\Event\BeforeParameterMappingEvent
+**See:** :ref:`events`
 
 Backend Module
 ==============
