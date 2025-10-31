@@ -493,22 +493,14 @@ Backend Module
 Check the **Site** → **REST API Endpoints** module to verify your endpoint
 is registered and view its documentation.
 
-Modifying Responses
-===================
+Events and Customization
+=========================
 
-The extension provides a PSR-14 event (`ModifyApiResponseEvent`) that allows you to
-modify API responses before they are returned to the client. This is useful for:
+The extension provides PSR-14 events that allow you to customize API behavior
+at different stages of request processing.
 
-* Adding CORS headers
-* Adding custom headers (API version, request tracking, etc.)
-* Adding caching headers
-* Logging responses
-* Modifying response content
-
-Creating an Event Listener
----------------------------
-
-Create an event listener in your extension:
+Quick Example: Adding CORS Headers
+-----------------------------------
 
 .. code-block:: php
 
@@ -520,103 +512,48 @@ Create an event listener in your extension:
 
    use Queo\SimpleRestApi\Event\ModifyApiResponseEvent;
 
-   final readonly class ApiResponseListener
+   final readonly class CorsListener
    {
-       public function addCustomHeaders(ModifyApiResponseEvent $event): void
+       public function addCorsHeaders(ModifyApiResponseEvent $event): void
        {
            $response = $event->getResponse();
 
-           // Add CORS headers
            $response = $response
                ->withHeader('Access-Control-Allow-Origin', '*')
-               ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-               ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-           // Add API version
-           $response = $response->withHeader('X-API-Version', '1.0');
-
-           // Add request tracking ID
-           $response = $response->withHeader('X-Request-ID', uniqid('req_', true));
+               ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
 
            $event->setResponse($response);
        }
    }
 
-Register in `Configuration/Services.yaml`:
+Register in ``Configuration/Services.yaml``:
 
 .. code-block:: yaml
 
    services:
-     MyVendor\MyExtension\EventListener\ApiResponseListener:
+     MyVendor\MyExtension\EventListener\CorsListener:
        tags:
          - name: event.listener
-           identifier: 'my-extension/api-response-headers'
            event: Queo\SimpleRestApi\Event\ModifyApiResponseEvent
-           method: 'addCustomHeaders'
 
-Conditional Response Modification
-----------------------------------
+Available Events
+----------------
 
-You can access the endpoint information to conditionally modify responses:
+The extension dispatches three events:
 
-.. code-block:: php
+* **BeforeParameterMappingEvent** - Modify URL parameters before extraction
+* **AfterParameterMappingEvent** - Modify parameters before endpoint invocation
+* **ModifyApiResponseEvent** - Modify response before sending to client
 
-   public function addCachingHeaders(ModifyApiResponseEvent $event): void
-   {
-       $endpoint = $event->getEndpoint();
-       $response = $event->getResponse();
+For comprehensive event documentation including:
 
-       // Only cache GET requests
-       if ($endpoint->httpMethod === 'GET') {
-           $response = $response->withHeader('Cache-Control', 'public, max-age=300');
-       } else {
-           $response = $response->withHeader('Cache-Control', 'no-cache, no-store');
-       }
+* Complete API reference for all events
+* Event lifecycle and timing
+* Multiple examples for each event
+* Testing strategies
+* Best practices
 
-       $event->setResponse($response);
-   }
-
-Accessing Request Information
-------------------------------
-
-The event also provides access to the API request:
-
-.. code-block:: php
-
-   public function logApiCall(ModifyApiResponseEvent $event): void
-   {
-       $endpoint = $event->getEndpoint();
-       $apiRequest = $event->getApiRequest();
-       $response = $event->getResponse();
-
-       // Log the API call
-       $this->logger->info(sprintf(
-           'API Call: %s %s -> HTTP %d',
-           $endpoint->httpMethod,
-           $endpoint->path,
-           $response->getStatusCode()
-       ));
-   }
-
-Example: Complete Response Replacement
----------------------------------------
-
-You can even replace the entire response if needed:
-
-.. code-block:: php
-
-   public function modifyResponse(ModifyApiResponseEvent $event): void
-   {
-       $endpoint = $event->getEndpoint();
-
-       // Special handling for specific endpoint
-       if ($endpoint->path === '/v1/special') {
-           $newResponse = new JsonResponse(['custom' => 'data'], 200);
-           $event->setResponse($newResponse);
-       }
-   }
-
-For more details and examples, see :ref:`developer` documentation.
+**See:** :ref:`events`
 
 Best Practices
 ==============
