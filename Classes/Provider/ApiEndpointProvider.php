@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Provider;
 
-use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Queo\SimpleRestApi\Http\ApiRequest;
 use Queo\SimpleRestApi\Http\ApiRequestInterface;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
 use Queo\SimpleRestApi\Value\ApiEndpointParameter;
 use ReflectionClass;
-use ReflectionMethod;
 use ReflectionNamedType;
 
 final class ApiEndpointProvider
 {
     private array $endpoints = [];
 
+    /**
+     * @param class-string $className
+     */
     public function addEndpoint(
         string $className,
         string $methodName,
@@ -50,7 +50,8 @@ final class ApiEndpointProvider
     }
 
     /**
-     * @param array<string> $parameterNames
+     * @param  class-string  $className
+     * @param  array<string> $parameterNames
      * @return array<ApiEndpointParameter>
      */
     private function extractParameterInformation(string $className, string $methodName, array $parameterNames): array
