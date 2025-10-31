@@ -18,11 +18,6 @@ The following events are dispatched during API request handling:
 2. **AfterParameterMappingEvent** - After parameters are extracted but before endpoint invocation
 3. **ModifyApiResponseEvent** - After endpoint execution, before sending response to client
 
-.. figure:: ../Images/event-flow.svg
-   :alt: Event flow diagram
-
-   Event dispatch flow during API request processing
-
 Event Lifecycle
 ===============
 
