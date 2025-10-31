@@ -493,6 +493,131 @@ Backend Module
 Check the **Site** → **REST API Endpoints** module to verify your endpoint
 is registered and view its documentation.
 
+Modifying Responses
+===================
+
+The extension provides a PSR-14 event (`ModifyApiResponseEvent`) that allows you to
+modify API responses before they are returned to the client. This is useful for:
+
+* Adding CORS headers
+* Adding custom headers (API version, request tracking, etc.)
+* Adding caching headers
+* Logging responses
+* Modifying response content
+
+Creating an Event Listener
+---------------------------
+
+Create an event listener in your extension:
+
+.. code-block:: php
+
+   <?php
+
+   declare(strict_types=1);
+
+   namespace MyVendor\MyExtension\EventListener;
+
+   use Queo\SimpleRestApi\Event\ModifyApiResponseEvent;
+
+   final readonly class ApiResponseListener
+   {
+       public function addCustomHeaders(ModifyApiResponseEvent $event): void
+       {
+           $response = $event->getResponse();
+
+           // Add CORS headers
+           $response = $response
+               ->withHeader('Access-Control-Allow-Origin', '*')
+               ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+               ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+           // Add API version
+           $response = $response->withHeader('X-API-Version', '1.0');
+
+           // Add request tracking ID
+           $response = $response->withHeader('X-Request-ID', uniqid('req_', true));
+
+           $event->setResponse($response);
+       }
+   }
+
+Register in `Configuration/Services.yaml`:
+
+.. code-block:: yaml
+
+   services:
+     MyVendor\MyExtension\EventListener\ApiResponseListener:
+       tags:
+         - name: event.listener
+           identifier: 'my-extension/api-response-headers'
+           event: Queo\SimpleRestApi\Event\ModifyApiResponseEvent
+           method: 'addCustomHeaders'
+
+Conditional Response Modification
+----------------------------------
+
+You can access the endpoint information to conditionally modify responses:
+
+.. code-block:: php
+
+   public function addCachingHeaders(ModifyApiResponseEvent $event): void
+   {
+       $endpoint = $event->getEndpoint();
+       $response = $event->getResponse();
+
+       // Only cache GET requests
+       if ($endpoint->httpMethod === 'GET') {
+           $response = $response->withHeader('Cache-Control', 'public, max-age=300');
+       } else {
+           $response = $response->withHeader('Cache-Control', 'no-cache, no-store');
+       }
+
+       $event->setResponse($response);
+   }
+
+Accessing Request Information
+------------------------------
+
+The event also provides access to the API request:
+
+.. code-block:: php
+
+   public function logApiCall(ModifyApiResponseEvent $event): void
+   {
+       $endpoint = $event->getEndpoint();
+       $apiRequest = $event->getApiRequest();
+       $response = $event->getResponse();
+
+       // Log the API call
+       $this->logger->info(sprintf(
+           'API Call: %s %s -> HTTP %d',
+           $endpoint->httpMethod,
+           $endpoint->path,
+           $response->getStatusCode()
+       ));
+   }
+
+Example: Complete Response Replacement
+---------------------------------------
+
+You can even replace the entire response if needed:
+
+.. code-block:: php
+
+   public function modifyResponse(ModifyApiResponseEvent $event): void
+   {
+       $endpoint = $event->getEndpoint();
+
+       // Special handling for specific endpoint
+       if ($endpoint->path === '/v1/special') {
+           $newResponse = new JsonResponse(['custom' => 'data'], 200);
+           $event->setResponse($newResponse);
+       }
+   }
+
+For more details and examples, see :ref:`developer` documentation.
+
 Best Practices
 ==============
 
@@ -504,6 +629,7 @@ Best Practices
 6. **Use dependency injection** - Don't instantiate dependencies manually
 7. **Keep endpoints focused** - One endpoint should do one thing well
 8. **Version your API** - Use `/v1/`, `/v2/` prefixes for versioning
+9. **Use events for cross-cutting concerns** - CORS, logging, caching should be in event listeners
 
 Next Steps
 ==========
