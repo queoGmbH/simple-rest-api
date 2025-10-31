@@ -8,3 +8,4 @@ var
 Documentation/_build
 Documentation/.buildinfo
 Documentation/.doctrees
+config/
