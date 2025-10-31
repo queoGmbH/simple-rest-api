@@ -93,7 +93,6 @@ final readonly class ApiResponseModifierExample
     public function logResponse(ModifyApiResponseEvent $event): void
     {
         $endpoint = $event->getEndpoint();
-        $apiRequest = $event->getApiRequest();
         $response = $event->getResponse();
 
         // In a real implementation, you would use a proper logger

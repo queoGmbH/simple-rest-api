@@ -123,6 +123,7 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
                     $response = $response->withHeader('X-Test-Header', 'test-value');
                     $event->setResponse($response);
                 }
+
                 return $event;
             }
         };
