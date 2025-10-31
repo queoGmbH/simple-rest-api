@@ -7,6 +7,7 @@ namespace Queo\SimpleRestApi\Middleware;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Queo\SimpleRestApi\Event\AfterParameterMappingEvent;
 use Queo\SimpleRestApi\Event\BeforeParameterMappingEvent;
+use Queo\SimpleRestApi\Event\ModifyApiResponseEvent;
 use Queo\SimpleRestApi\Http\ApiRequest;
 use ReflectionException;
 use Psr\Http\Message\ResponseInterface;
@@ -62,9 +63,14 @@ class ApiResolverMiddleware implements MiddlewareInterface
             // Call method with parameters
             $result = $className->$methodName(...$methodParameters);
 
-            // If the result is already a response, return it.
+            // If the result is already a response, dispatch event to allow modifications
             if ($result instanceof ResponseInterface) {
-                return $result;
+                /** @var ModifyApiResponseEvent $event */
+                $event = $this->eventDispatcher->dispatch(
+                    new ModifyApiResponseEvent($result, $endpoint, $apiRequest)
+                );
+
+                return $event->getResponse();
             }
 
             throw new RuntimeException(
