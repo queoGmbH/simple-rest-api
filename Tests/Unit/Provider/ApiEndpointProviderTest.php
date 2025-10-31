@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Tests\Unit\Provider;
 
+use stdClass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Queo\SimpleRestApi\Http\ApiRequestInterface;
@@ -19,7 +20,7 @@ final class ApiEndpointProviderTest extends UnitTestCase
     {
         $apiEndpointProvider = new ApiEndpointProvider();
 
-        $apiEndpointProvider->addEndpoint('MyClass', 'myEndpoint', 'GET', '/v1/my-api-endpoint');
+        $apiEndpointProvider->addEndpoint(stdClass::class, 'myEndpoint', 'GET', '/v1/my-api-endpoint');
 
         $apiRequest = $this->createMock(ApiRequestInterface::class);
         $apiRequest->expects(self::once())->method('getHttpMethod')->willReturn('GET');
@@ -27,15 +28,12 @@ final class ApiEndpointProviderTest extends UnitTestCase
 
         $actualEndpoint = $apiEndpointProvider->getEndpoint($apiRequest);
 
-        $expectedEndpoint = new ApiEndpoint(
-            'MyClass',
-            'myEndpoint',
-            '/v1/my-api-endpoint',
-            'GET',
-            []
-        );
-
-        $this->assertEquals($expectedEndpoint, $actualEndpoint);
+        $this->assertNotNull($actualEndpoint);
+        $this->assertSame(stdClass::class, $actualEndpoint->className);
+        $this->assertSame('myEndpoint', $actualEndpoint->method);
+        $this->assertSame('/v1/my-api-endpoint', $actualEndpoint->path);
+        $this->assertSame('GET', $actualEndpoint->httpMethod);
+        $this->assertSame([], $actualEndpoint->parameterList);
     }
 
     #[Test]
@@ -43,7 +41,7 @@ final class ApiEndpointProviderTest extends UnitTestCase
     {
         $apiEndpointProvider = new ApiEndpointProvider();
 
-        $apiEndpointProvider->addEndpoint('MyClass', 'myEndpoint', 'GET', '/v1/my-api-endpoint/{param1}/{param2}');
+        $apiEndpointProvider->addEndpoint(stdClass::class, 'myEndpoint', 'GET', '/v1/my-api-endpoint/{param1}/{param2}');
 
         $apiRequest = $this->createMock(ApiRequestInterface::class);
         $apiRequest->expects(self::any())->method('getHttpMethod')->willReturn('GET');
@@ -51,17 +49,36 @@ final class ApiEndpointProviderTest extends UnitTestCase
 
         $actualEndpoint = $apiEndpointProvider->getEndpoint($apiRequest);
 
-        $expectedEndpoint = new ApiEndpoint(
-            'MyClass',
+        $this->assertNotNull($actualEndpoint);
+        $this->assertSame(stdClass::class, $actualEndpoint->className);
+        $this->assertSame('myEndpoint', $actualEndpoint->method);
+        $this->assertSame('/v1/my-api-endpoint/{param1}/{param2}', $actualEndpoint->path);
+        $this->assertSame('GET', $actualEndpoint->httpMethod);
+        $this->assertSame(['param1', 'param2'], $actualEndpoint->parameterList);
+    }
+
+    #[Test]
+    public function adds_endpoint_with_summary_and_description(): void // phpcs:ignore
+    {
+        $apiEndpointProvider = new ApiEndpointProvider();
+
+        $apiEndpointProvider->addEndpoint(
+            stdClass::class,
             'myEndpoint',
-            '/v1/my-api-endpoint/{param1}/{param2}',
             'GET',
-            [
-                0 => 'param1',
-                1 => 'param2'
-            ]
+            '/v1/my-api-endpoint',
+            'My API Summary',
+            'This is a detailed description of the API endpoint'
         );
 
-        $this->assertEquals($expectedEndpoint, $actualEndpoint);
+        $apiRequest = $this->createMock(ApiRequestInterface::class);
+        $apiRequest->expects(self::once())->method('getHttpMethod')->willReturn('GET');
+        $apiRequest->expects(self::once())->method('getEndpointPath')->willReturn('/v1/my-api-endpoint');
+
+        $actualEndpoint = $apiEndpointProvider->getEndpoint($apiRequest);
+
+        $this->assertNotNull($actualEndpoint);
+        $this->assertSame('My API Summary', $actualEndpoint->summary);
+        $this->assertSame('This is a detailed description of the API endpoint', $actualEndpoint->description);
     }
 }

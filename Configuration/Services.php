@@ -18,6 +18,8 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
                     'method' => $reflector instanceof ReflectionMethod ? $reflector->getName() : null,
                     'http_method' => $attribute->method,
                     'path' => $attribute->path,
+                    'summary' => $attribute->summary,
+                    'description' => $attribute->description,
                 ]
             );
         }

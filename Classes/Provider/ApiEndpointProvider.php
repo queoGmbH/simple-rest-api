@@ -4,17 +4,30 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Provider;
 
-use Psr\Container\ContainerInterface;
-use Queo\SimpleRestApi\Http\ApiRequest;
+use ReflectionException;
+use ReflectionParameter;
+use Psr\Http\Message\ServerRequestInterface;
 use Queo\SimpleRestApi\Http\ApiRequestInterface;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
+use Queo\SimpleRestApi\Value\ApiEndpointParameter;
+use ReflectionClass;
+use ReflectionNamedType;
 
 final class ApiEndpointProvider
 {
     private array $endpoints = [];
 
-    public function addEndpoint(string $className, string $methodName, string $httpMethod, string $path): void
-    {
+    /**
+     * @param class-string $className
+     */
+    public function addEndpoint(
+        string $className,
+        string $methodName,
+        string $httpMethod,
+        string $path,
+        string $summary = '',
+        string $description = ''
+    ): void {
         $pathParts = explode('/', trim($path, '/'));
 
         $identifierPathParts = [];
@@ -31,8 +44,89 @@ final class ApiEndpointProvider
 
         $identifierPath = '/' . implode('/', $identifierPathParts);
 
-        $endpoint = new ApiEndpoint($className, $methodName, $path, $httpMethod, $parameterNames);
+        // Extract detailed parameter information via reflection
+        $parameters = $this->extractParameterInformation($className, $methodName, $parameterNames);
+
+        $endpoint = new ApiEndpoint($className, $methodName, $path, $httpMethod, $parameterNames, $summary, $description, $parameters);
         $this->endpoints[$this->getIdentifier($httpMethod, $identifierPath)] = $endpoint;
+    }
+
+    /**
+     * @param  class-string  $className
+     * @param  array<string> $parameterNames
+     * @return array<ApiEndpointParameter>
+     */
+    private function extractParameterInformation(string $className, string $methodName, array $parameterNames): array
+    {
+        $parameters = [];
+
+        try {
+            $reflectionClass = new ReflectionClass($className);
+            $reflectionMethod = $reflectionClass->getMethod($methodName);
+
+            // Parse PHPDoc for parameter descriptions
+            $docComment = $reflectionMethod->getDocComment();
+            $paramDescriptions = $this->parseParamDescriptions($docComment ?: '');
+
+            // Get method parameters from reflection
+            $methodParameters = $reflectionMethod->getParameters();
+
+            foreach ($methodParameters as $reflectionParameter) {
+                $paramName = $reflectionParameter->getName();
+
+                // Skip ServerRequestInterface parameters
+                $paramType = $reflectionParameter->getType();
+                if ($paramType instanceof ReflectionNamedType && $paramType->getName() === ServerRequestInterface::class) {
+                    continue;
+                }
+
+                // Only include parameters that are in the path
+                if (in_array($paramName, $parameterNames, true)) {
+                    $type = $this->getParameterType($reflectionParameter);
+                    $description = $paramDescriptions[$paramName] ?? '';
+
+                    $parameters[] = new ApiEndpointParameter($paramName, $type, $description);
+                }
+            }
+        } catch (ReflectionException) {
+            // If reflection fails, return empty array
+            return [];
+        }
+
+        return $parameters;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function parseParamDescriptions(string $docComment): array
+    {
+        $descriptions = [];
+
+        if (preg_match_all('/@param\s+(\S+)\s+\$(\w+)\s+(.*)$/m', $docComment, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $paramName = $match[2];
+                $description = trim($match[3]);
+                $descriptions[$paramName] = $description;
+            }
+        }
+
+        return $descriptions;
+    }
+
+    private function getParameterType(ReflectionParameter $parameter): string
+    {
+        $type = $parameter->getType();
+
+        if ($type === null) {
+            return 'mixed';
+        }
+
+        if ($type instanceof ReflectionNamedType) {
+            return $type->getName();
+        }
+
+        return 'mixed';
     }
 
     public function getEndpoint(ApiRequestInterface $apiRequest): ?ApiEndpoint
@@ -56,6 +150,14 @@ final class ApiEndpointProvider
         }
 
         return $endpoint;
+    }
+
+    /**
+     * @return array<ApiEndpoint>
+     */
+    public function getAllEndpoints(): array
+    {
+        return array_values($this->endpoints);
     }
 
     private function getIdentifier(string $httpMethod, string $path): string

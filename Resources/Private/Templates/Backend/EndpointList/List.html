@@ -1,0 +1,112 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <h1><f:translate key="LLL:EXT:simple_rest_api/Resources/Private/Language/locallang_mod.xlf:module.title" /></h1>
+
+    <f:if condition="{endpoints}">
+        <f:then>
+            <f:for each="{endpoints}" as="endpoint" iteration="iterator">
+                <div class="panel panel-default mb-3">
+                    <div class="panel-heading" role="button" data-bs-toggle="collapse" data-bs-target="#endpoint-{iterator.index}" aria-expanded="false" style="cursor: pointer;">
+                        <div class="d-flex align-items-center">
+                            <div style="width: 70px;">
+                                <span class="badge bg-{f:if(condition: '{endpoint.httpMethod} == \'GET\'', then: 'info', else: f:if(condition: '{endpoint.httpMethod} == \'POST\'', then: 'success', else: f:if(condition: '{endpoint.httpMethod} == \'PUT\'', then: 'warning', else: f:if(condition: '{endpoint.httpMethod} == \'DELETE\'', then: 'danger', else: 'secondary'))))}">
+                                    {endpoint.httpMethod}
+                                </span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <strong><code class="text-dark">{endpoint.path}</code></strong>
+                                <f:if condition="{endpoint.summary}">
+                                    <span class="text-muted ms-3">{endpoint.summary}</span>
+                                </f:if>
+                            </div>
+                            <div>
+                                <span class="t3js-icon icon icon-size-small icon-state-default icon-actions-view-list-collapse" data-identifier="actions-view-list-collapse">
+                                    <span class="icon-markup">
+                                        <svg class="icon-color"><use xlink:href="/typo3/sysext/core/Resources/Public/Icons/T3Icons/sprites/actions.svg#actions-chevron-down"></use></svg>
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="endpoint-{iterator.index}" class="collapse">
+                        <div class="panel-body">
+                            <div class="row mb-2">
+                                <div class="col-md-3">
+                                    <strong><f:translate key="LLL:EXT:simple_rest_api/Resources/Private/Language/locallang_mod.xlf:list.header.controller" />:</strong>
+                                </div>
+                                <div class="col-md-9">
+                                    <code>{endpoint.className}</code>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-3">
+                                    <strong><f:translate key="LLL:EXT:simple_rest_api/Resources/Private/Language/locallang_mod.xlf:list.header.action" />:</strong>
+                                </div>
+                                <div class="col-md-9">
+                                    <code>{endpoint.method}()</code>
+                                </div>
+                            </div>
+                            <f:if condition="{endpoint.parameters}">
+                                <div class="row mb-2">
+                                    <div class="col-md-3">
+                                        <strong><f:translate key="LLL:EXT:simple_rest_api/Resources/Private/Language/locallang_mod.xlf:list.header.parameters" />:</strong>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <table class="table table-sm table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 25%;"><f:translate key="LLL:EXT:simple_rest_api/Resources/Private/Language/locallang_mod.xlf:list.parameter.name" /></th>
+                                                    <th style="width: 20%;"><f:translate key="LLL:EXT:simple_rest_api/Resources/Private/Language/locallang_mod.xlf:list.parameter.type" /></th>
+                                                    <th style="width: 55%;"><f:translate key="LLL:EXT:simple_rest_api/Resources/Private/Language/locallang_mod.xlf:list.parameter.description" /></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <f:for each="{endpoint.parameters}" as="parameter">
+                                                    <tr>
+                                                        <td><code>{parameter.name}</code></td>
+                                                        <td><span class="badge bg-info">{parameter.type}</span></td>
+                                                        <td>
+                                                            <f:if condition="{parameter.description}">
+                                                                <f:then>{parameter.description}</f:then>
+                                                                <f:else><span class="text-muted">-</span></f:else>
+                                                            </f:if>
+                                                        </td>
+                                                    </tr>
+                                                </f:for>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </f:if>
+                            <f:if condition="{endpoint.description}">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <strong><f:translate key="LLL:EXT:simple_rest_api/Resources/Private/Language/locallang_mod.xlf:list.label.description" />:</strong>
+                                    </div>
+                                    <div class="col-md-9">
+                                        {endpoint.description}
+                                    </div>
+                                </div>
+                            </f:if>
+                        </div>
+                    </div>
+                </div>
+            </f:for>
+        </f:then>
+        <f:else>
+            <div class="callout callout-info">
+                <div class="callout-body">
+                    <f:translate key="LLL:EXT:simple_rest_api/Resources/Private/Language/locallang_mod.xlf:list.noEndpoints" />
+                </div>
+            </div>
+        </f:else>
+    </f:if>
+</f:section>
+
+</html>

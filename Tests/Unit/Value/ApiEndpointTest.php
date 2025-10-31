@@ -19,4 +19,37 @@ final class ApiEndpointTest extends UnitTestCase
 
         $this->assertSame('/v1/my-endpoint', $apiEndpoint->getPathWithoutParameters());
     }
+
+    #[Test]
+    public function provides_summary_and_description(): void // phpcs:ignore
+    {
+        $apiEndpoint = new ApiEndpoint(
+            'MyApiController',
+            'myApiMethod',
+            '/v1/my-endpoint',
+            'GET',
+            [],
+            'My Endpoint Summary',
+            'This is a detailed description of my endpoint'
+        );
+
+        $this->assertSame('My Endpoint Summary', $apiEndpoint->summary);
+        $this->assertSame('This is a detailed description of my endpoint', $apiEndpoint->description);
+    }
+
+    #[Test]
+    public function allows_empty_summary_and_description(): void // phpcs:ignore
+    {
+        $apiEndpoint = new ApiEndpoint(
+            'MyApiController',
+            'myApiMethod',
+            '/v1/my-endpoint',
+            'GET',
+            []
+        );
+
+        $this->assertSame('', $apiEndpoint->summary);
+        $this->assertSame('', $apiEndpoint->description);
+        $this->assertSame([], $apiEndpoint->parameters);
+    }
 }
