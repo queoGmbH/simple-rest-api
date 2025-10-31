@@ -3,9 +3,11 @@ composer.lock
 .ddev
 .idea
 .phpunit.cache
+.phpunit.result.cache
 .phpunit-integration.cache
 var
 Documentation/_build
 Documentation/.buildinfo
 Documentation/.doctrees
 config/
+.claude/
