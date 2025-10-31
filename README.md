@@ -14,7 +14,8 @@ A TYPO3 extension that provides a simple REST API framework to create endpoints 
 - 📥 **ServerRequest integration** for accessing request body, headers, and query parameters
 - 🎨 **Backend module** to view all registered API endpoints with documentation
 - 📝 **Parameter documentation** with automatic type extraction from PHPDoc
-- 🔄 **PSR-14 events** to adjust parameters before reaching your endpoint
+- 🔄 **PSR-14 events** to adjust parameters and modify responses
+- 🌐 **Response modification** - Add CORS headers, caching, logging via events
 - 🚀 **Zero configuration** - endpoints are auto-discovered via dependency injection
 
 ## 📦 Installation
@@ -157,6 +158,39 @@ public function updateUser(
 }
 ```
 
+### Modifying API Responses
+
+Use PSR-14 events to add CORS headers, caching, logging, etc.:
+
+```php
+use Queo\SimpleRestApi\Event\ModifyApiResponseEvent;
+
+final readonly class ApiResponseListener
+{
+    public function addCorsHeaders(ModifyApiResponseEvent $event): void
+    {
+        $response = $event->getResponse();
+
+        $response = $response
+            ->withHeader('Access-Control-Allow-Origin', '*')
+            ->withHeader('X-API-Version', '1.0');
+
+        $event->setResponse($response);
+    }
+}
+```
+
+Register in `Configuration/Services.yaml`:
+
+```yaml
+services:
+  MyVendor\MyExtension\EventListener\ApiResponseListener:
+    tags:
+      - name: event.listener
+        event: Queo\SimpleRestApi\Event\ModifyApiResponseEvent
+        method: 'addCorsHeaders'
+```
+
 ## 🎯 Backend Module
 
 View all registered API endpoints in the TYPO3 backend:
@@ -176,7 +210,7 @@ The module displays:
 - **ApiResolverMiddleware** - Main middleware handling endpoint resolution
 - **ApiEndpointProvider** - Manages endpoint registration and discovery
 - **Route Enhancer** - Custom TYPO3 route enhancer for `/api/*` paths
-- **Events** - BeforeParameterMappingEvent, AfterParameterMappingEvent
+- **Events** - ModifyApiResponseEvent, BeforeParameterMappingEvent, AfterParameterMappingEvent
 
 ### Philosophy
 
