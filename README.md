@@ -1,35 +1,46 @@
-# EXT: simple_rest_api - Simple REST API for TYPO3 provides simple endpoint configuration for api requests
+# Simple REST API for TYPO3
 
-## Features
+[![TYPO3](https://img.shields.io/badge/TYPO3-13.4+-orange.svg?style=flat-square)](https://get.typo3.org/version/13)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg?style=flat-square)](https://www.php.net/)
+[![License](https://img.shields.io/badge/license-GPL--2.0--or--later-green.svg?style=flat-square)](LICENSE)
+[![Latest Release](https://img.shields.io/badge/release-0.2.0--rc1-blue.svg?style=flat-square)](https://gitlab.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/-/tags)
 
-* Simple method configuration as api endpoint via `AsApiEndpoint` attribute.
-* Handling of scalar parameters as method argument.
-* Handling of `ServerRequestInterface` implementation as method parameter.
-* Events to adjust parameters before handing over to api method.
+A TYPO3 extension that provides a simple REST API framework to create endpoints via PHP attributes. It focuses on simplicity - handling routing and simple parameters from the URL, while leaving everything else to the developer.
 
-## Why another api extension?
+## ✨ Features
 
-This extension does not handle a lot - it just handles routing and simple parameters from the url. Everything else
-has to be done by the developer. But this keeps it simple ;-).
+- 🎯 **Simple endpoint configuration** via `#[AsApiEndpoint]` PHP attribute
+- 🔗 **URL parameter mapping** to method arguments (int, string, float, bool)
+- 📥 **ServerRequest integration** for accessing request body, headers, and query parameters
+- 🎨 **Backend module** to view all registered API endpoints with documentation
+- 📝 **Parameter documentation** with automatic type extraction from PHPDoc
+- 🔄 **PSR-14 events** to adjust parameters before reaching your endpoint
+- 🚀 **Zero configuration** - endpoints are auto-discovered via dependency injection
 
+## 📦 Installation
 
-## Installation
-
-```sh
-composer req queo/simple-rest-api
+```bash
+composer require queo/simple-rest-api
 ```
 
-Once installed, you can configure methods via `AsApiEndpoint` attribute as API endpoints. See usage section.
+Activate the extension:
 
-## Usage
+```bash
+vendor/bin/typo3 extension:activate simple_rest_api
+```
 
-### Quick start guide
+## 🚀 Quick Start
 
-#### 1. Configure route enhancer
+### 1. Configure Route Enhancer
 
-To get the api working the route enhancer needs to be configured for your project. Either you import the file
-`Configuration/Yaml/RouteEnhancer.yaml` from this extension in your site configuration or put the following code
-directly into it:
+Add to your site configuration (`config/sites/<site>/config.yaml`):
+
+```yaml
+imports:
+  - { resource: "EXT:simple_rest_api/Configuration/Yaml/RouteEnhancer.yaml" }
+```
+
+Or configure manually:
 
 ```yaml
 routeEnhancers:
@@ -37,131 +48,171 @@ routeEnhancers:
     type: SimpleRestApiEnhancer
 ```
 
-#### 2. Create a class with a method for your endpoint.
+### 2. Create Your First Endpoint
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace Queo\SimpleRestApi\Controller;
-
-use Psr\Http\Message\ResponseInterface;
-use TYPO3\CMS\Core\Http\JsonResponse;
-
-final class MyApiController
-{
-    public function myApiEndpoint(): ResponseInterface
-    {
-        return new JsonResponse(['success' => true]);
-    }
-}
-```
-
-#### 3. Select an http method (GET, POST, ...) and think of an api endpoint path (configure it WITHOUT api base path '/api/'!)
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace Queo\SimpleRestApi\Controller;
+namespace Vendor\MyExtension\Controller;
 
 use Psr\Http\Message\ResponseInterface;
 use Queo\SimpleRestApi\Attribute\AsApiEndpoint;
 use TYPO3\CMS\Core\Http\JsonResponse;
 
-final class MyApiController
+final class ApiController
 {
-    #[AsApiEndpoint(method: 'GET', path: '/v1/my-api-endpoint')]
-    public function myApiEndpoint(): ResponseInterface
+    #[AsApiEndpoint(
+        method: 'GET',
+        path: '/v1/hello',
+        summary: 'Simple hello world endpoint',
+        description: 'Returns a friendly greeting'
+    )]
+    public function hello(): ResponseInterface
     {
-        return new JsonResponse(['success' => true]);
+        return new JsonResponse(['message' => 'Hello, World!']);
     }
 }
 ```
 
-After cache clearing your api endpoint should be reachable via https://example.com/api/v1/my-api-endpoint
+### 3. Clear Cache & Test
 
-#### 4. Add some simple scalar parameters to your path. Objects (like Extbase MVC domain object) are not respected!
+```bash
+vendor/bin/typo3 cache:flush
+```
+
+Your endpoint is now accessible at: `https://your-domain.com/api/v1/hello`
+
+## 📖 Documentation
+
+For comprehensive documentation including:
+- Complete usage examples
+- URL parameters handling
+- POST/PUT/PATCH/DELETE requests
+- Combining URL parameters with ServerRequest
+- Error handling and validation
+- Architecture and contribution guide
+- Troubleshooting
+
+**See: [Documentation/Index.rst](Documentation/Index.rst)**
+
+Or build the docs locally:
+
+```bash
+pip install sphinx sphinx-rtd-theme
+sphinx-build Documentation Documentation/_build
+```
+
+## 💡 Common Use Cases
+
+### URL Parameters
 
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace Queo\SimpleRestApi\Controller;
-
-use Psr\Http\Message\ResponseInterface;
-use Queo\SimpleRestApi\Attribute\AsApiEndpoint;
-use TYPO3\CMS\Core\Http\JsonResponse;
-
-final class MyApiController
+/**
+ * @param int $userId The ID of the user
+ */
+#[AsApiEndpoint(method: 'GET', path: '/v1/users/{userId}')]
+public function getUser(int $userId): ResponseInterface
 {
-    #[AsApiEndpoint(method: 'GET', path: '/v1/my-api-endpoint/{param1}/{param2}')]
-    public function myApiEndpoint(int $param1, string $param2): ResponseInterface
-    {
-        return new JsonResponse(
-            [
-                'success' => true,
-                'parameters' => [
-                    'param1' => $param1,
-                    'param2' => $param2
-                ]
-            ]
-        );
-    }
+    return new JsonResponse(['userId' => $userId]);
 }
 ```
 
-Test your api endpoint with https://example.com/api/v1/my-api-endpoint/123/my-string.
+**Access:** `/api/v1/users/123`
 
-#### 5. You need the middleware request object in your endpoint? Just add it as method parameter
+### POST with Request Body
 
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace Queo\SimpleRestApi\Controller;
-
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Queo\SimpleRestApi\Attribute\AsApiEndpoint;
-use TYPO3\CMS\Core\Http\JsonResponse;
 
-final class MyApiController
+#[AsApiEndpoint(method: 'POST', path: '/v1/users')]
+public function createUser(ServerRequestInterface $request): ResponseInterface
 {
-    #[AsApiEndpoint(method: 'GET', path: '/v1/my-api-endpoint/{param1}/{param2}')]
-    public function myApiEndpoint(int $param1, string $param2, ServerRequestInterface $request): ResponseInterface
-    {
-        return new JsonResponse(
-            [
-                'success' => true,
-                'parameters' => [
-                    'param1' => $param1,
-                    'param2' => $param2,
-                    'requestUri' => (string)$request->getUri()
-                ]
-            ]
-        );
-    }
+    $body = json_decode($request->getBody()->getContents(), true);
+
+    return new JsonResponse([
+        'name' => $body['name'] ?? '',
+        'email' => $body['email'] ?? ''
+    ], 201);
 }
 ```
 
-Test your api endpoint with https://example.com/api/v1/my-api-endpoint/123/my-string.
+### Combining URL Parameters with Request Body
 
-### Events
+```php
+/**
+ * @param int $userId The ID of the user to update
+ */
+#[AsApiEndpoint(method: 'PATCH', path: '/v1/users/{userId}')]
+public function updateUser(
+    int $userId,
+    ServerRequestInterface $request
+): ResponseInterface {
+    $body = json_decode($request->getBody()->getContents(), true);
 
-#### BeforeParameterMappingEvent / AfterParameterMappingEvent
+    // Update user logic here
 
-These events can be used to manipulate the parameters from url path on its way to your api endpoint method.
+    return new JsonResponse(['id' => $userId, 'updated' => true]);
+}
+```
 
-**TBD**
+## 🎯 Backend Module
 
-## Open features/topics
+View all registered API endpoints in the TYPO3 backend:
 
-* Allow to configure the api base path in site configuration.
-* Test and make work all HTTP methods.
-* Make parameter events working, add tests for them and document their functionality.
-* Documentation for TYPO3 extension repository.
+**Site** → **REST API Endpoints**
+
+The module displays:
+- HTTP method and endpoint path
+- Summary and description
+- Parameter details with types and descriptions
+
+## 🏗️ Architecture
+
+### Core Components
+
+- **AsApiEndpoint** - PHP attribute to mark methods as endpoints
+- **ApiResolverMiddleware** - Main middleware handling endpoint resolution
+- **ApiEndpointProvider** - Manages endpoint registration and discovery
+- **Route Enhancer** - Custom TYPO3 route enhancer for `/api/*` paths
+- **Events** - BeforeParameterMappingEvent, AfterParameterMappingEvent
+
+### Philosophy
+
+This extension intentionally keeps things simple:
+- ✅ Handles routing and parameter mapping
+- ✅ Integrates cleanly with TYPO3's routing system
+- ❌ Does NOT handle serialization/deserialization
+- ❌ Does NOT handle authentication (use TYPO3's built-in mechanisms)
+- ❌ Does NOT handle validation (implement in your endpoints)
+
+This keeps the extension maintainable and flexible for your specific use cases.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch from `main`
+3. Write tests for your changes
+4. Ensure all code quality checks pass (PHPStan, PHPCS, Rector)
+5. Create a merge request
+
+See [Documentation/Developer/Index.rst](Documentation/Developer/Index.rst) for detailed contribution guidelines.
+
+## 📜 License
+
+This extension is licensed under GPL-2.0-or-later.
+
+## 🔗 Links
+
+- **Repository:** https://gitlab.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api
+- **Issues:** https://gitlab.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/-/issues
+- **Documentation:** [Documentation/Index.rst](Documentation/Index.rst)
+
+## 👥 Credits
+
+Developed and maintained by [Queo Group](https://www.queo.de/)
+
+Author: Sebastian Hofer
