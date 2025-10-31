@@ -76,4 +76,79 @@ final readonly class TestController
             'parameters' => [$param1, $param2]
         ]);
     }
+
+    /**
+     * @param int $resourceId The ID of the resource to update
+     */
+    #[AsApiEndpoint(
+        method: 'PUT',
+        path: '/v1/resources/{resourceId}',
+        summary: 'PUT endpoint for full resource update',
+        description: 'Demonstrates a PUT endpoint for replacing an entire resource. Typically used for full updates where all fields are provided'
+    )]
+    public function updateResource(int $resourceId): JsonResponse
+    {
+        // In a real implementation, you would:
+        // 1. Get request body: $body = json_decode($this->request->getBody()->getContents(), true);
+        // 2. Validate the data
+        // 3. Update the entire resource with $resourceId
+        // 4. Return the updated resource
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Resource updated (full replacement)',
+            'resourceId' => $resourceId,
+            'method' => 'PUT'
+        ]);
+    }
+
+    /**
+     * @param int $resourceId The ID of the resource to partially update
+     */
+    #[AsApiEndpoint(
+        method: 'PATCH',
+        path: '/v1/resources/{resourceId}',
+        summary: 'PATCH endpoint for partial resource update',
+        description: 'Demonstrates a PATCH endpoint for partially updating a resource. Only provided fields are updated, leaving others unchanged'
+    )]
+    public function patchResource(int $resourceId): JsonResponse
+    {
+        // In a real implementation, you would:
+        // 1. Get request body: $body = json_decode($this->request->getBody()->getContents(), true);
+        // 2. Validate the provided fields
+        // 3. Update only the provided fields of the resource with $resourceId
+        // 4. Return the updated resource
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Resource partially updated',
+            'resourceId' => $resourceId,
+            'method' => 'PATCH'
+        ]);
+    }
+
+    /**
+     * @param int $resourceId The ID of the resource to delete
+     */
+    #[AsApiEndpoint(
+        method: 'DELETE',
+        path: '/v1/resources/{resourceId}',
+        summary: 'DELETE endpoint for resource removal',
+        description: 'Demonstrates a DELETE endpoint for removing a resource. Returns success confirmation after deletion'
+    )]
+    public function deleteResource(int $resourceId): JsonResponse
+    {
+        // In a real implementation, you would:
+        // 1. Validate that the resource exists
+        // 2. Check permissions
+        // 3. Delete the resource with $resourceId
+        // 4. Return success confirmation
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Resource deleted',
+            'resourceId' => $resourceId,
+            'method' => 'DELETE'
+        ], 200); // Some APIs use 204 No Content for successful deletes
+    }
 }
