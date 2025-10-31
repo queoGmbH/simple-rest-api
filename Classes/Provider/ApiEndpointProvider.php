@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Provider;
 
+use ReflectionException;
+use ReflectionParameter;
 use Psr\Http\Message\ServerRequestInterface;
 use Queo\SimpleRestApi\Http\ApiRequestInterface;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
@@ -86,7 +88,7 @@ final class ApiEndpointProvider
                     $parameters[] = new ApiEndpointParameter($paramName, $type, $description);
                 }
             }
-        } catch (\ReflectionException $e) {
+        } catch (ReflectionException) {
             // If reflection fails, return empty array
             return [];
         }
@@ -112,7 +114,7 @@ final class ApiEndpointProvider
         return $descriptions;
     }
 
-    private function getParameterType(\ReflectionParameter $parameter): string
+    private function getParameterType(ReflectionParameter $parameter): string
     {
         $type = $parameter->getType();
 
