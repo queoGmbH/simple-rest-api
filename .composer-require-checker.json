@@ -13,7 +13,8 @@
         "pcre",
         "json",
         "SPL",
-        "Reflection"
+        "Reflection",
+        "date"
     ],
     "scan-files": []
 }
