@@ -172,13 +172,16 @@ Use Cases
 ---------
 
 * Modify typed parameters before method invocation
-* Add additional context or dependencies to parameters
+* Transform simple parameters into domain objects (e.g., ID → Model)
+* Fetch and inject Extbase models from repositories
 * Transform parameter values based on business logic
 * Implement custom parameter validation
 * Override parameters conditionally
 
-Example: Adding Request Context
+Example: Loading Extbase Models
 --------------------------------
+
+Transform an integer ID parameter into a full Extbase domain model:
 
 .. code-block:: php
 
@@ -188,21 +191,58 @@ Example: Adding Request Context
 
    namespace MyVendor\MyExtension\EventListener;
 
+   use MyVendor\MyExtension\Domain\Repository\UserRepository;
    use Queo\SimpleRestApi\Event\AfterParameterMappingEvent;
+   use TYPO3\CMS\Core\Http\JsonResponse;
 
-   final readonly class RequestContextListener
+   final readonly class ModelLoaderListener
    {
-       public function addContext(AfterParameterMappingEvent $event): void
-       {
-           $parameters = $event->getMethodParameters();
-           $endpoint = $event->getEndpoint();
+       public function __construct(
+           private UserRepository $userRepository
+       ) {}
 
-           // For specific endpoints, add the full request as last parameter
-           if (str_contains($endpoint->path, '/context')) {
-               $parameters[] = $event->getApiRequest()->getRequest();
+       public function loadUserModel(AfterParameterMappingEvent $event): void
+       {
+           $endpoint = $event->getEndpoint();
+           $parameters = $event->getMethodParameters();
+
+           // Only process user endpoints
+           if (!str_contains($endpoint->path, '/users/')) {
+               return;
+           }
+
+           // Check if first parameter is a user ID
+           if (isset($parameters[0]) && is_int($parameters[0])) {
+               $userId = $parameters[0];
+               $user = $this->userRepository->findByUid($userId);
+
+               if ($user === null) {
+                   // Could throw exception or handle differently
+                   return;
+               }
+
+               // Replace the ID with the actual User model
+               $parameters[0] = $user;
                $event->overrideMethodParameters($parameters);
            }
        }
+   }
+
+Now your endpoint method receives the User model directly:
+
+.. code-block:: php
+
+   use MyVendor\MyExtension\Domain\Model\User;
+
+   #[AsApiEndpoint(method: 'GET', path: '/v1/users/{userId}')]
+   public function getUser(User $user): ResponseInterface
+   {
+       // Receive User model directly instead of ID!
+       return new JsonResponse([
+           'id' => $user->getUid(),
+           'name' => $user->getName(),
+           'email' => $user->getEmail(),
+       ]);
    }
 
 Register in ``Configuration/Services.yaml``:
@@ -210,12 +250,12 @@ Register in ``Configuration/Services.yaml``:
 .. code-block:: yaml
 
    services:
-     MyVendor\MyExtension\EventListener\RequestContextListener:
+     MyVendor\MyExtension\EventListener\ModelLoaderListener:
        tags:
          - name: event.listener
-           identifier: 'my-extension/request-context'
+           identifier: 'my-extension/model-loader'
            event: Queo\SimpleRestApi\Event\AfterParameterMappingEvent
-           method: 'addContext'
+           method: 'loadUserModel'
 
 Example: Parameter Validation
 ------------------------------
