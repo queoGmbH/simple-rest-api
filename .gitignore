@@ -5,3 +5,6 @@ composer.lock
 .phpunit.cache
 .phpunit-integration.cache
 var
+Documentation/_build
+Documentation/.buildinfo
+Documentation/.doctrees
