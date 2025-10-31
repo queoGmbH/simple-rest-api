@@ -13,7 +13,9 @@ final readonly class AsApiEndpoint
 
     public function __construct(
         public string $method,
-        public string $path
+        public string $path,
+        public string $summary = '',
+        public string $description = ''
     ) {
     }
 }

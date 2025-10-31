@@ -30,6 +30,21 @@
             <trans-unit id="list.header.parameters" resname="list.header.parameters">
                 <source>Parameters</source>
             </trans-unit>
+            <trans-unit id="list.header.summary" resname="list.header.summary">
+                <source>Summary</source>
+            </trans-unit>
+            <trans-unit id="list.label.description" resname="list.label.description">
+                <source>Description</source>
+            </trans-unit>
+            <trans-unit id="list.parameter.name" resname="list.parameter.name">
+                <source>Name</source>
+            </trans-unit>
+            <trans-unit id="list.parameter.type" resname="list.parameter.type">
+                <source>Type</source>
+            </trans-unit>
+            <trans-unit id="list.parameter.description" resname="list.parameter.description">
+                <source>Description</source>
+            </trans-unit>
             <trans-unit id="list.noEndpoints" resname="list.noEndpoints">
                 <source>No REST API endpoints have been registered yet. Add the AsApiEndpoint attribute to your controller methods to register endpoints.</source>
             </trans-unit>

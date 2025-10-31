@@ -27,15 +27,11 @@ final class ApiEndpointProviderTest extends UnitTestCase
 
         $actualEndpoint = $apiEndpointProvider->getEndpoint($apiRequest);
 
-        $expectedEndpoint = new ApiEndpoint(
-            'MyClass',
-            'myEndpoint',
-            '/v1/my-api-endpoint',
-            'GET',
-            []
-        );
-
-        $this->assertEquals($expectedEndpoint, $actualEndpoint);
+        $this->assertSame('MyClass', $actualEndpoint->className);
+        $this->assertSame('myEndpoint', $actualEndpoint->method);
+        $this->assertSame('/v1/my-api-endpoint', $actualEndpoint->path);
+        $this->assertSame('GET', $actualEndpoint->httpMethod);
+        $this->assertSame([], $actualEndpoint->parameterList);
     }
 
     #[Test]
@@ -51,17 +47,34 @@ final class ApiEndpointProviderTest extends UnitTestCase
 
         $actualEndpoint = $apiEndpointProvider->getEndpoint($apiRequest);
 
-        $expectedEndpoint = new ApiEndpoint(
+        $this->assertSame('MyClass', $actualEndpoint->className);
+        $this->assertSame('myEndpoint', $actualEndpoint->method);
+        $this->assertSame('/v1/my-api-endpoint/{param1}/{param2}', $actualEndpoint->path);
+        $this->assertSame('GET', $actualEndpoint->httpMethod);
+        $this->assertSame(['param1', 'param2'], $actualEndpoint->parameterList);
+    }
+
+    #[Test]
+    public function adds_endpoint_with_summary_and_description(): void // phpcs:ignore
+    {
+        $apiEndpointProvider = new ApiEndpointProvider();
+
+        $apiEndpointProvider->addEndpoint(
             'MyClass',
             'myEndpoint',
-            '/v1/my-api-endpoint/{param1}/{param2}',
             'GET',
-            [
-                0 => 'param1',
-                1 => 'param2'
-            ]
+            '/v1/my-api-endpoint',
+            'My API Summary',
+            'This is a detailed description of the API endpoint'
         );
 
-        $this->assertEquals($expectedEndpoint, $actualEndpoint);
+        $apiRequest = $this->createMock(ApiRequestInterface::class);
+        $apiRequest->expects(self::once())->method('getHttpMethod')->willReturn('GET');
+        $apiRequest->expects(self::once())->method('getEndpointPath')->willReturn('/v1/my-api-endpoint');
+
+        $actualEndpoint = $apiEndpointProvider->getEndpoint($apiRequest);
+
+        $this->assertSame('My API Summary', $actualEndpoint->summary);
+        $this->assertSame('This is a detailed description of the API endpoint', $actualEndpoint->description);
     }
 }

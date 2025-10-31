@@ -8,13 +8,17 @@ final readonly class ApiEndpoint
 {
     /**
      * @param array<string> $parameterList
+     * @param array<ApiEndpointParameter> $parameters
      */
     public function __construct(
         public string $className,
         public string $method,
         public string $path,
         public string $httpMethod,
-        public array $parameterList
+        public array $parameterList,
+        public string $summary = '',
+        public string $description = '',
+        public array $parameters = []
     ) {
     }
 
