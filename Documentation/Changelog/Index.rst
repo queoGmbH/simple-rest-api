@@ -8,6 +8,51 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
+Version 0.2.0-rc2
+=================
+
+Released: 2025-01-11
+
+Added
+-----
+
+* **ModifyApiResponseEvent** - New PSR-14 event to modify API responses before returning to client
+* Color-coded HTTP method badges in backend module (GET, POST, PUT, PATCH, DELETE)
+* Comprehensive quick start guide in README with step-by-step instructions
+* Complete HTTP method examples in documentation (all methods now documented)
+* Project badges in README (version, license, TYPO3 compatibility)
+* CHANGELOG.md file following Keep a Changelog format
+
+Changed
+-------
+
+* Restructured PSR-14 events documentation for improved clarity and navigation
+* Replaced 'Adding Request Context' example with more practical 'Loading Extbase Models' example
+* Enhanced README with better project overview and usage examples
+* Improved backend module visual presentation with color coding
+
+Fixed
+-----
+
+* Removed reference to non-existent event-flow.svg image in documentation
+
+Documentation
+-------------
+
+* New documentation for ModifyApiResponseEvent with usage examples
+* Restructured events documentation with better organization
+* Added practical example for loading Extbase models in API endpoints
+* Complete coverage of all HTTP methods with code examples
+
+Technical
+---------
+
+* Added date extension to composer-require-checker configuration
+* Excluded CLAUDE.md from package distribution via .gitattributes
+* Added .phpunit.result.cache and .claude/ to .gitignore
+* Removed config folder from repository (site-specific, not for extension)
+* Fixed Rector code style issues for PHP 8.2+ compatibility
+
 Version 0.2.0-rc1
 =================
 
