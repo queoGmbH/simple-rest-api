@@ -9,7 +9,7 @@ Filtering Event Listeners by Endpoint
 When working with PSR-14 events in the Simple REST API extension, you often want
 to restrict event listeners to specific endpoints rather than executing for all API requests.
 
-This guide shows different approaches to filter event listeners based on endpoints.
+This guide shows how to filter event listeners based on endpoint properties.
 
 .. contents:: Table of Contents
    :local:
@@ -40,19 +40,25 @@ This can lead to:
 * Hard-to-maintain string comparisons
 * Coupling to URL patterns
 
-Solution Overview
+Solution: Use ApiEndpoint Methods
+==================================
+
+All events provide access to the ``ApiEndpoint`` object, which contains methods
+to check endpoint properties. This is the **only** way to filter endpoints.
+
+.. code-block:: php
+
+   public function __invoke(BeforeParameterMappingEvent $event): void
+   {
+       $endpoint = $event->getApiEndpoint();
+
+       if ($endpoint->hasTag('authenticated')) {
+           // Process authenticated endpoints
+       }
+   }
+
+Available Methods
 =================
-
-The extension provides three complementary approaches:
-
-1. **Helper Methods** - Direct endpoint checking on events (simple cases)
-2. **Tags** - Group endpoints by functionality (flexible grouping)
-3. **EndpointMatcher Service** - Advanced filtering with wildcards (complex scenarios)
-
-Approach 1: Helper Methods
-===========================
-
-All events provide convenient helper methods for checking the current endpoint.
 
 Check by Class and Method
 --------------------------
@@ -74,8 +80,10 @@ Use type-safe class constants to check if the listener should execute:
    {
        public function __invoke(BeforeParameterMappingEvent $event): void
        {
+           $endpoint = $event->getApiEndpoint();
+
            // Only execute for specific endpoint
-           if ($event->isEndpoint(UserController::class, 'getUser')) {
+           if ($endpoint->isEndpoint(UserController::class, 'getUser')) {
                // Modify parameters only for UserController::getUser
                $params = $event->getPathParameters();
                // ... modify parameters
@@ -92,32 +100,68 @@ Match endpoints by their URL path:
 
    public function __invoke(ModifyApiResponseEvent $event): void
    {
+       $endpoint = $event->getEndpoint();
+
        // Match exact path
-       if ($event->matchesPath('/v1/users/{userId}')) {
+       if ($endpoint->matchesPath('/v1/users/{userId}')) {
            // Add custom headers for this specific endpoint
        }
    }
 
-Available Helper Methods
-------------------------
+Check by Tags
+-------------
 
-All three events provide these methods:
+Tags allow you to group endpoints by functionality:
+
+.. code-block:: php
+
+   public function __invoke(BeforeParameterMappingEvent $event): void
+   {
+       $endpoint = $event->getApiEndpoint();
+
+       // Check single tag
+       if ($endpoint->hasTag('authenticated')) {
+           // Validate authentication token
+       }
+
+       // Check if endpoint has ANY of these tags
+       if ($endpoint->hasAnyTag(['public', 'guest-allowed'])) {
+           // Allow anonymous access
+       }
+
+       // Check if endpoint has ALL of these tags
+       if ($endpoint->hasAllTags(['authenticated', 'admin-only'])) {
+           // Check admin permissions
+       }
+   }
+
+Method Reference
+----------------
+
+All ``ApiEndpoint`` objects provide these methods:
 
 .. code-block:: php
 
    // Check class and method
-   $event->isEndpoint(UserController::class, 'getUser'): bool
+   $endpoint->isEndpoint(UserController::class, 'getUser'): bool
 
-   // Check path
-   $event->matchesPath('/v1/users/{userId}'): bool
+   // Check path (exact match only)
+   $endpoint->matchesPath('/v1/users/{userId}'): bool
 
-   // Check tags (see next section)
-   $event->hasTag('authenticated'): bool
-   $event->hasAnyTag(['public', 'cached']): bool
-   $event->hasAllTags(['authenticated', 'admin']): bool
+   // Check tags
+   $endpoint->hasTag('authenticated'): bool
+   $endpoint->hasAnyTag(['public', 'cached']): bool
+   $endpoint->hasAllTags(['authenticated', 'admin']): bool
 
-Approach 2: Endpoint Tags
-==========================
+   // Access properties
+   $endpoint->className: string
+   $endpoint->method: string
+   $endpoint->path: string
+   $endpoint->httpMethod: string
+   $endpoint->tags: array
+
+Endpoint Tags
+=============
 
 Tags allow you to group endpoints by functionality, making it easy to apply
 listeners to multiple related endpoints.
@@ -171,8 +215,10 @@ Check for tags in your event listeners:
    {
        public function __invoke(BeforeParameterMappingEvent $event): void
        {
+           $endpoint = $event->getApiEndpoint();
+
            // Execute for all endpoints tagged as 'authenticated'
-           if ($event->hasTag('authenticated')) {
+           if ($endpoint->hasTag('authenticated')) {
                // Validate authentication token
                $this->validateAuthentication($event->getApiRequest());
            }
@@ -186,13 +232,15 @@ Check for any or all tags:
 
 .. code-block:: php
 
+   $endpoint = $event->getApiEndpoint();
+
    // Execute if endpoint has ANY of these tags
-   if ($event->hasAnyTag(['public', 'guest-allowed'])) {
+   if ($endpoint->hasAnyTag(['public', 'guest-allowed'])) {
        // Allow anonymous access
    }
 
    // Execute ONLY if endpoint has ALL of these tags
-   if ($event->hasAllTags(['authenticated', 'admin-only'])) {
+   if ($endpoint->hasAllTags(['authenticated', 'admin-only'])) {
        // Check admin permissions
    }
 
@@ -225,122 +273,6 @@ Here are some useful tag categories:
 * ``beta`` - Experimental endpoint
 * ``stable`` - Production-ready endpoint
 
-Approach 3: EndpointMatcher Service
-====================================
-
-For complex filtering scenarios, use the ``EndpointMatcher`` service.
-
-Basic Usage
------------
-
-Inject the service and use it in your listener:
-
-.. code-block:: php
-
-   <?php
-
-   declare(strict_types=1);
-
-   namespace MyVendor\MyExtension\EventListener;
-
-   use Queo\SimpleRestApi\Event\ModifyApiResponseEvent;
-   use Queo\SimpleRestApi\Service\EndpointMatcher;
-   use MyVendor\MyExtension\Controller\UserController;
-   use MyVendor\MyExtension\Controller\ProductController;
-
-   final readonly class CustomHeaderListener
-   {
-       public function __construct(
-           private EndpointMatcher $matcher
-       ) {
-       }
-
-       public function __invoke(ModifyApiResponseEvent $event): void
-       {
-           // Match specific methods on specific controllers
-           if ($this->matcher->matches($event, [
-               UserController::class => ['getUser', 'updateUser'],
-               ProductController::class => 'getProduct'
-           ])) {
-               // Add custom headers
-               $response = $event->getResponse();
-               $response = $response->withHeader('X-Custom-Header', 'value');
-               $event->setResponse($response);
-           }
-       }
-   }
-
-Wildcard Matching
------------------
-
-Match all methods on a controller:
-
-.. code-block:: php
-
-   if ($this->matcher->matches($event, [
-       UserController::class => '*',  // All methods on UserController
-       ProductController::class => ['getProduct', 'listProducts']
-   ])) {
-       // Execute for all UserController methods and specific ProductController methods
-   }
-
-Path Wildcards
---------------
-
-Match path patterns with wildcards:
-
-.. code-block:: php
-
-   // Match all endpoints under /v1/users/
-   if ($this->matcher->matchesPath($event, '/v1/users/*')) {
-       // Matches: /v1/users/123, /v1/users/123/posts, etc.
-   }
-
-   // Match all admin endpoints
-   if ($this->matcher->matchesPath($event, '/v1/admin/*')) {
-       // Matches any path starting with /v1/admin/
-   }
-
-HTTP Method Filtering
----------------------
-
-Filter by HTTP method:
-
-.. code-block:: php
-
-   // Only for POST requests
-   if ($this->matcher->usesHttpMethod($event, 'POST')) {
-       // Validate CSRF token
-   }
-
-   // Only for GET requests with caching
-   if ($this->matcher->usesHttpMethod($event, 'GET')
-       && $event->hasTag('cacheable')) {
-       // Add cache headers
-   }
-
-Tag Checking with Matcher
---------------------------
-
-The matcher also provides tag checking methods:
-
-.. code-block:: php
-
-   // Check single tag
-   if ($this->matcher->hasTag($event, 'authenticated')) {
-       // Validate authentication
-   }
-
-   // Check any of multiple tags
-   if ($this->matcher->hasAnyTag($event, ['public', 'guest-allowed'])) {
-       // Allow access
-   }
-
-   // Check all tags present
-   if ($this->matcher->hasAllTags($event, ['authenticated', 'admin-only'])) {
-       // Check admin permissions
-   }
-
 Complete Examples
 =================
 
@@ -364,8 +296,10 @@ Restrict authentication checks to tagged endpoints:
    {
        public function __invoke(BeforeParameterMappingEvent $event): void
        {
+           $endpoint = $event->getApiEndpoint();
+
            // Only check authentication for tagged endpoints
-           if (!$event->hasTag('authenticated')) {
+           if (!$endpoint->hasTag('authenticated')) {
                return; // Public endpoint, skip authentication
            }
 
@@ -403,15 +337,16 @@ Add cache headers based on endpoint tags:
    {
        public function __invoke(ModifyApiResponseEvent $event): void
        {
+           $endpoint = $event->getEndpoint();
            $response = $event->getResponse();
 
-           if ($event->hasTag('cacheable')) {
+           if ($endpoint->hasTag('cacheable')) {
                // Add cache headers for cacheable endpoints
-               $maxAge = $event->hasTag('short-lived') ? 300 : 3600;
+               $maxAge = $endpoint->hasTag('short-lived') ? 300 : 3600;
                $response = $response
                    ->withHeader('Cache-Control', "public, max-age={$maxAge}")
                    ->withHeader('Vary', 'Accept-Encoding');
-           } elseif ($event->hasTag('no-cache')) {
+           } elseif ($endpoint->hasTag('no-cache')) {
                // Prevent caching
                $response = $response
                    ->withHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
@@ -426,7 +361,7 @@ Add cache headers based on endpoint tags:
 Example 3: CORS Headers for Specific Controllers
 -------------------------------------------------
 
-Use the matcher service for complex filtering:
+Filter by controller class:
 
 .. code-block:: php
 
@@ -437,24 +372,22 @@ Use the matcher service for complex filtering:
    namespace MyVendor\MyExtension\EventListener;
 
    use Queo\SimpleRestApi\Event\ModifyApiResponseEvent;
-   use Queo\SimpleRestApi\Service\EndpointMatcher;
    use MyVendor\MyExtension\Controller\PublicApiController;
    use MyVendor\MyExtension\Controller\WebhookController;
 
-   final readonly class CorsListener
+   final class CorsListener
    {
-       public function __construct(
-           private EndpointMatcher $matcher
-       ) {
-       }
-
        public function __invoke(ModifyApiResponseEvent $event): void
        {
+           $endpoint = $event->getEndpoint();
+
            // Only add CORS headers for public API and webhooks
-           if (!$this->matcher->matches($event, [
-               PublicApiController::class => '*',
-               WebhookController::class => '*'
-           ])) {
+           $allowedClasses = [
+               PublicApiController::class,
+               WebhookController::class,
+           ];
+
+           if (!in_array($endpoint->className, $allowedClasses, true)) {
                return;
            }
 
@@ -494,8 +427,10 @@ Load related data for specific endpoints:
 
        public function __invoke(AfterParameterMappingEvent $event): void
        {
+           $endpoint = $event->getEndpoint();
+
            // Only for UserController::getUser
-           if (!$event->isEndpoint(UserController::class, 'getUser')) {
+           if (!$endpoint->isEndpoint(UserController::class, 'getUser')) {
                return;
            }
 
@@ -512,24 +447,67 @@ Load related data for specific endpoints:
        }
    }
 
+Example 5: HTTP Method Filtering
+---------------------------------
+
+Filter by HTTP method:
+
+.. code-block:: php
+
+   <?php
+
+   declare(strict_types=1);
+
+   namespace MyVendor\MyExtension\EventListener;
+
+   use Queo\SimpleRestApi\Event\BeforeParameterMappingEvent;
+
+   final class CsrfTokenListener
+   {
+       public function __invoke(BeforeParameterMappingEvent $event): void
+       {
+           $endpoint = $event->getApiEndpoint();
+
+           // Only validate CSRF tokens for POST requests
+           if (strtoupper($endpoint->httpMethod) !== 'POST') {
+               return;
+           }
+
+           // Validate CSRF token
+           $this->validateCsrfToken($event->getApiRequest());
+       }
+
+       private function validateCsrfToken($request): void
+       {
+           // Your CSRF validation logic
+       }
+   }
+
 Best Practices
 ==============
 
-1. **Start Simple, Add Complexity as Needed**
+1. **Always Get the Endpoint Object First**
 
-   * Use helper methods for single endpoint checks
-   * Add tags when grouping multiple endpoints
-   * Use EndpointMatcher for complex scenarios
+   .. code-block:: php
+
+      public function __invoke(BeforeParameterMappingEvent $event): void
+      {
+          $endpoint = $event->getApiEndpoint();
+
+          if ($endpoint->hasTag('authenticated')) {
+              // Process
+          }
+      }
 
 2. **Use Type-Safe Class Constants**
 
    .. code-block:: php
 
       // Good: Type-safe, refactoring-friendly
-      $event->isEndpoint(UserController::class, 'getUser')
+      $endpoint->isEndpoint(UserController::class, 'getUser')
 
       // Avoid: String-based, fragile
-      if (str_contains($event->getApiEndpoint()->path, '/users/'))
+      if (str_contains($endpoint->path, '/users/'))
 
 3. **Tag Consistently**
 
@@ -543,8 +521,10 @@ Best Practices
 
       public function __invoke(BeforeParameterMappingEvent $event): void
       {
+          $endpoint = $event->getApiEndpoint();
+
           // Return early if not applicable
-          if (!$event->hasTag('authenticated')) {
+          if (!$endpoint->hasTag('authenticated')) {
               return;
           }
 
@@ -552,46 +532,83 @@ Best Practices
           $this->checkAuthentication($event);
       }
 
-5. **Combine Approaches**
+5. **Combine Multiple Checks**
 
    .. code-block:: php
 
+      $endpoint = $event->getApiEndpoint();
+
       // Combine tags and class checking
-      if ($event->hasTag('admin-only')
-          && $event->isEndpoint(UserController::class, 'deleteUser')) {
+      if ($endpoint->hasTag('admin-only')
+          && $endpoint->isEndpoint(UserController::class, 'deleteUser')) {
           // Extra verification for critical operations
       }
+
+Event-Specific Endpoint Methods
+================================
+
+Different events use different method names to get the endpoint:
+
+.. code-block:: php
+
+   // BeforeParameterMappingEvent
+   $endpoint = $event->getApiEndpoint();
+
+   // AfterParameterMappingEvent
+   $endpoint = $event->getEndpoint();
+
+   // ModifyApiResponseEvent
+   $endpoint = $event->getEndpoint();
+
+All returned ``ApiEndpoint`` objects have the same methods available.
 
 Performance Considerations
 ==========================
 
-The helper methods and EndpointMatcher service are optimized for performance:
+The ``ApiEndpoint`` methods are optimized for performance:
 
-* **Helper methods** - Direct property access, minimal overhead
-* **Tag checking** - Simple array lookups using ``in_array()``
-* **EndpointMatcher** - Lazy evaluation, stops at first match
+* **isEndpoint()** - Direct property comparison
+* **hasTag()** - Simple array lookup using ``in_array()``
+* **hasAnyTag() / hasAllTags()** - Early return on match/mismatch
 
 For best performance:
 
 * Use early returns to skip unnecessary processing
-* Prefer direct helper methods over the matcher service for simple checks
-* Cache expensive lookups in listener properties when possible
+* Cache the endpoint object in a variable if checking multiple conditions
+* Prefer specific checks (``isEndpoint()``) over generic ones when possible
 
 Summary
 =======
 
-==================  ========================  =========================
-Approach            Best For                  Example
-==================  ========================  =========================
-Helper Methods      Single endpoint checks    ``$event->isEndpoint()``
-Tags                Grouping endpoints        ``$event->hasTag('auth')``
-EndpointMatcher     Complex filtering         Wildcards, multiple classes
-==================  ========================  =========================
+**The Simple Approach:**
 
-All three approaches work with all events:
+1. Get the endpoint object from the event
+2. Call methods on the endpoint to check conditions
+3. Process or return early based on the result
 
-* BeforeParameterMappingEvent
-* AfterParameterMappingEvent
-* ModifyApiResponseEvent
+.. code-block:: php
 
-Choose the approach that best fits your use case, or combine them for maximum flexibility.
+   public function __invoke(BeforeParameterMappingEvent $event): void
+   {
+       $endpoint = $event->getApiEndpoint();
+
+       if (!$endpoint->hasTag('my-tag')) {
+           return;
+       }
+
+       // Your logic here
+   }
+
+**Available on all endpoints:**
+
+* ``isEndpoint(class, method)`` - Check specific controller/method
+* ``hasTag(tag)`` - Check single tag
+* ``hasAnyTag([tags])`` - Check any of multiple tags
+* ``hasAllTags([tags])`` - Check all tags present
+* ``matchesPath(path)`` - Check exact path match
+
+This approach works with all events:
+
+* ``BeforeParameterMappingEvent``
+* ``AfterParameterMappingEvent``
+* ``ModifyApiResponseEvent``
