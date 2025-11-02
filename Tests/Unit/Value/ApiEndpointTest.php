@@ -148,127 +148,167 @@ final class ApiEndpointTest extends UnitTestCase
     #[Test]
     public function checks_if_is_specific_endpoint(): void // phpcs:ignore
     {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
         $apiEndpoint = new ApiEndpoint(
-            'MyApiController',
+            $className,
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
             []
         );
 
-        $this->assertTrue($apiEndpoint->isEndpoint('MyApiController', 'myApiMethod'));
-        $this->assertFalse($apiEndpoint->isEndpoint('OtherController', 'myApiMethod'));
-        $this->assertFalse($apiEndpoint->isEndpoint('MyApiController', 'otherMethod'));
+        $this->assertTrue($apiEndpoint->isEndpoint($className, 'myApiMethod'));
+        /** @phpstan-var class-string $otherClassName */
+        $otherClassName = 'OtherController';
+        $this->assertFalse($apiEndpoint->isEndpoint($otherClassName, 'myApiMethod'));
+        $this->assertFalse($apiEndpoint->isEndpoint($className, 'otherMethod'));
     }
 
     #[Test]
     public function checks_if_is_any_endpoint_with_single_method(): void // phpcs:ignore
     {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
         $apiEndpoint = new ApiEndpoint(
-            'MyApiController',
+            $className,
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
             []
         );
 
-        $this->assertTrue($apiEndpoint->isAnyEndpoint([
+        /** @phpstan-var array<class-string, string> $endpoints */
+        $endpoints = [
             'MyApiController' => 'myApiMethod',
-        ]));
+        ];
+        $this->assertTrue($apiEndpoint->isAnyEndpoint($endpoints));
 
-        $this->assertTrue($apiEndpoint->isAnyEndpoint([
+        /** @phpstan-var array<class-string, string> $endpoints */
+        $endpoints = [
             'MyApiController' => 'myApiMethod',
             'OtherController' => 'otherMethod',
-        ]));
+        ];
+        $this->assertTrue($apiEndpoint->isAnyEndpoint($endpoints));
 
-        $this->assertFalse($apiEndpoint->isAnyEndpoint([
+        /** @phpstan-var array<class-string, string> $endpoints */
+        $endpoints = [
             'OtherController' => 'myApiMethod',
-        ]));
+        ];
+        $this->assertFalse($apiEndpoint->isAnyEndpoint($endpoints));
 
-        $this->assertFalse($apiEndpoint->isAnyEndpoint([
+        /** @phpstan-var array<class-string, string> $endpoints */
+        $endpoints = [
             'MyApiController' => 'otherMethod',
-        ]));
+        ];
+        $this->assertFalse($apiEndpoint->isAnyEndpoint($endpoints));
     }
 
     #[Test]
     public function checks_if_is_any_endpoint_with_multiple_methods(): void // phpcs:ignore
     {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
         $apiEndpoint = new ApiEndpoint(
-            'MyApiController',
+            $className,
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
             []
         );
 
-        $this->assertTrue($apiEndpoint->isAnyEndpoint([
+        /** @phpstan-var array<class-string, array<string>> $endpoints */
+        $endpoints = [
             'MyApiController' => ['myApiMethod', 'otherMethod'],
-        ]));
+        ];
+        $this->assertTrue($apiEndpoint->isAnyEndpoint($endpoints));
 
-        $this->assertTrue($apiEndpoint->isAnyEndpoint([
+        /** @phpstan-var array<class-string, array<string>> $endpoints */
+        $endpoints = [
             'MyApiController' => ['firstMethod', 'myApiMethod', 'thirdMethod'],
-        ]));
+        ];
+        $this->assertTrue($apiEndpoint->isAnyEndpoint($endpoints));
 
-        $this->assertFalse($apiEndpoint->isAnyEndpoint([
+        /** @phpstan-var array<class-string, array<string>> $endpoints */
+        $endpoints = [
             'MyApiController' => ['firstMethod', 'secondMethod'],
-        ]));
+        ];
+        $this->assertFalse($apiEndpoint->isAnyEndpoint($endpoints));
 
-        $this->assertFalse($apiEndpoint->isAnyEndpoint([
+        /** @phpstan-var array<class-string, array<string>> $endpoints */
+        $endpoints = [
             'OtherController' => ['myApiMethod'],
-        ]));
+        ];
+        $this->assertFalse($apiEndpoint->isAnyEndpoint($endpoints));
     }
 
     #[Test]
     public function checks_if_is_any_endpoint_with_wildcard(): void // phpcs:ignore
     {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
         $apiEndpoint = new ApiEndpoint(
-            'MyApiController',
+            $className,
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
             []
         );
 
-        $this->assertTrue($apiEndpoint->isAnyEndpoint([
+        /** @phpstan-var array<class-string, string> $endpoints */
+        $endpoints = [
             'MyApiController' => '*',
-        ]));
+        ];
+        $this->assertTrue($apiEndpoint->isAnyEndpoint($endpoints));
 
-        $this->assertTrue($apiEndpoint->isAnyEndpoint([
+        /** @phpstan-var array<class-string, string> $endpoints */
+        $endpoints = [
             'OtherController' => 'someMethod',
             'MyApiController' => '*',
-        ]));
+        ];
+        $this->assertTrue($apiEndpoint->isAnyEndpoint($endpoints));
 
-        $this->assertFalse($apiEndpoint->isAnyEndpoint([
+        /** @phpstan-var array<class-string, string> $endpoints */
+        $endpoints = [
             'OtherController' => '*',
-        ]));
+        ];
+        $this->assertFalse($apiEndpoint->isAnyEndpoint($endpoints));
     }
 
     #[Test]
     public function checks_if_is_any_endpoint_with_mixed_criteria(): void // phpcs:ignore
     {
+        /** @phpstan-var class-string $className */
+        $className = 'UserController';
         $apiEndpoint = new ApiEndpoint(
-            'UserController',
+            $className,
             'getUser',
             '/v1/users/{userId}',
             'GET',
             []
         );
 
-        $this->assertTrue($apiEndpoint->isAnyEndpoint([
+        /** @phpstan-var array<class-string, array<string>|string> $endpoints */
+        $endpoints = [
             'UserController' => ['getUser', 'updateUser'],
             'ProductController' => '*',
-        ]));
+        ];
+        $this->assertTrue($apiEndpoint->isAnyEndpoint($endpoints));
 
-        $this->assertTrue($apiEndpoint->isAnyEndpoint([
+        /** @phpstan-var array<class-string, array<string>|string> $endpoints */
+        $endpoints = [
             'ProductController' => 'getProduct',
             'UserController' => 'getUser',
             'OrderController' => ['listOrders', 'createOrder'],
-        ]));
+        ];
+        $this->assertTrue($apiEndpoint->isAnyEndpoint($endpoints));
 
-        $this->assertFalse($apiEndpoint->isAnyEndpoint([
+        /** @phpstan-var array<class-string, array<string>|string> $endpoints */
+        $endpoints = [
             'UserController' => ['updateUser', 'deleteUser'],
             'ProductController' => '*',
-        ]));
+        ];
+        $this->assertFalse($apiEndpoint->isAnyEndpoint($endpoints));
     }
 
     #[Test]
