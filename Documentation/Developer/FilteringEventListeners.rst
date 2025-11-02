@@ -2,9 +2,9 @@
 
 .. _filtering-event-listeners:
 
-===================================
+==========================================
 Filtering Event Listeners by Endpoint
-===================================
+==========================================
 
 When working with PSR-14 events in the Simple REST API extension, you often want
 to restrict event listeners to specific endpoints rather than executing for all API requests.

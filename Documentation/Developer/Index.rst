@@ -595,3 +595,11 @@ API Reference
 
 For complete API documentation, see the inline PHPDoc comments in the source code
 and the backend module which provides a visual overview of all endpoints.
+
+Additional Topics
+=================
+
+.. toctree::
+   :maxdepth: 1
+
+   FilteringEventListeners
