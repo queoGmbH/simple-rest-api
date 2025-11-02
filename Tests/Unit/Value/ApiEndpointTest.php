@@ -162,6 +162,116 @@ final class ApiEndpointTest extends UnitTestCase
     }
 
     #[Test]
+    public function checks_if_is_any_endpoint_with_single_method(): void // phpcs:ignore
+    {
+        $apiEndpoint = new ApiEndpoint(
+            'MyApiController',
+            'myApiMethod',
+            '/v1/my-endpoint',
+            'GET',
+            []
+        );
+
+        $this->assertTrue($apiEndpoint->isAnyEndpoint([
+            'MyApiController' => 'myApiMethod',
+        ]));
+
+        $this->assertTrue($apiEndpoint->isAnyEndpoint([
+            'MyApiController' => 'myApiMethod',
+            'OtherController' => 'otherMethod',
+        ]));
+
+        $this->assertFalse($apiEndpoint->isAnyEndpoint([
+            'OtherController' => 'myApiMethod',
+        ]));
+
+        $this->assertFalse($apiEndpoint->isAnyEndpoint([
+            'MyApiController' => 'otherMethod',
+        ]));
+    }
+
+    #[Test]
+    public function checks_if_is_any_endpoint_with_multiple_methods(): void // phpcs:ignore
+    {
+        $apiEndpoint = new ApiEndpoint(
+            'MyApiController',
+            'myApiMethod',
+            '/v1/my-endpoint',
+            'GET',
+            []
+        );
+
+        $this->assertTrue($apiEndpoint->isAnyEndpoint([
+            'MyApiController' => ['myApiMethod', 'otherMethod'],
+        ]));
+
+        $this->assertTrue($apiEndpoint->isAnyEndpoint([
+            'MyApiController' => ['firstMethod', 'myApiMethod', 'thirdMethod'],
+        ]));
+
+        $this->assertFalse($apiEndpoint->isAnyEndpoint([
+            'MyApiController' => ['firstMethod', 'secondMethod'],
+        ]));
+
+        $this->assertFalse($apiEndpoint->isAnyEndpoint([
+            'OtherController' => ['myApiMethod'],
+        ]));
+    }
+
+    #[Test]
+    public function checks_if_is_any_endpoint_with_wildcard(): void // phpcs:ignore
+    {
+        $apiEndpoint = new ApiEndpoint(
+            'MyApiController',
+            'myApiMethod',
+            '/v1/my-endpoint',
+            'GET',
+            []
+        );
+
+        $this->assertTrue($apiEndpoint->isAnyEndpoint([
+            'MyApiController' => '*',
+        ]));
+
+        $this->assertTrue($apiEndpoint->isAnyEndpoint([
+            'OtherController' => 'someMethod',
+            'MyApiController' => '*',
+        ]));
+
+        $this->assertFalse($apiEndpoint->isAnyEndpoint([
+            'OtherController' => '*',
+        ]));
+    }
+
+    #[Test]
+    public function checks_if_is_any_endpoint_with_mixed_criteria(): void // phpcs:ignore
+    {
+        $apiEndpoint = new ApiEndpoint(
+            'UserController',
+            'getUser',
+            '/v1/users/{userId}',
+            'GET',
+            []
+        );
+
+        $this->assertTrue($apiEndpoint->isAnyEndpoint([
+            'UserController' => ['getUser', 'updateUser'],
+            'ProductController' => '*',
+        ]));
+
+        $this->assertTrue($apiEndpoint->isAnyEndpoint([
+            'ProductController' => 'getProduct',
+            'UserController' => 'getUser',
+            'OrderController' => ['listOrders', 'createOrder'],
+        ]));
+
+        $this->assertFalse($apiEndpoint->isAnyEndpoint([
+            'UserController' => ['updateUser', 'deleteUser'],
+            'ProductController' => '*',
+        ]));
+    }
+
+    #[Test]
     public function matches_path_pattern(): void // phpcs:ignore
     {
         $apiEndpoint = new ApiEndpoint(

@@ -95,6 +95,36 @@ final readonly class ApiEndpoint
     }
 
     /**
+     * Check if this endpoint matches any of the given class/method combinations.
+     *
+     * @param array<class-string, string|array<string>> $endpoints Format: [ClassName::class => 'methodName'] or [ClassName::class => ['method1', 'method2']] or [ClassName::class => '*']
+     */
+    public function isAnyEndpoint(array $endpoints): bool
+    {
+        foreach ($endpoints as $className => $methods) {
+            if ($this->className !== $className) {
+                continue;
+            }
+
+            // Wildcard matches all methods
+            if ($methods === '*') {
+                return true;
+            }
+
+            // Convert single method to array
+            $methodList = is_array($methods) ? $methods : [$methods];
+
+            foreach ($methodList as $method) {
+                if ($this->method === $method) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Check if this endpoint's path matches the given pattern.
      * Supports exact match or pattern with wildcards.
      */

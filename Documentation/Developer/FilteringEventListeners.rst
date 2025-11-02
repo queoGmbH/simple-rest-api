@@ -91,6 +91,37 @@ Use type-safe class constants to check if the listener should execute:
        }
    }
 
+Check Multiple Endpoints
+-------------------------
+
+Use ``isAnyEndpoint()`` to check if the endpoint matches any of several class/method combinations:
+
+.. code-block:: php
+
+   use MyVendor\MyExtension\Controller\UserController;
+   use MyVendor\MyExtension\Controller\ProductController;
+
+   public function __invoke(BeforeParameterMappingEvent $event): void
+   {
+       $endpoint = $event->getApiEndpoint();
+
+       // Check multiple specific methods
+       if ($endpoint->isAnyEndpoint([
+           UserController::class => ['getUser', 'updateUser'],
+           ProductController::class => 'getProduct',
+       ])) {
+           // Execute for these specific endpoints
+       }
+
+       // Use wildcard to match all methods on a controller
+       if ($endpoint->isAnyEndpoint([
+           UserController::class => '*',
+           ProductController::class => ['getProduct', 'listProducts'],
+       ])) {
+           // Execute for all UserController methods and specific ProductController methods
+       }
+   }
+
 Check by Path Pattern
 ---------------------
 
@@ -144,6 +175,12 @@ All ``ApiEndpoint`` objects provide these methods:
 
    // Check class and method
    $endpoint->isEndpoint(UserController::class, 'getUser'): bool
+
+   // Check multiple class/method combinations
+   $endpoint->isAnyEndpoint([
+       UserController::class => ['getUser', 'updateUser'],
+       ProductController::class => '*',
+   ]): bool
 
    // Check path (exact match only)
    $endpoint->matchesPath('/v1/users/{userId}'): bool
@@ -361,7 +398,7 @@ Add cache headers based on endpoint tags:
 Example 3: CORS Headers for Specific Controllers
 -------------------------------------------------
 
-Filter by controller class:
+Use ``isAnyEndpoint()`` to filter by multiple controllers:
 
 .. code-block:: php
 
@@ -382,12 +419,10 @@ Filter by controller class:
            $endpoint = $event->getEndpoint();
 
            // Only add CORS headers for public API and webhooks
-           $allowedClasses = [
-               PublicApiController::class,
-               WebhookController::class,
-           ];
-
-           if (!in_array($endpoint->className, $allowedClasses, true)) {
+           if (!$endpoint->isAnyEndpoint([
+               PublicApiController::class => '*',
+               WebhookController::class => '*',
+           ])) {
                return;
            }
 
@@ -602,6 +637,7 @@ Summary
 **Available on all endpoints:**
 
 * ``isEndpoint(class, method)`` - Check specific controller/method
+* ``isAnyEndpoint([class => methods])`` - Check multiple controller/method combinations
 * ``hasTag(tag)`` - Check single tag
 * ``hasAnyTag([tags])`` - Check any of multiple tags
 * ``hasAllTags([tags])`` - Check all tags present
