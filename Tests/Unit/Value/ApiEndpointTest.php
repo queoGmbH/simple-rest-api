@@ -15,7 +15,9 @@ final class ApiEndpointTest extends UnitTestCase
     #[Test]
     public function provides_endpoint_path_without_parameters(): void // phpcs:ignore
     {
-        $apiEndpoint = new ApiEndpoint('MyApiController', 'myApiMethod', '/v1/my-endpoint/{someArg}/{otherArg}', 'GET', ['someArg', 'otherArg']);
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
+        $apiEndpoint = new ApiEndpoint($className, 'myApiMethod', '/v1/my-endpoint/{someArg}/{otherArg}', 'GET', ['someArg', 'otherArg']);
 
         $this->assertSame('/v1/my-endpoint', $apiEndpoint->getPathWithoutParameters());
     }
@@ -23,8 +25,10 @@ final class ApiEndpointTest extends UnitTestCase
     #[Test]
     public function provides_summary_and_description(): void // phpcs:ignore
     {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
         $apiEndpoint = new ApiEndpoint(
-            'MyApiController',
+            $className,
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
@@ -40,8 +44,10 @@ final class ApiEndpointTest extends UnitTestCase
     #[Test]
     public function allows_empty_summary_and_description(): void // phpcs:ignore
     {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
         $apiEndpoint = new ApiEndpoint(
-            'MyApiController',
+            $className,
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
@@ -56,8 +62,10 @@ final class ApiEndpointTest extends UnitTestCase
     #[Test]
     public function supports_tags(): void // phpcs:ignore
     {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
         $apiEndpoint = new ApiEndpoint(
-            'MyApiController',
+            $className,
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
@@ -74,8 +82,10 @@ final class ApiEndpointTest extends UnitTestCase
     #[Test]
     public function allows_empty_tags(): void // phpcs:ignore
     {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
         $apiEndpoint = new ApiEndpoint(
-            'MyApiController',
+            $className,
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
@@ -88,8 +98,10 @@ final class ApiEndpointTest extends UnitTestCase
     #[Test]
     public function checks_if_has_specific_tag(): void // phpcs:ignore
     {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
         $apiEndpoint = new ApiEndpoint(
-            'MyApiController',
+            $className,
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
@@ -108,8 +120,10 @@ final class ApiEndpointTest extends UnitTestCase
     #[Test]
     public function checks_if_has_any_tag(): void // phpcs:ignore
     {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
         $apiEndpoint = new ApiEndpoint(
-            'MyApiController',
+            $className,
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
@@ -128,8 +142,10 @@ final class ApiEndpointTest extends UnitTestCase
     #[Test]
     public function checks_if_has_all_tags(): void // phpcs:ignore
     {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
         $apiEndpoint = new ApiEndpoint(
-            'MyApiController',
+            $className,
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
@@ -314,8 +330,10 @@ final class ApiEndpointTest extends UnitTestCase
     #[Test]
     public function matches_path_pattern(): void // phpcs:ignore
     {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
         $apiEndpoint = new ApiEndpoint(
-            'MyApiController',
+            $className,
             'myApiMethod',
             '/v1/users/{userId}',
             'GET',
@@ -329,14 +347,16 @@ final class ApiEndpointTest extends UnitTestCase
     #[Test]
     public function returns_class_name(): void // phpcs:ignore
     {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
         $apiEndpoint = new ApiEndpoint(
-            'MyApiController',
+            $className,
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
             []
         );
 
-        $this->assertSame('MyApiController', $apiEndpoint->getClass());
+        $this->assertSame($className, $apiEndpoint->getClass());
     }
 }

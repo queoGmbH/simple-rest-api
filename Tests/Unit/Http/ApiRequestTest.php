@@ -129,7 +129,9 @@ final class ApiRequestTest extends UnitTestCase
 
         $apiRequest = new ApiRequest($currentRequest, $extensionConfiguration);
 
-        $apiEndpoint = new ApiEndpoint('MyClass', 'myEndpoint', '/v1/my/example/endpoint/{param1}/{param2}', 'GET', ['param1', 'param2']);
+        /** @phpstan-var class-string $className */
+        $className = 'MyClass';
+        $apiEndpoint = new ApiEndpoint($className, 'myEndpoint', '/v1/my/example/endpoint/{param1}/{param2}', 'GET', ['param1', 'param2']);
 
         $expectedParameters = new Parameters(
             [
