@@ -18,10 +18,8 @@ final class ModifyApiResponseEventTest extends UnitTestCase
     #[Test]
     public function provides_response(): void // phpcs:ignore
     {
-        /** @phpstan-var class-string $className */
-        $className = 'TestClass';
         $response = new JsonResponse(['data' => 'test']);
-        $endpoint = new ApiEndpoint($className, 'testMethod', '/v1/test', 'GET', []);
+        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', []); // @phpstan-ignore-line argument.type
         $apiRequest = $this->createMock(ApiRequestInterface::class);
 
         $event = new ModifyApiResponseEvent($response, $endpoint, $apiRequest);
@@ -32,10 +30,8 @@ final class ModifyApiResponseEventTest extends UnitTestCase
     #[Test]
     public function provides_endpoint(): void // phpcs:ignore
     {
-        /** @phpstan-var class-string $className */
-        $className = 'TestClass';
         $response = new JsonResponse(['data' => 'test']);
-        $endpoint = new ApiEndpoint($className, 'testMethod', '/v1/test', 'GET', []);
+        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', []); // @phpstan-ignore-line argument.type
         $apiRequest = $this->createMock(ApiRequestInterface::class);
 
         $event = new ModifyApiResponseEvent($response, $endpoint, $apiRequest);
@@ -46,10 +42,8 @@ final class ModifyApiResponseEventTest extends UnitTestCase
     #[Test]
     public function provides_api_request(): void // phpcs:ignore
     {
-        /** @phpstan-var class-string $className */
-        $className = 'TestClass';
         $response = new JsonResponse(['data' => 'test']);
-        $endpoint = new ApiEndpoint($className, 'testMethod', '/v1/test', 'GET', []);
+        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', []); // @phpstan-ignore-line argument.type
         $apiRequest = $this->createMock(ApiRequestInterface::class);
 
         $event = new ModifyApiResponseEvent($response, $endpoint, $apiRequest);
@@ -60,10 +54,8 @@ final class ModifyApiResponseEventTest extends UnitTestCase
     #[Test]
     public function allows_response_modification(): void // phpcs:ignore
     {
-        /** @phpstan-var class-string $className */
-        $className = 'TestClass';
         $originalResponse = new JsonResponse(['data' => 'original']);
-        $endpoint = new ApiEndpoint($className, 'testMethod', '/v1/test', 'GET', []);
+        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', []); // @phpstan-ignore-line argument.type
         $apiRequest = $this->createMock(ApiRequestInterface::class);
 
         $event = new ModifyApiResponseEvent($originalResponse, $endpoint, $apiRequest);
@@ -81,10 +73,8 @@ final class ModifyApiResponseEventTest extends UnitTestCase
     #[Test]
     public function allows_complete_response_replacement(): void // phpcs:ignore
     {
-        /** @phpstan-var class-string $className */
-        $className = 'TestClass';
         $originalResponse = new JsonResponse(['data' => 'original']);
-        $endpoint = new ApiEndpoint($className, 'testMethod', '/v1/test', 'GET', []);
+        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', []); // @phpstan-ignore-line argument.type
         $apiRequest = $this->createMock(ApiRequestInterface::class);
 
         $event = new ModifyApiResponseEvent($originalResponse, $endpoint, $apiRequest);
@@ -104,10 +94,8 @@ final class ModifyApiResponseEventTest extends UnitTestCase
     #[Test]
     public function allows_adding_multiple_headers(): void // phpcs:ignore
     {
-        /** @phpstan-var class-string $className */
-        $className = 'TestClass';
         $response = new JsonResponse(['data' => 'test']);
-        $endpoint = new ApiEndpoint($className, 'testMethod', '/v1/test', 'GET', []);
+        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', []); // @phpstan-ignore-line argument.type
         $apiRequest = $this->createMock(ApiRequestInterface::class);
 
         $event = new ModifyApiResponseEvent($response, $endpoint, $apiRequest);

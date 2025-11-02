@@ -15,11 +15,9 @@ final class ApiEndpointProviderWithTagsTest extends UnitTestCase
     #[Test]
     public function endpoint_provider_stores_tags(): void // phpcs:ignore
     {
-        /** @phpstan-var class-string $className */
-        $className = 'MyController';
         $provider = new ApiEndpointProvider();
         $provider->addEndpoint(
-            $className,
+            'MyController', // @phpstan-ignore-line argument.type
             'myMethod',
             'GET',
             '/v1/my-endpoint',
@@ -37,11 +35,9 @@ final class ApiEndpointProviderWithTagsTest extends UnitTestCase
     #[Test]
     public function endpoint_provider_allows_empty_tags(): void // phpcs:ignore
     {
-        /** @phpstan-var class-string $className */
-        $className = 'MyController';
         $provider = new ApiEndpointProvider();
         $provider->addEndpoint(
-            $className,
+            'MyController', // @phpstan-ignore-line argument.type
             'myMethod',
             'GET',
             '/v1/my-endpoint'
@@ -56,11 +52,9 @@ final class ApiEndpointProviderWithTagsTest extends UnitTestCase
     #[Test]
     public function endpoint_can_check_tags(): void // phpcs:ignore
     {
-        /** @phpstan-var class-string $className */
-        $className = 'MyController';
         $provider = new ApiEndpointProvider();
         $provider->addEndpoint(
-            $className,
+            'MyController', // @phpstan-ignore-line argument.type
             'myMethod',
             'GET',
             '/v1/my-endpoint',
