@@ -98,7 +98,7 @@ Example: Adding Default Parameters
 
                // Create new Parameters object with modified values
                $newParameters = new Parameters(
-                   array_map(fn($param) => $param->name, $endpoint->parameters),
+                   $endpoint->parameters,
                    $rawParams,
                    $event->getApiRequest()->getRequest()
                );
@@ -134,7 +134,7 @@ Example: Parameter Normalization
        $normalizedParams = array_map('strtolower', $rawParams);
 
        $newParameters = new Parameters(
-           array_map(fn($param) => $param->name, $event->getApiEndpoint()->parameters),
+           $event->getApiEndpoint()->parameters,
            $normalizedParams,
            $event->getApiRequest()->getRequest()
        );

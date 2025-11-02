@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Queo\SimpleRestApi\Collection;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Queo\SimpleRestApi\Value\ApiEndpointParameter;
 use ReflectionException;
 use ReflectionMethod;
 use ReflectionNamedType;
@@ -13,7 +14,7 @@ use RuntimeException;
 final readonly class Parameters
 {
     /**
-     * @param array<string> $endpointParameters
+     * @param array<ApiEndpointParameter> $endpointParameters
      * @param array<string> $parameterValues
      */
     public function __construct(
@@ -48,8 +49,8 @@ final readonly class Parameters
                 continue;
             }
 
-            if ($paramName !== $this->endpointParameters[$key]) {
-                throw new RuntimeException('Parameter name ' . $paramName . ' does not match endpoint param ' . $this->endpointParameters[$key], 7288828913);
+            if ($paramName !== $this->endpointParameters[$key]->name) {
+                throw new RuntimeException('Parameter name ' . $paramName . ' does not match endpoint param ' . $this->endpointParameters[$key]->name, 7288828913);
             }
 
             $methodParameters[] = match ($type) {
@@ -62,5 +63,15 @@ final readonly class Parameters
         }
 
         return $methodParameters;
+    }
+
+    /**
+     * Get the raw parameter values array.
+     *
+     * @return array<string>
+     */
+    public function getParameterArray(): array
+    {
+        return $this->parameterValues;
     }
 }

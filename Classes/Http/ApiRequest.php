@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Http;
 
-use Queo\SimpleRestApi\Value\ApiEndpointParameter;
 use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
@@ -75,12 +74,11 @@ final readonly class ApiRequest implements ApiRequestInterface
 
     public function getParameters(ApiEndpoint $apiEndpoint): Parameters
     {
-        $parameterList = array_map(fn(ApiEndpointParameter $param): string => $param->name, $apiEndpoint->parameters);
         $endpointPath = $this->getEndpointPath();
         $parameterPathPart = trim(str_replace($apiEndpoint->getPathWithoutParameters(), '', $endpointPath), '/');
         $parameterPathPartArray = explode('/', $parameterPathPart);
 
-        return new Parameters($parameterList, $parameterPathPartArray, $this->request);
+        return new Parameters($apiEndpoint->parameters, $parameterPathPartArray, $this->request);
     }
 
     public function getRequest(): ServerRequestInterface

@@ -143,8 +143,8 @@ final class ApiRequestTest extends UnitTestCase
 
         $expectedParameters = new Parameters(
             [
-                0 => 'param1',
-                1 => 'param2'
+                new ApiEndpointParameter('param1'),
+                new ApiEndpointParameter('param2')
             ],
             [
                 '123',
