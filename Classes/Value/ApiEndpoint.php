@@ -7,6 +7,7 @@ namespace Queo\SimpleRestApi\Value;
 final readonly class ApiEndpoint
 {
     /**
+     * @param class-string                $className
      * @param array<string>               $parameterList
      * @param array<ApiEndpointParameter> $parameters
      * @param array<string>               $tags
