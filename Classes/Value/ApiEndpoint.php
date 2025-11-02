@@ -8,7 +8,6 @@ final readonly class ApiEndpoint
 {
     /**
      * @param class-string                $className
-     * @param array<string>               $parameterList
      * @param array<ApiEndpointParameter> $parameters
      * @param array<string>               $tags
      */
@@ -17,17 +16,16 @@ final readonly class ApiEndpoint
         public string $method,
         public string $path,
         public string $httpMethod,
-        public array $parameterList,
+        public array $parameters = [],
         public string $summary = '',
         public string $description = '',
-        public array $parameters = [],
         public array $tags = []
     ) {
     }
 
     public function parameterCount(): int
     {
-        return count($this->parameterList);
+        return count($this->parameters);
     }
 
     public function getPathWithoutParameters(): string

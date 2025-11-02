@@ -49,7 +49,7 @@ final class ApiEndpointProvider
         // Extract detailed parameter information via reflection
         $parameters = $this->extractParameterInformation($className, $methodName, $parameterNames);
 
-        $endpoint = new ApiEndpoint($className, $methodName, $path, $httpMethod, $parameterNames, $summary, $description, $parameters, $tags);
+        $endpoint = new ApiEndpoint($className, $methodName, $path, $httpMethod, $parameters, $summary, $description, $tags);
         $this->endpoints[$this->getIdentifier($httpMethod, $identifierPath)] = $endpoint;
     }
 
@@ -91,8 +91,10 @@ final class ApiEndpointProvider
                 }
             }
         } catch (ReflectionException) {
-            // If reflection fails, return empty array
-            return [];
+            // If reflection fails, create basic parameter objects from path parameter names
+            foreach ($parameterNames as $paramName) {
+                $parameters[] = new ApiEndpointParameter($paramName);
+            }
         }
 
         return $parameters;

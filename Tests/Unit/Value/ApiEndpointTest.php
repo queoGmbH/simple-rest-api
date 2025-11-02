@@ -17,7 +17,7 @@ final class ApiEndpointTest extends UnitTestCase
     {
         /** @phpstan-var class-string $className */
         $className = 'MyApiController';
-        $apiEndpoint = new ApiEndpoint($className, 'myApiMethod', '/v1/my-endpoint/{someArg}/{otherArg}', 'GET', ['someArg', 'otherArg']);
+        $apiEndpoint = new ApiEndpoint($className, 'myApiMethod', '/v1/my-endpoint/{someArg}/{otherArg}', 'GET', []);
 
         $this->assertSame('/v1/my-endpoint', $apiEndpoint->getPathWithoutParameters());
     }
@@ -72,7 +72,6 @@ final class ApiEndpointTest extends UnitTestCase
             [],
             '',
             '',
-            [],
             ['authenticated', 'cacheable', 'public']
         );
 
@@ -108,7 +107,6 @@ final class ApiEndpointTest extends UnitTestCase
             [],
             '',
             '',
-            [],
             ['authenticated', 'cacheable']
         );
 
@@ -130,7 +128,6 @@ final class ApiEndpointTest extends UnitTestCase
             [],
             '',
             '',
-            [],
             ['authenticated', 'cacheable']
         );
 
@@ -152,7 +149,6 @@ final class ApiEndpointTest extends UnitTestCase
             [],
             '',
             '',
-            [],
             ['authenticated', 'cacheable', 'public']
         );
 
@@ -337,7 +333,7 @@ final class ApiEndpointTest extends UnitTestCase
             'myApiMethod',
             '/v1/users/{userId}',
             'GET',
-            ['userId']
+            []
         );
 
         $this->assertTrue($apiEndpoint->matchesPath('/v1/users/{userId}'));
