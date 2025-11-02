@@ -18,7 +18,8 @@ final class ApiEndpointProvider
     private array $endpoints = [];
 
     /**
-     * @param class-string $className
+     * @param class-string  $className
+     * @param array<string> $tags
      */
     public function addEndpoint(
         string $className,
@@ -26,7 +27,8 @@ final class ApiEndpointProvider
         string $httpMethod,
         string $path,
         string $summary = '',
-        string $description = ''
+        string $description = '',
+        array $tags = []
     ): void {
         $pathParts = explode('/', trim($path, '/'));
 
@@ -47,7 +49,7 @@ final class ApiEndpointProvider
         // Extract detailed parameter information via reflection
         $parameters = $this->extractParameterInformation($className, $methodName, $parameterNames);
 
-        $endpoint = new ApiEndpoint($className, $methodName, $path, $httpMethod, $parameterNames, $summary, $description, $parameters);
+        $endpoint = new ApiEndpoint($className, $methodName, $path, $httpMethod, $parameterNames, $summary, $description, $parameters, $tags);
         $this->endpoints[$this->getIdentifier($httpMethod, $identifierPath)] = $endpoint;
     }
 

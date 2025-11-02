@@ -1,18 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Parameter \#1 \$className of static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:makeInstance\(\) expects class\-string\<object\>, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: Classes/Middleware/ApiResolverMiddleware.php
-
-		-
-			message: '#^Unable to resolve the template type T in call to static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:makeInstance\(\)$#'
-			identifier: argument.templateType
-			count: 1
-			path: Classes/Middleware/ApiResolverMiddleware.php
-
-		-
 			message: '#^Cannot access offset ''FE'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
@@ -89,3 +77,105 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: Classes/Routing/Enhancer/SimpleRestApiEnhancer.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<class\-string, array\<string\>\> is not subtype of native type array\{MyApiController\: array\{''firstMethod'', ''myApiMethod'', ''thirdMethod''\}\}\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<class\-string, array\<string\>\> is not subtype of native type array\{MyApiController\: array\{''firstMethod'', ''secondMethod''\}\}\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<class\-string, array\<string\>\> is not subtype of native type array\{MyApiController\: array\{''myApiMethod'', ''otherMethod''\}\}\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<class\-string, array\<string\>\> is not subtype of native type array\{OtherController\: array\{''myApiMethod''\}\}\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<class\-string, array\<string\>\|string\> is not subtype of native type array\{ProductController\: ''getProduct'', UserController\: ''getUser'', OrderController\: array\{''listOrders'', ''createOrder''\}\}\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<class\-string, array\<string\>\|string\> is not subtype of native type array\{UserController\: array\{''getUser'', ''updateUser''\}, ProductController\: ''\*''\}\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<class\-string, array\<string\>\|string\> is not subtype of native type array\{UserController\: array\{''updateUser'', ''deleteUser''\}, ProductController\: ''\*''\}\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<class\-string, string\> is not subtype of native type array\{MyApiController\: ''\*''\}\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<class\-string, string\> is not subtype of native type array\{MyApiController\: ''myApiMethod'', OtherController\: ''otherMethod''\}\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<class\-string, string\> is not subtype of native type array\{MyApiController\: ''myApiMethod''\}\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<class\-string, string\> is not subtype of native type array\{MyApiController\: ''otherMethod''\}\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<class\-string, string\> is not subtype of native type array\{OtherController\: ''\*''\}\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<class\-string, string\> is not subtype of native type array\{OtherController\: ''myApiMethod''\}\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type array\<class\-string, string\> is not subtype of native type array\{OtherController\: ''someMethod'', MyApiController\: ''\*''\}\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type class\-string is not subtype of native type ''MyApiController''\.$#'
+			identifier: varTag.nativeType
+			count: 14
+			path: Tests/Unit/Value/ApiEndpointTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type class\-string is not subtype of native type ''OtherController''\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type class\-string is not subtype of native type ''UserController''\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Value/ApiEndpointTest.php

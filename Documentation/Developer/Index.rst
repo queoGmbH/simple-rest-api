@@ -291,6 +291,20 @@ For complete documentation including:
 
 **See:** :ref:`events`
 
+Filtering Event Listeners by Endpoint
+--------------------------------------
+
+When working with events, you often want to restrict listeners to specific endpoints
+rather than executing for all API requests.
+
+The extension provides three approaches for filtering:
+
+1. **Helper Methods** - Direct endpoint checking on events
+2. **Tags** - Group endpoints by functionality
+3. **EndpointMatcher Service** - Advanced filtering with wildcards
+
+**See:** :ref:`filtering-event-listeners`
+
 Backend Module
 ==============
 
@@ -581,3 +595,11 @@ API Reference
 
 For complete API documentation, see the inline PHPDoc comments in the source code
 and the backend module which provides a visual overview of all endpoints.
+
+Additional Topics
+=================
+
+.. toctree::
+   :maxdepth: 1
+
+   FilteringEventListeners
