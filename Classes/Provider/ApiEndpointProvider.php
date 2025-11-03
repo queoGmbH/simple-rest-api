@@ -75,10 +75,12 @@ final class ApiEndpointProvider
 
             foreach ($methodParameters as $reflectionParameter) {
                 $paramName = $reflectionParameter->getName();
-
-                // Skip ServerRequestInterface parameters
                 $paramType = $reflectionParameter->getType();
+
+                // Include ServerRequestInterface parameters (they're not from the path)
                 if ($paramType instanceof ReflectionNamedType && $paramType->getName() === ServerRequestInterface::class) {
+                    $description = $paramDescriptions[$paramName] ?? '';
+                    $parameters[] = new ApiEndpointParameter($paramName, ServerRequestInterface::class, $description);
                     continue;
                 }
 
@@ -147,7 +149,7 @@ final class ApiEndpointProvider
                 $checkEndpointPath .= '/' . $pathPart;
                 $endpoint = $this->endpoints[$this->getIdentifier($apiRequest->getHttpMethod(), $checkEndpointPath)] ?? null;
                 $undetectedPathPartCount--;
-                if ($endpoint instanceof ApiEndpoint && $endpoint->parameterCount() === $undetectedPathPartCount) {
+                if ($endpoint instanceof ApiEndpoint && $endpoint->pathParameterCount() === $undetectedPathPartCount) {
                     break;
                 }
             }

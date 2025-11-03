@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Value;
 
+use Psr\Http\Message\ServerRequestInterface;
 use Queo\SimpleRestApi\Collection\ApiEndpointParameterCollection;
 
 final readonly class ApiEndpoint
@@ -27,6 +28,21 @@ final readonly class ApiEndpoint
     public function parameterCount(): int
     {
         return count($this->parameters);
+    }
+
+    /**
+     * Get the count of path parameters only (excluding ServerRequestInterface).
+     */
+    public function pathParameterCount(): int
+    {
+        $count = 0;
+        foreach ($this->parameters as $param) {
+            if ($param->type !== ServerRequestInterface::class) {
+                $count++;
+            }
+        }
+
+        return $count;
     }
 
     public function getPathWithoutParameters(): string

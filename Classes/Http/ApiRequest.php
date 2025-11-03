@@ -7,7 +7,7 @@ namespace Queo\SimpleRestApi\Http;
 use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
-use Queo\SimpleRestApi\Collection\Parameters;
+use Queo\SimpleRestApi\Collection\EndpointParameterResolver;
 use Queo\SimpleRestApi\Configuration\ExtensionConfigurationInterface;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
@@ -72,13 +72,13 @@ final readonly class ApiRequest implements ApiRequestInterface
         return $comparePath;
     }
 
-    public function getParameters(ApiEndpoint $apiEndpoint): Parameters
+    public function getParameters(ApiEndpoint $apiEndpoint): EndpointParameterResolver
     {
         $endpointPath = $this->getEndpointPath();
         $parameterPathPart = trim(str_replace($apiEndpoint->getPathWithoutParameters(), '', $endpointPath), '/');
         $parameterPathPartArray = explode('/', $parameterPathPart);
 
-        return new Parameters($apiEndpoint->parameters, $parameterPathPartArray, $this->request);
+        return new EndpointParameterResolver($apiEndpoint->parameters, $parameterPathPartArray, $this->request);
     }
 
     public function getRequest(): ServerRequestInterface

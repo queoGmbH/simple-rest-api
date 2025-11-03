@@ -9,7 +9,6 @@ use Queo\SimpleRestApi\Event\AfterParameterMappingEvent;
 use Queo\SimpleRestApi\Event\BeforeParameterMappingEvent;
 use Queo\SimpleRestApi\Event\ModifyApiResponseEvent;
 use Queo\SimpleRestApi\Http\ApiRequest;
-use ReflectionException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -29,9 +28,6 @@ class ApiResolverMiddleware implements MiddlewareInterface
     ) {
     }
 
-    /**
-     * @throws ReflectionException
-     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         /** @var ApiRequest $apiRequest */
@@ -54,7 +50,7 @@ class ApiResolverMiddleware implements MiddlewareInterface
             $event = $this->eventDispatcher->dispatch(new BeforeParameterMappingEvent($pathParameters, $endpoint, $apiRequest));
             $pathParameters = $event->getPathParameters();
 
-            $methodParameters = $pathParameters->buildMethodParameters($className::class, $methodName);
+            $methodParameters = $pathParameters->buildMethodParameters();
 
             /** @var AfterParameterMappingEvent $event */
             $event = $this->eventDispatcher->dispatch(new AfterParameterMappingEvent($methodParameters, $endpoint, $apiRequest));
