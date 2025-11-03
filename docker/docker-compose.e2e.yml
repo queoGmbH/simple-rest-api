@@ -10,12 +10,13 @@ services:
       MYSQL_PASSWORD: typo3
     tmpfs:
       - /var/lib/mysql
+    command: --skip-log-bin
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "typo3", "-ptypo3"]
-      interval: 3s
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
       timeout: 5s
-      retries: 20
-      start_period: 10s
+      retries: 30
+      start_period: 20s
 
   typo3:
     build:
