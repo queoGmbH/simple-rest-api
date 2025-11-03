@@ -1,5 +1,6 @@
 stages:
   - test
+  - e2e
   - release
 
 variables:
@@ -68,6 +69,42 @@ php-unit-test-8.4-13:
 #    PHP_VERSION: "8.4"
 #    TYPO3_VERSION: "14.0.x-dev"
 #  allow_failure: true
+
+e2e-tests:
+  stage: e2e
+  image: docker:24
+  services:
+    - docker:24-dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - apk add --no-cache docker-compose curl nodejs npm
+    - docker-compose version
+    - docker version
+  script:
+    # Start TYPO3 environment
+    - docker-compose -f docker/docker-compose.e2e.yml up -d
+    - echo "Waiting for TYPO3 to be ready..."
+    - timeout 300 sh -c 'until curl -f http://docker:8080/api/test/hello; do sleep 5; done'
+    # Install Playwright dependencies
+    - cd Tests/E2e
+    - npm ci
+    - npx playwright install --with-deps chromium
+    # Run E2E tests
+    - BASE_URL=http://docker:8080 npm test
+  after_script:
+    - docker-compose -f docker/docker-compose.e2e.yml logs
+    - docker-compose -f docker/docker-compose.e2e.yml down -v
+  artifacts:
+    when: always
+    paths:
+      - Tests/E2e/playwright-report/
+      - Tests/E2e/test-results/
+    reports:
+      junit: Tests/E2e/test-results/junit.xml
+    expire_in: 30 days
+  allow_failure: true
 
 release_composer_package:
   stage: release

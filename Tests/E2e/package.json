@@ -1,0 +1,24 @@
+{
+  "name": "simple-rest-api-e2e-tests",
+  "version": "1.0.0",
+  "description": "E2E tests for TYPO3 Simple REST API extension",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report"
+  },
+  "keywords": [
+    "typo3",
+    "e2e",
+    "playwright"
+  ],
+  "author": "Queo Group",
+  "license": "GPL-2.0-or-later",
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^22.0.0"
+  }
+}

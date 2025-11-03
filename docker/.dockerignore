@@ -1,0 +1,28 @@
+# Build artifacts
+.Build/
+node_modules/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+
+# Tests
+Tests/
+
+# Documentation
+Documentation/
+
+# Dev files
+.editorconfig
+.php-cs-fixer.php
+grumphp.yml
+phpstan.neon
+phpstan-baseline.neon
+rector.php
+
+# CI
+.gitlab-ci.yml

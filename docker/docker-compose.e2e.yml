@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:10.11
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: typo3
+      MYSQL_USER: typo3
+      MYSQL_PASSWORD: typo3
+    tmpfs:
+      - /var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  typo3:
+    build:
+      context: .
+      dockerfile: typo3/Dockerfile
+    ports:
+      - "8080:80"
+    environment:
+      TYPO3_DB_HOST: db
+      TYPO3_DB_NAME: typo3
+      TYPO3_DB_USER: typo3
+      TYPO3_DB_PASSWORD: typo3
+      TYPO3_INSTALL_TOOL_PASSWORD: ${TYPO3_INSTALL_TOOL_PASSWORD:-joh316}
+      TYPO3_ADMIN_USERNAME: admin
+      TYPO3_ADMIN_PASSWORD: ${TYPO3_ADMIN_PASSWORD:-password123}
+      TYPO3_SITE_NAME: "E2E Test Site"
+    volumes:
+      - ../:/var/www/html/extensions/simple_rest_api:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/api/test/hello"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
