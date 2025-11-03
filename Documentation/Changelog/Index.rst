@@ -262,6 +262,7 @@ To take advantage of new documentation features:
 
    .. code-block:: php
 
+      <?php
       // Before (still works)
       #[AsApiEndpoint(method: 'GET', path: '/v1/users')]
 
@@ -277,6 +278,7 @@ To take advantage of new documentation features:
 
    .. code-block:: php
 
+      <?php
       /**
        * @param int $userId The unique identifier of the user
        */
@@ -305,6 +307,7 @@ If migrating from other TYPO3 REST API extensions:
 
 .. code-block:: php
 
+   <?php
    // Before: Extbase
    class UserController extends ActionController
    {

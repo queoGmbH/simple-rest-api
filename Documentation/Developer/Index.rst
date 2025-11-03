@@ -32,6 +32,7 @@ PHP 8 attribute that marks methods as API endpoints:
 
 .. code-block:: php
 
+   <?php
    #[\Attribute(\Attribute::TARGET_METHOD)]
    final readonly class AsApiEndpoint
    {
@@ -54,6 +55,7 @@ Manages all registered API endpoints:
 
 .. code-block:: php
 
+   <?php
    final class ApiEndpointProvider
    {
        private array $endpoints = [];
@@ -88,6 +90,7 @@ Represents a single API endpoint:
 
 .. code-block:: php
 
+   <?php
    final readonly class ApiEndpoint
    {
        public function __construct(
@@ -122,6 +125,7 @@ Registration in `Configuration/RequestMiddlewares.php`:
 
 .. code-block:: php
 
+   <?php
    'frontend' => [
        'simple-rest-api/api-resolver' => [
            'target' => ApiResolverMiddleware::class,
@@ -175,6 +179,7 @@ Compiler pass that:
 
 .. code-block:: php
 
+   <?php
    final class ApiEndpointProviderPass implements CompilerPassInterface
    {
        public function process(ContainerBuilder $container): void
@@ -220,6 +225,7 @@ The extension uses PHP reflection to extract parameter information:
 
 .. code-block:: php
 
+   <?php
    private function extractParameterInformation(
        string $className,
        string $methodName,
@@ -247,6 +253,7 @@ Parameter descriptions are extracted from PHPDoc blocks:
 
 .. code-block:: php
 
+   <?php
    private function parseParamDescriptions(string $docComment): array
    {
        $descriptions = [];
@@ -317,6 +324,7 @@ Backend controller that displays all registered endpoints:
 
 .. code-block:: php
 
+   <?php
    final class EndpointListController
    {
        public function __construct(
@@ -338,6 +346,7 @@ Location: `Configuration/Backend/Modules.php`
 
 .. code-block:: php
 
+   <?php
    return [
        'site_simplerestapi' => [
            'parent' => 'site',
@@ -370,6 +379,7 @@ Example test:
 
 .. code-block:: php
 
+   <?php
    #[CoversClass(ApiEndpointProvider::class)]
    final class ApiEndpointProviderTest extends UnitTestCase
    {
@@ -561,6 +571,7 @@ Example authentication middleware:
 
 .. code-block:: php
 
+   <?php
    final class ApiAuthMiddleware implements MiddlewareInterface
    {
        public function process(
