@@ -1,3 +1,14 @@
+# Simple REST API Route Enhancer
+#
+# This enhancer enables the REST API routing for your site.
+# The API base path can be configured via site settings.
+#
+# To customize the base path, add to your site configuration:
+#
+# settings:
+#   simple_rest_api:
+#     basePath: '/api/'  # Change to your preferred path (e.g., /rest/, /services/)
+#
 routeEnhancers:
   SimpleRestApiEnhancer:
     type: SimpleRestApiEnhancer

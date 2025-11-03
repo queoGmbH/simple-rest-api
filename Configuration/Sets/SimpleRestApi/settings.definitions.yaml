@@ -1,0 +1,7 @@
+settings:
+  simple_rest_api.basePath:
+    label: 'API Base Path'
+    description: 'The base path for all REST API endpoints (e.g., /api/, /rest/, /services/). Must start and end with a forward slash.'
+    type: string
+    default: '/api/'
+    pattern: '^/[a-zA-Z0-9_-]*/$'

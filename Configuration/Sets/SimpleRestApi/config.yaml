@@ -1,0 +1,6 @@
+name: simple_rest_api/main
+label: Simple REST API
+
+settings:
+  simple_rest_api:
+    basePath: '/api/'
