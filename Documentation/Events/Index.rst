@@ -50,12 +50,14 @@ Event API
 
 .. code-block:: php
 
+   <?php
+   // API Reference
    final class BeforeParameterMappingEvent
    {
-       public function getPathParameters(): Parameters
-       public function getApiEndpoint(): ApiEndpoint
-       public function getApiRequest(): ApiRequest
-       public function overrideParameters(Parameters $pathParameters): void
+       public function getPathParameters(): Parameters;
+       public function getApiEndpoint(): ApiEndpoint;
+       public function getApiRequest(): ApiRequest;
+       public function overrideParameters(Parameters $pathParameters): void;
    }
 
 Use Cases
@@ -125,6 +127,7 @@ Example: Parameter Normalization
 
 .. code-block:: php
 
+   <?php
    public function normalizeParameters(BeforeParameterMappingEvent $event): void
    {
        $parameters = $event->getPathParameters();
@@ -156,16 +159,18 @@ Event API
 
 .. code-block:: php
 
+   <?php
+   // API Reference
    final class AfterParameterMappingEvent
    {
        /** @return mixed[] */
-       public function getMethodParameters(): array
+       public function getMethodParameters(): array;
 
-       public function getEndpoint(): ApiEndpoint
-       public function getApiRequest(): ApiRequest
+       public function getEndpoint(): ApiEndpoint;
+       public function getApiRequest(): ApiRequest;
 
        /** @param mixed[] $methodParameters */
-       public function overrideMethodParameters(array $methodParameters): void
+       public function overrideMethodParameters(array $methodParameters): void;
    }
 
 Use Cases
@@ -232,6 +237,7 @@ Now your endpoint method receives the User model directly:
 
 .. code-block:: php
 
+   <?php
    use MyVendor\MyExtension\Domain\Model\User;
 
    #[AsApiEndpoint(method: 'GET', path: '/v1/users/{userId}')]
@@ -262,6 +268,7 @@ Example: Parameter Validation
 
 .. code-block:: php
 
+   <?php
    use Psr\Http\Message\ResponseInterface;
    use TYPO3\CMS\Core\Http\JsonResponse;
 
@@ -297,12 +304,14 @@ Event API
 
 .. code-block:: php
 
+   <?php
+   // API Reference
    final class ModifyApiResponseEvent
    {
-       public function getResponse(): ResponseInterface
-       public function setResponse(ResponseInterface $response): void
-       public function getEndpoint(): ApiEndpoint
-       public function getApiRequest(): ApiRequestInterface
+       public function getResponse(): ResponseInterface;
+       public function setResponse(ResponseInterface $response): void;
+       public function getEndpoint(): ApiEndpoint;
+       public function getApiRequest(): ApiRequestInterface;
    }
 
 Use Cases
@@ -362,6 +371,7 @@ Example: Conditional Caching Headers
 
 .. code-block:: php
 
+   <?php
    public function addCachingHeaders(ModifyApiResponseEvent $event): void
    {
        $endpoint = $event->getEndpoint();
@@ -388,6 +398,7 @@ Example: Adding Request Tracking
 
 .. code-block:: php
 
+   <?php
    public function addRequestTracking(ModifyApiResponseEvent $event): void
    {
        $response = $event->getResponse();
@@ -407,6 +418,7 @@ Example: Response Logging
 
 .. code-block:: php
 
+   <?php
    use Psr\Log\LoggerInterface;
 
    final readonly class ResponseLoggerListener
@@ -434,6 +446,7 @@ Example: Complete Response Replacement
 
 .. code-block:: php
 
+   <?php
    use TYPO3\CMS\Core\Http\JsonResponse;
 
    public function modifyResponse(ModifyApiResponseEvent $event): void
@@ -585,6 +598,7 @@ You can conditionally handle events based on endpoint path or other criteria:
 
 .. code-block:: php
 
+   <?php
    public function handleEvent(ModifyApiResponseEvent $event): void
    {
        $endpoint = $event->getEndpoint();

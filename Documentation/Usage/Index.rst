@@ -40,6 +40,7 @@ Add summary and description for better documentation:
 
 .. code-block:: php
 
+   <?php
    #[AsApiEndpoint(
        method: 'GET',
        path: '/v1/hello',
@@ -60,6 +61,7 @@ Extract parameters from the URL path:
 
 .. code-block:: php
 
+   <?php
    /**
     * @param int $userId The ID of the user to fetch
     */
@@ -94,6 +96,7 @@ Multiple Parameters
 
 .. code-block:: php
 
+   <?php
    /**
     * @param int $userId The ID of the user
     * @param int $postId The ID of the post
@@ -128,6 +131,7 @@ Supported parameter types:
 
 .. code-block:: php
 
+   <?php
    /**
     * @param string $slug The URL-friendly slug identifier
     */
@@ -151,6 +155,7 @@ Use `ServerRequestInterface` to access request body and headers:
 
 .. code-block:: php
 
+   <?php
    use Psr\Http\Message\ServerRequestInterface;
 
    #[AsApiEndpoint(
@@ -191,6 +196,7 @@ Request Headers
 
 .. code-block:: php
 
+   <?php
    public function myEndpoint(ServerRequestInterface $request): ResponseInterface
    {
        $authHeader = $request->getHeader('Authorization')[0] ?? '';
@@ -206,6 +212,7 @@ Access GET query parameters:
 
 .. code-block:: php
 
+   <?php
    #[AsApiEndpoint(method: 'GET', path: '/v1/search')]
    public function search(ServerRequestInterface $request): ResponseInterface
    {
@@ -227,6 +234,7 @@ the URL parameters and the request body/headers/query parameters:
 
 .. code-block:: php
 
+   <?php
    use Psr\Http\Message\ServerRequestInterface;
 
    /**
@@ -292,6 +300,7 @@ GET Requests
 
 .. code-block:: php
 
+   <?php
    #[AsApiEndpoint(method: 'GET', path: '/v1/items')]
    public function listItems(): ResponseInterface
    {
@@ -303,6 +312,7 @@ POST Requests
 
 .. code-block:: php
 
+   <?php
    #[AsApiEndpoint(method: 'POST', path: '/v1/items')]
    public function createItem(ServerRequestInterface $request): ResponseInterface
    {
@@ -314,6 +324,7 @@ PUT Requests
 
 .. code-block:: php
 
+   <?php
    #[AsApiEndpoint(method: 'PUT', path: '/v1/items/{id}')]
    public function updateItem(int $id, ServerRequestInterface $request): ResponseInterface
    {
@@ -325,6 +336,7 @@ DELETE Requests
 
 .. code-block:: php
 
+   <?php
    #[AsApiEndpoint(method: 'DELETE', path: '/v1/items/{id}')]
    public function deleteItem(int $id): ResponseInterface
    {
@@ -342,6 +354,7 @@ Most common response type:
 
 .. code-block:: php
 
+   <?php
    return new JsonResponse([
        'success' => true,
        'data' => $myData
@@ -352,6 +365,7 @@ With Status Code
 
 .. code-block:: php
 
+   <?php
    // 201 Created
    return new JsonResponse(['id' => $newId], 201);
 
@@ -366,6 +380,7 @@ Custom Headers
 
 .. code-block:: php
 
+   <?php
    $response = new JsonResponse(['data' => $data]);
    return $response->withHeader('X-Custom-Header', 'value');
 
@@ -377,6 +392,7 @@ Try-Catch Pattern
 
 .. code-block:: php
 
+   <?php
    public function myEndpoint(int $id): ResponseInterface
    {
        try {
@@ -404,6 +420,7 @@ Validation
 
 .. code-block:: php
 
+   <?php
    public function createUser(ServerRequestInterface $request): ResponseInterface
    {
        $body = json_decode($request->getBody()->getContents(), true);
@@ -435,6 +452,7 @@ Use constructor injection for repositories and services:
 
 .. code-block:: php
 
+   <?php
    use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
 
    final class ApiController
