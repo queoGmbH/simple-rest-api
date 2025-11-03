@@ -47,6 +47,11 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         );
     }
 
+    /**
+     * @param array<string, mixed> $body
+     * @param array<string, string> $headers
+     * @param array<string, string> $queryParams
+     */
     private function createRequest(
         string $method,
         string $path,
@@ -62,7 +67,7 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         $_SERVER['SCRIPT_NAME'] = '/index.php';
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
 
-        if (!empty($queryParams)) {
+        if ($queryParams !== []) {
             $_SERVER['QUERY_STRING'] = http_build_query($queryParams);
             $_SERVER['REQUEST_URI'] .= '?' . $_SERVER['QUERY_STRING'];
         }
@@ -76,8 +81,9 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         $request = ServerRequestFactory::fromGlobals();
 
         // Add body if provided
-        if (!empty($body)) {
+        if ($body !== []) {
             $jsonBody = json_encode($body);
+            assert($jsonBody !== false);
             $stream = new Stream('php://memory', 'rw');
             $stream->write($jsonBody);
             $stream->rewind();
@@ -88,15 +94,14 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
             }
         }
 
-        if (!empty($queryParams)) {
+        if ($queryParams !== []) {
             $request = $request->withQueryParams($queryParams);
         }
 
         $site = $this->createMock(SiteInterface::class);
         $site->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
-        $request = $request->withAttribute('site', $site);
 
-        return $request;
+        return $request->withAttribute('site', $site);
     }
 
     #[Test]
@@ -120,7 +125,9 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         $this->assertEquals(201, $response->getStatusCode());
 
         $body = json_decode($response->getBody()->getContents(), true);
+        assert(is_array($body));
         $this->assertEquals('POST', $body['method']);
+        assert(is_array($body['data']));
         $this->assertEquals('Test Resource', $body['data']['name']);
         $this->assertTrue($body['created']);
     }
@@ -146,8 +153,10 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         $this->assertEquals(201, $response->getStatusCode());
 
         $body = json_decode($response->getBody()->getContents(), true);
+        assert(is_array($body));
         $this->assertEquals('POST', $body['method']);
         $this->assertEquals(42, $body['resourceId']);
+        assert(is_array($body['data']));
         $this->assertEquals('Sub Item', $body['data']['title']);
     }
 
@@ -172,8 +181,10 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         $this->assertEquals(200, $response->getStatusCode());
 
         $body = json_decode($response->getBody()->getContents(), true);
+        assert(is_array($body));
         $this->assertEquals('PUT', $body['method']);
         $this->assertEquals(123, $body['id']);
+        assert(is_array($body['data']));
         $this->assertEquals('Updated Resource', $body['data']['name']);
         $this->assertTrue($body['updated']);
     }
@@ -199,8 +210,10 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         $this->assertEquals(200, $response->getStatusCode());
 
         $body = json_decode($response->getBody()->getContents(), true);
+        assert(is_array($body));
         $this->assertEquals('PATCH', $body['method']);
         $this->assertEquals(456, $body['id']);
+        assert(is_array($body['data']));
         $this->assertEquals('completed', $body['data']['status']);
         $this->assertTrue($body['patched']);
     }
@@ -222,6 +235,7 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         $this->assertEquals(200, $response->getStatusCode());
 
         $body = json_decode($response->getBody()->getContents(), true);
+        assert(is_array($body));
         $this->assertEquals('DELETE', $body['method']);
         $this->assertEquals(789, $body['id']);
         $this->assertTrue($body['deleted']);
@@ -248,6 +262,7 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         $this->assertEquals(200, $response->getStatusCode());
 
         $body = json_decode($response->getBody()->getContents(), true);
+        assert(is_array($body));
         $this->assertEquals('DELETE', $body['method']);
         $this->assertEquals(999, $body['id']);
         $this->assertTrue($body['deleted']);
@@ -275,6 +290,7 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         $this->assertEquals(400, $response->getStatusCode());
 
         $body = json_decode($response->getBody()->getContents(), true);
+        assert(is_array($body));
         $this->assertEquals('Deletion requires confirmation', $body['error']);
     }
 
@@ -302,6 +318,7 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         $this->assertInstanceOf(JsonResponse::class, $response);
 
         $body = json_decode($response->getBody()->getContents(), true);
+        assert(is_array($body));
         $this->assertIsInt($body['intParam']);
         $this->assertEquals(42, $body['intParam']);
         $this->assertIsString($body['stringParam']);
@@ -337,6 +354,7 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         $this->assertInstanceOf(JsonResponse::class, $response);
 
         $body = json_decode($response->getBody()->getContents(), true);
+        assert(is_array($body));
         $this->assertTrue($body['hasAuthHeader']);
         $this->assertEquals('Bearer token123', $body['authHeader']);
         $this->assertEquals('application/json', $body['contentType']);
@@ -365,8 +383,10 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         $this->assertInstanceOf(JsonResponse::class, $response);
 
         $body = json_decode($response->getBody()->getContents(), true);
+        assert(is_array($body));
         $this->assertTrue($body['hasLimit']);
         $this->assertTrue($body['hasOffset']);
+        assert(is_array($body['queryParams']));
         $this->assertEquals('10', $body['queryParams']['limit']);
         $this->assertEquals('20', $body['queryParams']['offset']);
         $this->assertEquals('test query', $body['queryParams']['q']);
@@ -389,6 +409,7 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         $this->assertEquals(404, $response->getStatusCode());
 
         $body = json_decode($response->getBody()->getContents(), true);
+        assert(is_array($body));
         $this->assertEquals('Resource not found', $body['error']);
         $this->assertEquals(999, $body['id']);
     }
@@ -415,6 +436,7 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         $this->assertEquals(400, $response->getStatusCode());
 
         $body = json_decode($response->getBody()->getContents(), true);
+        assert(is_array($body));
         $this->assertArrayHasKey('errors', $body);
         $this->assertIsArray($body['errors']);
         $this->assertContains('Name is required', $body['errors']);
@@ -442,7 +464,9 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         $this->assertEquals(200, $response->getStatusCode());
 
         $body = json_decode($response->getBody()->getContents(), true);
+        assert(is_array($body));
         $this->assertTrue($body['success']);
+        assert(is_array($body['data']));
         $this->assertEquals('John Doe', $body['data']['name']);
         $this->assertEquals('john@example.com', $body['data']['email']);
     }
