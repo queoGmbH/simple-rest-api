@@ -128,7 +128,7 @@ final class ExtensionConfigurationTest extends UnitTestCase
 
             $config = new ExtensionConfiguration($request);
 
-            $this->assertSame($expected, $config->getApiBasePath(), "Failed for input: $input");
+            $this->assertSame($expected, $config->getApiBasePath(), 'Failed for input: ' . $input);
         }
     }
 
