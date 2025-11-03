@@ -88,11 +88,10 @@ e2e-tests:
     - echo "Waiting for TYPO3 to be ready..."
     - timeout 300 sh -c 'until curl -f http://docker:8080/api/test/hello; do sleep 5; done'
     # Install Playwright dependencies
-    - cd Tests/E2e
-    - npm ci
-    - npx playwright install --with-deps chromium
+    - npm --prefix Tests/E2e ci
+    - npx --prefix Tests/E2e playwright install --with-deps chromium
     # Run E2E tests
-    - BASE_URL=http://docker:8080 npm test
+    - BASE_URL=http://docker:8080 npm --prefix Tests/E2e test
   after_script:
     - docker-compose -f docker/docker-compose.e2e.yml logs
     - docker-compose -f docker/docker-compose.e2e.yml down -v
