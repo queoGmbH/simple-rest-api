@@ -7,6 +7,7 @@ namespace Queo\SimpleRestApi\Provider;
 use ReflectionException;
 use ReflectionParameter;
 use Psr\Http\Message\ServerRequestInterface;
+use Queo\SimpleRestApi\Collection\ApiEndpointParameterCollection;
 use Queo\SimpleRestApi\Http\ApiRequestInterface;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
 use Queo\SimpleRestApi\Value\ApiEndpointParameter;
@@ -56,9 +57,8 @@ final class ApiEndpointProvider
     /**
      * @param  class-string  $className
      * @param  array<string> $parameterNames
-     * @return array<ApiEndpointParameter>
      */
-    private function extractParameterInformation(string $className, string $methodName, array $parameterNames): array
+    private function extractParameterInformation(string $className, string $methodName, array $parameterNames): ApiEndpointParameterCollection
     {
         $parameters = [];
 
@@ -97,7 +97,7 @@ final class ApiEndpointProvider
             }
         }
 
-        return $parameters;
+        return new ApiEndpointParameterCollection(...$parameters);
     }
 
     /**

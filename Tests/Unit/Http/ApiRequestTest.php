@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception;
 use Psr\Http\Message\ServerRequestInterface;
+use Queo\SimpleRestApi\Collection\ApiEndpointParameterCollection;
 use Queo\SimpleRestApi\Collection\Parameters;
 use Queo\SimpleRestApi\Configuration\ExtensionConfigurationInterface;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
@@ -135,17 +136,17 @@ final class ApiRequestTest extends UnitTestCase
             'myEndpoint',
             '/v1/my/example/endpoint/{param1}/{param2}',
             'GET',
-            [
+            new ApiEndpointParameterCollection(
                 new ApiEndpointParameter('param1'),
                 new ApiEndpointParameter('param2')
-            ]
+            )
         );
 
         $expectedParameters = new Parameters(
-            [
+            new ApiEndpointParameterCollection(
                 new ApiEndpointParameter('param1'),
                 new ApiEndpointParameter('param2')
-            ],
+            ),
             [
                 '123',
                 'value'
