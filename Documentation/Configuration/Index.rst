@@ -41,9 +41,70 @@ What This Does
 
 The route enhancer:
 
-* Registers the `/api/` base path for all API endpoints
-* Routes all requests under `/api/*` to the Simple REST API middleware
+* Registers a configurable base path for all API endpoints (default: `/api/`)
+* Routes all requests under the base path to the Simple REST API middleware
 * Handles URL parameter mapping from the path to your endpoint methods
+
+Customizing API Base Path
+==========================
+
+By default, all API endpoints are accessible under the `/api/` base path. You can
+customize this per site using TYPO3 Site Set Settings.
+
+Using Site Sets (Recommended)
+------------------------------
+
+Add the Simple REST API site set and configure the base path in your site
+configuration (`config/sites/<your-site>/config.yaml`):
+
+.. code-block:: yaml
+
+   sets:
+     - simple_rest_api/main
+
+   settings:
+     simple_rest_api:
+       basePath: '/rest/'  # Customize to your needs
+
+Direct Configuration
+--------------------
+
+Alternatively, configure the base path directly without using the site set:
+
+.. code-block:: yaml
+
+   settings:
+     simple_rest_api:
+       basePath: '/services/'
+
+Valid Base Paths
+----------------
+
+The base path must follow these requirements:
+
+* Must start and end with a forward slash
+* Only letters, numbers, hyphens, and underscores are allowed
+* Pattern: ``^/[a-zA-Z0-9_-]*/$``
+
+**Examples of valid base paths:**
+
+* ``/api/`` (default)
+* ``/rest/``
+* ``/services/``
+* ``/api/v2/``
+* ``/my-api/``
+
+**URL Examples:**
+
+With default base path:
+
+* Endpoint path: ``/v1/users``
+* Full URL: ``https://example.com/api/v1/users``
+
+With custom base path ``/rest/``:
+
+* Endpoint path: ``/v1/users``
+* Full URL: ``https://example.com/rest/v1/users``
 
 Backend Module Access
 =====================
@@ -130,6 +191,7 @@ Configuration Checklist
 After installation, verify these configuration steps:
 
 * ☐ Route enhancer configured in site configuration
+* ☐ API base path customized (optional, defaults to `/api/`)
 * ☐ System cache cleared
 * ☐ Backend module accessible under **Site** → **REST API Endpoints**
 * ☐ Test endpoint created and visible in backend module
