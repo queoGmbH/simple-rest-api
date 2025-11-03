@@ -45,6 +45,7 @@ final class TestController
         if (empty($body['name'])) {
             $errors[] = 'Name is required';
         }
+
         if (empty($body['email'])) {
             $errors[] = 'Email is required';
         }
