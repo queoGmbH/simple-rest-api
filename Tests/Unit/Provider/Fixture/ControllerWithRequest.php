@@ -12,11 +12,11 @@ final class ControllerWithRequest
 {
     public function methodWithRequest(int $userId, ServerRequestInterface $request): ResponseInterface
     {
-        return new JsonResponse(['userId' => $userId]);
+        return new JsonResponse(['userId' => $userId, 'uri' => (string)$request->getUri()]);
     }
 
     public function methodWithRequestFirst(ServerRequestInterface $request, int $userId): ResponseInterface
     {
-        return new JsonResponse(['userId' => $userId]);
+        return new JsonResponse(['userId' => $userId, 'uri' => (string)$request->getUri()]);
     }
 }
