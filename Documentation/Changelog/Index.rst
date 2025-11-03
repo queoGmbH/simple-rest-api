@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
 Version 0.2.0
 =============
 
-Released: 2025-11-03
+Released: 03.11.2025
 
 Added
 -----
@@ -76,7 +76,7 @@ Technical
 Version 0.2.0-rc3
 =================
 
-Released: 2025-XX-XX
+Released: 02.11.2025
 
 Changed
 -------
@@ -94,7 +94,7 @@ Maintenance
 Version 0.2.0-rc2
 =================
 
-Released: 2025-01-11
+Released: 01.11.2025
 
 Added
 -----
@@ -139,7 +139,7 @@ Technical
 Version 0.2.0-rc1
 =================
 
-Released: 2025-10-31
+Released: 31.10.2025
 
 Added
 -----
@@ -184,7 +184,7 @@ Technical
 Version 0.1.0
 =============
 
-Released: 2025-01-15
+Released: 15.01.2025
 
 Initial release with core functionality.
 
