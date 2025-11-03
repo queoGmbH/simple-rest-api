@@ -50,12 +50,14 @@ Event API
 
 .. code-block:: php
 
+   <?php
+   // API Reference
    final class BeforeParameterMappingEvent
    {
-       public function getPathParameters(): Parameters
-       public function getApiEndpoint(): ApiEndpoint
-       public function getApiRequest(): ApiRequest
-       public function overrideParameters(Parameters $pathParameters): void
+       public function getPathParameters(): Parameters;
+       public function getApiEndpoint(): ApiEndpoint;
+       public function getApiRequest(): ApiRequest;
+       public function overrideParameters(Parameters $pathParameters): void;
    }
 
 Use Cases
@@ -156,16 +158,18 @@ Event API
 
 .. code-block:: php
 
+   <?php
+   // API Reference
    final class AfterParameterMappingEvent
    {
        /** @return mixed[] */
-       public function getMethodParameters(): array
+       public function getMethodParameters(): array;
 
-       public function getEndpoint(): ApiEndpoint
-       public function getApiRequest(): ApiRequest
+       public function getEndpoint(): ApiEndpoint;
+       public function getApiRequest(): ApiRequest;
 
        /** @param mixed[] $methodParameters */
-       public function overrideMethodParameters(array $methodParameters): void
+       public function overrideMethodParameters(array $methodParameters): void;
    }
 
 Use Cases
@@ -297,12 +301,14 @@ Event API
 
 .. code-block:: php
 
+   <?php
+   // API Reference
    final class ModifyApiResponseEvent
    {
-       public function getResponse(): ResponseInterface
-       public function setResponse(ResponseInterface $response): void
-       public function getEndpoint(): ApiEndpoint
-       public function getApiRequest(): ApiRequestInterface
+       public function getResponse(): ResponseInterface;
+       public function setResponse(ResponseInterface $response): void;
+       public function getEndpoint(): ApiEndpoint;
+       public function getApiRequest(): ApiRequestInterface;
    }
 
 Use Cases

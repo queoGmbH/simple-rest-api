@@ -121,7 +121,13 @@ in `Configuration/Backend/Modules.php`:
 
 .. code-block:: php
 
-   'access' => 'admin',
+   <?php
+   // In Configuration/Backend/Modules.php
+   return [
+       // ...
+       'access' => 'admin',
+       // ...
+   ];
 
 To grant access to other user groups, modify this setting or adjust permissions
 in the TYPO3 backend user management.
@@ -133,6 +139,8 @@ The extension automatically configures a cache for API endpoints:
 
 .. code-block:: php
 
+   <?php
+   // Automatically configured by the extension
    $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['somple_rest_api'] = [
        'frontend' => VariableFrontend::class,
        'backend' => FileBackend::class,
@@ -174,6 +182,8 @@ it before or after the `simple-rest-api/api-resolver` middleware in your
 
 .. code-block:: php
 
+   <?php
+   // In Configuration/RequestMiddlewares.php
    return [
        'frontend' => [
            'my-extension/custom-api-middleware' => [
