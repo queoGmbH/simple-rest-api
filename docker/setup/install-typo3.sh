@@ -3,12 +3,30 @@ set -e
 
 echo "Starting TYPO3 E2E test environment setup..."
 
-# Wait for database to be ready
+# Wait for database to be ready with better retry logic
 echo "Waiting for database..."
-until mysqladmin ping -h"$TYPO3_DB_HOST" -u"$TYPO3_DB_USER" -p"$TYPO3_DB_PASSWORD" --silent; do
-    sleep 1
+MAX_TRIES=30
+COUNTER=0
+until mysqladmin ping -h"$TYPO3_DB_HOST" -u"$TYPO3_DB_USER" -p"$TYPO3_DB_PASSWORD" --silent 2>/dev/null; do
+    COUNTER=$((COUNTER + 1))
+    if [ $COUNTER -ge $MAX_TRIES ]; then
+        echo "ERROR: Database did not become ready in time"
+        exit 1
+    fi
+    echo "Database not ready yet, waiting... (attempt $COUNTER/$MAX_TRIES)"
+    sleep 2
 done
 echo "Database is ready!"
+
+# Additional check: verify we can actually connect to the database
+echo "Verifying database connectivity..."
+mysql -h"$TYPO3_DB_HOST" -u"$TYPO3_DB_USER" -p"$TYPO3_DB_PASSWORD" "$TYPO3_DB_NAME" -e "SELECT 1" > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+    echo "Database connection verified successfully!"
+else
+    echo "ERROR: Could not connect to database"
+    exit 1
+fi
 
 # Check if TYPO3 is already installed
 if [ ! -f "/var/www/html/config/system/settings.php" ]; then

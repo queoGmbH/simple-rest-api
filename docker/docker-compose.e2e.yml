@@ -11,10 +11,11 @@ services:
     tmpfs:
       - /var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "typo3", "-ptypo3"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
 
   typo3:
     build:
