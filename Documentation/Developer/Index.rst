@@ -95,10 +95,10 @@ Represents a single API endpoint:
            public string $method,
            public string $path,
            public string $httpMethod,
-           public array $parameterList,
+           public array $parameters = [],
            public string $summary = '',
            public string $description = '',
-           public array $parameters = []
+           public array $tags = []
        ) {}
    }
 

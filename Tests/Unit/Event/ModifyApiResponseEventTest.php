@@ -6,6 +6,7 @@ namespace Queo\SimpleRestApi\Tests\Unit\Event;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use Queo\SimpleRestApi\Collection\ApiEndpointParameterCollection;
 use Queo\SimpleRestApi\Event\ModifyApiResponseEvent;
 use Queo\SimpleRestApi\Http\ApiRequestInterface;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
@@ -19,7 +20,7 @@ final class ModifyApiResponseEventTest extends UnitTestCase
     public function provides_response(): void // phpcs:ignore
     {
         $response = new JsonResponse(['data' => 'test']);
-        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', []); // @phpstan-ignore-line argument.type
+        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', new ApiEndpointParameterCollection()); // @phpstan-ignore-line argument.type
         $apiRequest = $this->createMock(ApiRequestInterface::class);
 
         $event = new ModifyApiResponseEvent($response, $endpoint, $apiRequest);
@@ -31,7 +32,7 @@ final class ModifyApiResponseEventTest extends UnitTestCase
     public function provides_endpoint(): void // phpcs:ignore
     {
         $response = new JsonResponse(['data' => 'test']);
-        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', []); // @phpstan-ignore-line argument.type
+        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', new ApiEndpointParameterCollection()); // @phpstan-ignore-line argument.type
         $apiRequest = $this->createMock(ApiRequestInterface::class);
 
         $event = new ModifyApiResponseEvent($response, $endpoint, $apiRequest);
@@ -43,7 +44,7 @@ final class ModifyApiResponseEventTest extends UnitTestCase
     public function provides_api_request(): void // phpcs:ignore
     {
         $response = new JsonResponse(['data' => 'test']);
-        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', []); // @phpstan-ignore-line argument.type
+        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', new ApiEndpointParameterCollection()); // @phpstan-ignore-line argument.type
         $apiRequest = $this->createMock(ApiRequestInterface::class);
 
         $event = new ModifyApiResponseEvent($response, $endpoint, $apiRequest);
@@ -55,7 +56,7 @@ final class ModifyApiResponseEventTest extends UnitTestCase
     public function allows_response_modification(): void // phpcs:ignore
     {
         $originalResponse = new JsonResponse(['data' => 'original']);
-        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', []); // @phpstan-ignore-line argument.type
+        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', new ApiEndpointParameterCollection()); // @phpstan-ignore-line argument.type
         $apiRequest = $this->createMock(ApiRequestInterface::class);
 
         $event = new ModifyApiResponseEvent($originalResponse, $endpoint, $apiRequest);
@@ -74,7 +75,7 @@ final class ModifyApiResponseEventTest extends UnitTestCase
     public function allows_complete_response_replacement(): void // phpcs:ignore
     {
         $originalResponse = new JsonResponse(['data' => 'original']);
-        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', []); // @phpstan-ignore-line argument.type
+        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', new ApiEndpointParameterCollection()); // @phpstan-ignore-line argument.type
         $apiRequest = $this->createMock(ApiRequestInterface::class);
 
         $event = new ModifyApiResponseEvent($originalResponse, $endpoint, $apiRequest);
@@ -95,7 +96,7 @@ final class ModifyApiResponseEventTest extends UnitTestCase
     public function allows_adding_multiple_headers(): void // phpcs:ignore
     {
         $response = new JsonResponse(['data' => 'test']);
-        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', []); // @phpstan-ignore-line argument.type
+        $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', new ApiEndpointParameterCollection()); // @phpstan-ignore-line argument.type
         $apiRequest = $this->createMock(ApiRequestInterface::class);
 
         $event = new ModifyApiResponseEvent($response, $endpoint, $apiRequest);

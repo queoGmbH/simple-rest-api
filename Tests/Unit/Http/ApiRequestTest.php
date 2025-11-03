@@ -8,9 +8,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception;
 use Psr\Http\Message\ServerRequestInterface;
+use Queo\SimpleRestApi\Collection\ApiEndpointParameterCollection;
 use Queo\SimpleRestApi\Collection\Parameters;
 use Queo\SimpleRestApi\Configuration\ExtensionConfigurationInterface;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
+use Queo\SimpleRestApi\Value\ApiEndpointParameter;
 use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
@@ -129,13 +131,22 @@ final class ApiRequestTest extends UnitTestCase
 
         $apiRequest = new ApiRequest($currentRequest, $extensionConfiguration);
 
-        $apiEndpoint = new ApiEndpoint('MyClass', 'myEndpoint', '/v1/my/example/endpoint/{param1}/{param2}', 'GET', ['param1', 'param2']); // @phpstan-ignore-line argument.type
+        $apiEndpoint = new ApiEndpoint(
+            'MyClass', // @phpstan-ignore-line argument.type
+            'myEndpoint',
+            '/v1/my/example/endpoint/{param1}/{param2}',
+            'GET',
+            new ApiEndpointParameterCollection(
+                new ApiEndpointParameter('param1'),
+                new ApiEndpointParameter('param2')
+            )
+        );
 
         $expectedParameters = new Parameters(
-            [
-                0 => 'param1',
-                1 => 'param2'
-            ],
+            new ApiEndpointParameterCollection(
+                new ApiEndpointParameter('param1'),
+                new ApiEndpointParameter('param2')
+            ),
             [
                 '123',
                 'value'

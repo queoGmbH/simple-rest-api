@@ -7,8 +7,10 @@ namespace Queo\SimpleRestApi\Tests\Unit\Collection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
+use Queo\SimpleRestApi\Collection\ApiEndpointParameterCollection;
 use Queo\SimpleRestApi\Collection\Parameters;
 use Queo\SimpleRestApi\Tests\Unit\Collection\Fixture\DummyController;
+use Queo\SimpleRestApi\Value\ApiEndpointParameter;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 #[CoversClass(Parameters::class)]
@@ -20,10 +22,10 @@ final class ParametersTest extends UnitTestCase
         $currentRequest = $this->createMock(ServerRequestInterface::class);
 
         $parameters = new Parameters(
-            [
-                0 => 'param1',
-                1 => 'param2'
-            ],
+            new ApiEndpointParameterCollection(
+                new ApiEndpointParameter('param1'),
+                new ApiEndpointParameter('param2')
+            ),
             [
                 '123',
                 'value'
@@ -50,10 +52,10 @@ final class ParametersTest extends UnitTestCase
         $currentRequest = $this->createMock(ServerRequestInterface::class);
 
         $parameters = new Parameters(
-            [
-                0 => 'param1',
-                1 => 'param2'
-            ],
+            new ApiEndpointParameterCollection(
+                new ApiEndpointParameter('param1'),
+                new ApiEndpointParameter('param2')
+            ),
             [
                 '123',
                 'value'

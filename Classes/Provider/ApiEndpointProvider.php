@@ -7,6 +7,7 @@ namespace Queo\SimpleRestApi\Provider;
 use ReflectionException;
 use ReflectionParameter;
 use Psr\Http\Message\ServerRequestInterface;
+use Queo\SimpleRestApi\Collection\ApiEndpointParameterCollection;
 use Queo\SimpleRestApi\Http\ApiRequestInterface;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
 use Queo\SimpleRestApi\Value\ApiEndpointParameter;
@@ -49,16 +50,15 @@ final class ApiEndpointProvider
         // Extract detailed parameter information via reflection
         $parameters = $this->extractParameterInformation($className, $methodName, $parameterNames);
 
-        $endpoint = new ApiEndpoint($className, $methodName, $path, $httpMethod, $parameterNames, $summary, $description, $parameters, $tags);
+        $endpoint = new ApiEndpoint($className, $methodName, $path, $httpMethod, $parameters, $summary, $description, $tags);
         $this->endpoints[$this->getIdentifier($httpMethod, $identifierPath)] = $endpoint;
     }
 
     /**
      * @param  class-string  $className
      * @param  array<string> $parameterNames
-     * @return array<ApiEndpointParameter>
      */
-    private function extractParameterInformation(string $className, string $methodName, array $parameterNames): array
+    private function extractParameterInformation(string $className, string $methodName, array $parameterNames): ApiEndpointParameterCollection
     {
         $parameters = [];
 
@@ -91,11 +91,13 @@ final class ApiEndpointProvider
                 }
             }
         } catch (ReflectionException) {
-            // If reflection fails, return empty array
-            return [];
+            // If reflection fails, create basic parameter objects from path parameter names
+            foreach ($parameterNames as $paramName) {
+                $parameters[] = new ApiEndpointParameter($paramName);
+            }
         }
 
-        return $parameters;
+        return new ApiEndpointParameterCollection(...$parameters);
     }
 
     /**

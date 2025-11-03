@@ -33,7 +33,7 @@ final class ApiEndpointProviderTest extends UnitTestCase
         $this->assertSame('myEndpoint', $actualEndpoint->method);
         $this->assertSame('/v1/my-api-endpoint', $actualEndpoint->path);
         $this->assertSame('GET', $actualEndpoint->httpMethod);
-        $this->assertSame([], $actualEndpoint->parameterList);
+        $this->assertTrue($actualEndpoint->parameters->isEmpty());
     }
 
     #[Test]
@@ -54,7 +54,14 @@ final class ApiEndpointProviderTest extends UnitTestCase
         $this->assertSame('myEndpoint', $actualEndpoint->method);
         $this->assertSame('/v1/my-api-endpoint/{param1}/{param2}', $actualEndpoint->path);
         $this->assertSame('GET', $actualEndpoint->httpMethod);
-        $this->assertSame(['param1', 'param2'], $actualEndpoint->parameterList);
+        // stdClass has no real method, so reflection fails but we still create parameter objects from path
+        $this->assertCount(2, $actualEndpoint->parameters);
+        $param1 = $actualEndpoint->parameters->getByIndex(0);
+        $param2 = $actualEndpoint->parameters->getByIndex(1);
+        $this->assertNotNull($param1);
+        $this->assertNotNull($param2);
+        $this->assertSame('param1', $param1->name);
+        $this->assertSame('param2', $param2->name);
     }
 
     #[Test]

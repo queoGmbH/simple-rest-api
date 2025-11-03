@@ -6,6 +6,7 @@ namespace Unit\Value;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use Queo\SimpleRestApi\Collection\ApiEndpointParameterCollection;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
@@ -17,7 +18,7 @@ final class ApiEndpointTest extends UnitTestCase
     {
         /** @phpstan-var class-string $className */
         $className = 'MyApiController';
-        $apiEndpoint = new ApiEndpoint($className, 'myApiMethod', '/v1/my-endpoint/{someArg}/{otherArg}', 'GET', ['someArg', 'otherArg']);
+        $apiEndpoint = new ApiEndpoint($className, 'myApiMethod', '/v1/my-endpoint/{someArg}/{otherArg}', 'GET', new ApiEndpointParameterCollection());
 
         $this->assertSame('/v1/my-endpoint', $apiEndpoint->getPathWithoutParameters());
     }
@@ -32,7 +33,7 @@ final class ApiEndpointTest extends UnitTestCase
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
-            [],
+            new ApiEndpointParameterCollection(),
             'My Endpoint Summary',
             'This is a detailed description of my endpoint'
         );
@@ -51,12 +52,12 @@ final class ApiEndpointTest extends UnitTestCase
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
-            []
+            new ApiEndpointParameterCollection()
         );
 
         $this->assertSame('', $apiEndpoint->summary);
         $this->assertSame('', $apiEndpoint->description);
-        $this->assertSame([], $apiEndpoint->parameters);
+        $this->assertTrue($apiEndpoint->parameters->isEmpty());
     }
 
     #[Test]
@@ -69,10 +70,9 @@ final class ApiEndpointTest extends UnitTestCase
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
-            [],
+            new ApiEndpointParameterCollection(),
             '',
             '',
-            [],
             ['authenticated', 'cacheable', 'public']
         );
 
@@ -89,7 +89,7 @@ final class ApiEndpointTest extends UnitTestCase
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
-            []
+            new ApiEndpointParameterCollection()
         );
 
         $this->assertSame([], $apiEndpoint->tags);
@@ -105,10 +105,9 @@ final class ApiEndpointTest extends UnitTestCase
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
-            [],
+            new ApiEndpointParameterCollection(),
             '',
             '',
-            [],
             ['authenticated', 'cacheable']
         );
 
@@ -127,10 +126,9 @@ final class ApiEndpointTest extends UnitTestCase
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
-            [],
+            new ApiEndpointParameterCollection(),
             '',
             '',
-            [],
             ['authenticated', 'cacheable']
         );
 
@@ -149,10 +147,9 @@ final class ApiEndpointTest extends UnitTestCase
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
-            [],
+            new ApiEndpointParameterCollection(),
             '',
             '',
-            [],
             ['authenticated', 'cacheable', 'public']
         );
 
@@ -171,7 +168,7 @@ final class ApiEndpointTest extends UnitTestCase
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
-            []
+            new ApiEndpointParameterCollection()
         );
 
         $this->assertTrue($apiEndpoint->isEndpoint($className, 'myApiMethod'));
@@ -191,7 +188,7 @@ final class ApiEndpointTest extends UnitTestCase
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
-            []
+            new ApiEndpointParameterCollection()
         );
 
         /** @phpstan-var array<class-string, string> $endpoints */
@@ -230,7 +227,7 @@ final class ApiEndpointTest extends UnitTestCase
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
-            []
+            new ApiEndpointParameterCollection()
         );
 
         /** @phpstan-var array<class-string, array<string>> $endpoints */
@@ -268,7 +265,7 @@ final class ApiEndpointTest extends UnitTestCase
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
-            []
+            new ApiEndpointParameterCollection()
         );
 
         /** @phpstan-var array<class-string, string> $endpoints */
@@ -301,7 +298,7 @@ final class ApiEndpointTest extends UnitTestCase
             'getUser',
             '/v1/users/{userId}',
             'GET',
-            []
+            new ApiEndpointParameterCollection()
         );
 
         /** @phpstan-var array<class-string, array<string>|string> $endpoints */
@@ -337,7 +334,7 @@ final class ApiEndpointTest extends UnitTestCase
             'myApiMethod',
             '/v1/users/{userId}',
             'GET',
-            ['userId']
+            new ApiEndpointParameterCollection()
         );
 
         $this->assertTrue($apiEndpoint->matchesPath('/v1/users/{userId}'));
@@ -354,7 +351,7 @@ final class ApiEndpointTest extends UnitTestCase
             'myApiMethod',
             '/v1/my-endpoint',
             'GET',
-            []
+            new ApiEndpointParameterCollection()
         );
 
         $this->assertSame($className, $apiEndpoint->getClass());

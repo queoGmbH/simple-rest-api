@@ -4,30 +4,29 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Value;
 
+use Queo\SimpleRestApi\Collection\ApiEndpointParameterCollection;
+
 final readonly class ApiEndpoint
 {
     /**
-     * @param class-string                $className
-     * @param array<string>               $parameterList
-     * @param array<ApiEndpointParameter> $parameters
-     * @param array<string>               $tags
+     * @param class-string $className
+     * @param array<string> $tags
      */
     public function __construct(
         public string $className,
         public string $method,
         public string $path,
         public string $httpMethod,
-        public array $parameterList,
+        public ApiEndpointParameterCollection $parameters,
         public string $summary = '',
         public string $description = '',
-        public array $parameters = [],
         public array $tags = []
     ) {
     }
 
     public function parameterCount(): int
     {
-        return count($this->parameterList);
+        return count($this->parameters);
     }
 
     public function getPathWithoutParameters(): string
