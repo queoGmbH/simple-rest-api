@@ -14,7 +14,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 final class ApiEndpointParameterCollectionTest extends UnitTestCase
 {
     #[Test]
-    public function collection_can_be_created_with_parameters(): void
+    public function collectionCanBeCreatedWithParameters(): void
     {
         $param1 = new ApiEndpointParameter('param1', 'int', 'First parameter');
         $param2 = new ApiEndpointParameter('param2', 'string', 'Second parameter');
@@ -25,7 +25,7 @@ final class ApiEndpointParameterCollectionTest extends UnitTestCase
     }
 
     #[Test]
-    public function collection_can_be_created_empty(): void
+    public function collectionCanBeCreatedEmpty(): void
     {
         $collection = new ApiEndpointParameterCollection();
 
@@ -34,7 +34,7 @@ final class ApiEndpointParameterCollectionTest extends UnitTestCase
     }
 
     #[Test]
-    public function collection_can_get_parameter_by_name(): void
+    public function collectionCanGetParameterByName(): void
     {
         $param1 = new ApiEndpointParameter('userId', 'int', 'User ID');
         $param2 = new ApiEndpointParameter('postId', 'int', 'Post ID');
@@ -47,7 +47,7 @@ final class ApiEndpointParameterCollectionTest extends UnitTestCase
     }
 
     #[Test]
-    public function collection_returns_null_for_non_existent_parameter_name(): void
+    public function collectionReturnsNullForNonExistentParameterName(): void
     {
         $param1 = new ApiEndpointParameter('userId', 'int', 'User ID');
 
@@ -59,7 +59,7 @@ final class ApiEndpointParameterCollectionTest extends UnitTestCase
     }
 
     #[Test]
-    public function collection_can_get_parameter_by_index(): void
+    public function collectionCanGetParameterByIndex(): void
     {
         $param1 = new ApiEndpointParameter('userId', 'int', 'User ID');
         $param2 = new ApiEndpointParameter('postId', 'int', 'Post ID');
@@ -71,7 +71,7 @@ final class ApiEndpointParameterCollectionTest extends UnitTestCase
     }
 
     #[Test]
-    public function collection_returns_null_for_invalid_index(): void
+    public function collectionReturnsNullForInvalidIndex(): void
     {
         $param1 = new ApiEndpointParameter('userId', 'int', 'User ID');
 
@@ -81,7 +81,7 @@ final class ApiEndpointParameterCollectionTest extends UnitTestCase
     }
 
     #[Test]
-    public function collection_can_check_if_parameter_exists(): void
+    public function collectionCanCheckIfParameterExists(): void
     {
         $param1 = new ApiEndpointParameter('userId', 'int', 'User ID');
 
@@ -92,7 +92,7 @@ final class ApiEndpointParameterCollectionTest extends UnitTestCase
     }
 
     #[Test]
-    public function collection_can_be_converted_to_array(): void
+    public function collectionCanBeConvertedToArray(): void
     {
         $param1 = new ApiEndpointParameter('userId', 'int', 'User ID');
         $param2 = new ApiEndpointParameter('postId', 'int', 'Post ID');
@@ -105,7 +105,7 @@ final class ApiEndpointParameterCollectionTest extends UnitTestCase
     }
 
     #[Test]
-    public function collection_is_iterable(): void
+    public function collectionIsIterable(): void
     {
         $param1 = new ApiEndpointParameter('userId', 'int', 'User ID');
         $param2 = new ApiEndpointParameter('postId', 'int', 'Post ID');
@@ -121,7 +121,7 @@ final class ApiEndpointParameterCollectionTest extends UnitTestCase
     }
 
     #[Test]
-    public function collection_is_countable(): void
+    public function collectionIsCountable(): void
     {
         $param1 = new ApiEndpointParameter('userId', 'int', 'User ID');
         $param2 = new ApiEndpointParameter('postId', 'int', 'Post ID');
@@ -132,7 +132,7 @@ final class ApiEndpointParameterCollectionTest extends UnitTestCase
     }
 
     #[Test]
-    public function collection_is_not_empty_when_it_has_parameters(): void
+    public function collectionIsNotEmptyWhenItHasParameters(): void
     {
         $param1 = new ApiEndpointParameter('userId', 'int', 'User ID');
 
