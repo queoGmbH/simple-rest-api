@@ -104,13 +104,15 @@ final class ExtensionConfigurationTest extends UnitTestCase
     }
 
     #[Test]
-    public function supportsVariousBasePathFormats(): void
+    public function supportsVariousValidBasePathFormats(): void
     {
         $testCases = [
             '/services/' => '/services/',
             '/v1/' => '/v1/',
             '/my-api/' => '/my-api/',
             '/api/v2/' => '/api/v2/',
+            '/api_v2/' => '/api_v2/',
+            '/123/' => '/123/',
         ];
 
         foreach ($testCases as $input => $expected) {
@@ -129,6 +131,41 @@ final class ExtensionConfigurationTest extends UnitTestCase
             $config = new ExtensionConfiguration($request);
 
             $this->assertSame($expected, $config->getApiBasePath(), 'Failed for input: ' . $input);
+        }
+    }
+
+    #[Test]
+    public function returnsDefaultBasePathForInvalidFormats(): void
+    {
+        $invalidPaths = [
+            'api/',              // Missing leading slash
+            '/api',              // Missing trailing slash
+            'api',               // Missing both slashes
+            '/api/v2',           // Missing trailing slash
+            '/api with spaces/', // Contains spaces
+            '/api@v2/',          // Contains invalid character @
+            '/api!/',            // Contains invalid character !
+            '/api.v2/',          // Contains invalid character .
+            '/api/v2//',         // Double trailing slash
+            '//api/',            // Double leading slash
+        ];
+
+        foreach ($invalidPaths as $invalidPath) {
+            $site = $this->createSiteWithSettings([
+                'simple_rest_api' => [
+                    'basePath' => $invalidPath,
+                ],
+            ]);
+
+            $request = $this->createMock(ServerRequestInterface::class);
+            $request->expects(self::once())
+                ->method('getAttribute')
+                ->with('site')
+                ->willReturn($site);
+
+            $config = new ExtensionConfiguration($request);
+
+            $this->assertSame('/api/', $config->getApiBasePath(), 'Should return default for invalid path: ' . $invalidPath);
         }
     }
 

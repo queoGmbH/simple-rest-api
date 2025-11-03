@@ -13,6 +13,8 @@ final readonly class ExtensionConfiguration implements ExtensionConfigurationInt
 
     private const SETTING_KEY_BASE_PATH = 'simple_rest_api.basePath';
 
+    private const BASE_PATH_PATTERN = '/^\/([a-zA-Z0-9_-]+\/)+$/';
+
     public function __construct(
         private ?ServerRequestInterface $request = null
     ) {
@@ -26,7 +28,7 @@ final readonly class ExtensionConfiguration implements ExtensionConfigurationInt
             $settings = $site->getSettings();
             $basePath = $settings->get(self::SETTING_KEY_BASE_PATH);
 
-            if (is_string($basePath) && $basePath !== '') {
+            if (is_string($basePath) && $this->isValidBasePath($basePath)) {
                 return $basePath;
             }
         }
@@ -46,5 +48,21 @@ final readonly class ExtensionConfiguration implements ExtensionConfigurationInt
         }
 
         return null;
+    }
+
+    /**
+     * Validates that the base path matches the required format.
+     *
+     * The base path must:
+     * - Start with a forward slash
+     * - End with a forward slash
+     * - Only contain letters, numbers, hyphens, and underscores between slashes
+     *
+     * Valid examples: /api/, /rest/, /services/, /api/v2/
+     * Invalid examples: api/, /api, /api/v2, /api with spaces/
+     */
+    private function isValidBasePath(string $basePath): bool
+    {
+        return preg_match(self::BASE_PATH_PATTERN, $basePath) === 1;
     }
 }
