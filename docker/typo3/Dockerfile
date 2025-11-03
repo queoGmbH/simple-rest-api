@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     git \
     curl \
+    default-mysql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions required by TYPO3
