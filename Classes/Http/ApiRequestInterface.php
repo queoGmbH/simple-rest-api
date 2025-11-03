@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Queo\SimpleRestApi\Http;
 
 use Psr\Http\Message\ServerRequestInterface;
-use Queo\SimpleRestApi\Collection\Parameters;
+use Queo\SimpleRestApi\Collection\EndpointParameterResolver;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
 
 interface ApiRequestInterface
@@ -16,7 +16,7 @@ interface ApiRequestInterface
 
     public function getEndpointPath(): string;
 
-    public function getParameters(ApiEndpoint $apiEndpoint): Parameters;
+    public function getParameters(ApiEndpoint $apiEndpoint): EndpointParameterResolver;
 
     public function getRequest(): ServerRequestInterface;
 }
