@@ -12,6 +12,7 @@ A TYPO3 extension that provides a simple REST API framework to create endpoints 
 - 🎯 **Simple endpoint configuration** via `#[AsApiEndpoint]` PHP attribute
 - 🔗 **URL parameter mapping** to method arguments (int, string, float, bool)
 - 📥 **ServerRequest integration** for accessing request body, headers, and query parameters
+- ⚙️ **Configurable API base path** - Customize per site via TYPO3 Site Set Settings (default: `/api/`)
 - 🎨 **Backend module** to view all registered API endpoints with documentation
 - 📝 **Parameter documentation** with automatic type extraction from PHPDoc
 - 🔄 **PSR-14 events** to adjust parameters and modify responses
@@ -84,6 +85,44 @@ vendor/bin/typo3 cache:flush
 ```
 
 Your endpoint is now accessible at: `https://your-domain.com/api/v1/hello`
+
+## ⚙️ Configuration
+
+### Customizing API Base Path
+
+By default, all API endpoints are accessible under the `/api/` base path. You can customize this per site using TYPO3 Site Set Settings.
+
+**Add to your site configuration** (`config/sites/<site>/config.yaml`):
+
+```yaml
+# Option 1: Use the provided site set
+sets:
+  - simple_rest_api/main
+
+settings:
+  simple_rest_api:
+    basePath: '/rest/'  # Customize to your needs
+```
+
+**Or configure directly without the site set:**
+
+```yaml
+settings:
+  simple_rest_api:
+    basePath: '/services/'
+```
+
+**Valid base paths:**
+- `/api/` (default)
+- `/rest/`
+- `/services/`
+- `/api/v2/`
+- `/my-api/`
+
+**Requirements:**
+- Must start and end with forward slash
+- Only letters, numbers, hyphens, and underscores allowed
+- Pattern: `^/[a-zA-Z0-9_-]*/$`
 
 ## 📖 Documentation
 
@@ -209,7 +248,8 @@ The module displays:
 - **AsApiEndpoint** - PHP attribute to mark methods as endpoints
 - **ApiResolverMiddleware** - Main middleware handling endpoint resolution
 - **ApiEndpointProvider** - Manages endpoint registration and discovery
-- **Route Enhancer** - Custom TYPO3 route enhancer for `/api/*` paths
+- **ExtensionConfiguration** - Manages configurable API base path from site settings
+- **Route Enhancer** - Custom TYPO3 route enhancer for configurable base path (default: `/api/*`)
 - **Events** - ModifyApiResponseEvent, BeforeParameterMappingEvent, AfterParameterMappingEvent
 
 ### Philosophy
