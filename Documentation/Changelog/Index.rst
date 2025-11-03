@@ -8,6 +8,89 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
+Version 0.2.0
+=============
+
+Released: 2025-11-03
+
+Added
+-----
+
+* **Configurable API base path** via TYPO3 Site Set Settings
+
+  * Site Set configuration with ``settings.definitions.yaml``
+  * Runtime validation with pattern matching (``^/([a-zA-Z0-9_-]+/)+$``)
+  * Support for multi-segment paths (e.g., ``/api/v2/``, ``/rest/v1/``)
+  * Dual-layer validation (backend UI + runtime)
+  * Comprehensive test coverage for valid and invalid formats
+  * Falls back to default ``/api/`` for invalid configurations
+
+* ``ExtensionConfiguration`` class for managing extension settings
+* Base path format validation with detailed documentation
+* ModifyApiResponseEvent to allow response modifications before returning to client
+* Color-coded HTTP method badges in backend module (GET, POST, PUT, PATCH, DELETE)
+* Comprehensive quick start guide in README with step-by-step instructions
+* Complete HTTP method examples in documentation (all methods now documented)
+* Project badges in README (version, license, TYPO3 compatibility)
+
+Changed
+-------
+
+* ``ExtensionConfiguration`` made readonly for improved type safety
+* Eliminated runtime reflection in parameter resolution
+* Renamed ``Parameters`` class to ``EndpointParameterResolver``
+* ``ApiEndpointParameter`` now includes ``ServerRequestInterface`` in collection
+* Replaced raw arrays with ``ApiEndpointParameterCollection`` for type-safe parameter handling
+* Restructured PSR-14 events documentation for improved clarity and navigation
+* Replaced 'Adding Request Context' example with more practical 'Loading Extbase Models' example
+* Enhanced README with better project overview and usage examples
+* Updated all documentation (CLAUDE.md, README.md, RST docs) for configurable base path
+
+Fixed
+-----
+
+* Removed reference to non-existent event-flow.svg image in documentation
+* String interpolation in tests replaced with concatenation (Rector compliance)
+
+Documentation
+-------------
+
+* New documentation section for configurable API base path with examples
+* Updated configuration section with Site Set setup instructions
+* Added validation requirements and pattern documentation
+* Examples of valid and invalid base path formats
+* URL examples showing default and custom base paths
+
+Technical
+---------
+
+* Added ``pathParameterCount()`` method to ``ApiEndpoint``
+* Added date extension to composer-require-checker configuration
+* Excluded CLAUDE.md from package distribution via .gitattributes
+* Added .phpunit.result.cache and .claude/ to .gitignore
+* Removed config folder from repository (site-specific, not for extension)
+* Fixed Rector code style issues for PHP 8.2+ compatibility
+* All code quality checks passing (PHPStan level 9, Rector, PHPCS)
+* Comprehensive test suite: 56 unit tests, 6 integration tests
+
+Version 0.2.0-rc3
+=================
+
+Released: 2025-XX-XX
+
+Changed
+-------
+
+* Eliminated runtime reflection in parameter resolution
+* Renamed Parameters class to EndpointParameterResolver
+* ApiEndpointParameter now includes ServerRequestInterface in collection
+
+Maintenance
+-----------
+
+* Added pathParameterCount() method to ApiEndpoint
+* Comprehensive test coverage for parameter resolution
+
 Version 0.2.0-rc2
 =================
 
@@ -267,7 +350,6 @@ Version 0.3.0
 
 * OpenAPI/Swagger documentation generation
 * Export endpoint documentation as JSON
-* Configurable API base path (not hardcoded to `/api/`)
 * Support for PUT and PATCH methods (currently experimental)
 
 Version 0.4.0
