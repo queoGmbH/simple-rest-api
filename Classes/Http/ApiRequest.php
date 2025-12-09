@@ -11,6 +11,7 @@ use Queo\SimpleRestApi\Collection\EndpointParameterResolver;
 use Queo\SimpleRestApi\Configuration\ExtensionConfigurationInterface;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
+use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 
 final readonly class ApiRequest implements ApiRequestInterface
 {
@@ -34,7 +35,15 @@ final readonly class ApiRequest implements ApiRequestInterface
 
         $this->site = $site;
         $this->requestUri = $this->request->getUri();
-        $this->baseUri = $this->site->getBase();
+
+        // Use language-specific base URI if available, otherwise fall back to site base
+        $siteLanguage = $this->request->getAttribute('language');
+        if ($siteLanguage instanceof SiteLanguage) {
+            $this->baseUri = $siteLanguage->getBase();
+        } else {
+            $this->baseUri = $this->site->getBase();
+        }
+
         $this->apiBasePath = $this->extensionConfiguration->getApiBasePath();
         $this->compareBasePath = rtrim($this->baseUri->getPath(), '/') . '/' . ltrim($this->apiBasePath, '/');
     }

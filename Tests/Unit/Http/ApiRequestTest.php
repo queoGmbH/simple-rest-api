@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Tests\Unit\Http;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception;
@@ -15,6 +16,7 @@ use Queo\SimpleRestApi\Value\ApiEndpoint;
 use Queo\SimpleRestApi\Value\ApiEndpointParameter;
 use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
+use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 use Queo\SimpleRestApi\Http\ApiRequest;
 
@@ -31,7 +33,13 @@ final class ApiRequestTest extends UnitTestCase
         $site = $this->createMock(SiteInterface::class);
         $extensionConfiguration = $this->createMock(ExtensionConfigurationInterface::class);
 
-        $currentRequest->expects(self::once())->method('getAttribute')->with('site')->willReturn($site);
+        $currentRequest->expects(self::exactly(2))
+            ->method('getAttribute')
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
+                'site' => $site,
+                'language' => null,
+                default => null
+            });
         $currentRequest->expects(self::once())->method('getUri')->willReturn(new Uri('https://example.com/lang/api/v1/my/example/endpoint'));
         $site->expects(self::once())->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
         $extensionConfiguration->expects(self::once())->method('getApiBasePath')->willReturn('/api/');
@@ -51,7 +59,13 @@ final class ApiRequestTest extends UnitTestCase
         $site = $this->createMock(SiteInterface::class);
         $extensionConfiguration = $this->createMock(ExtensionConfigurationInterface::class);
 
-        $currentRequest->expects(self::once())->method('getAttribute')->with('site')->willReturn($site);
+        $currentRequest->expects(self::exactly(2))
+            ->method('getAttribute')
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
+                'site' => $site,
+                'language' => null,
+                default => null
+            });
         $currentRequest->expects(self::once())->method('getUri')->willReturn(new Uri('https://example.com/lang/some/other/path'));
         $site->expects(self::once())->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
         $extensionConfiguration->expects(self::once())->method('getApiBasePath')->willReturn('/api/');
@@ -71,7 +85,13 @@ final class ApiRequestTest extends UnitTestCase
         $site = $this->createMock(SiteInterface::class);
         $extensionConfiguration = $this->createMock(ExtensionConfigurationInterface::class);
 
-        $currentRequest->expects(self::once())->method('getAttribute')->with('site')->willReturn($site);
+        $currentRequest->expects(self::exactly(2))
+            ->method('getAttribute')
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
+                'site' => $site,
+                'language' => null,
+                default => null
+            });
         $currentRequest->expects(self::once())->method('getUri')->willReturn(new Uri('https://example.com/lang/api/v1/my/example/endpoint'));
         $site->expects(self::once())->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
         $extensionConfiguration->expects(self::once())->method('getApiBasePath')->willReturn('/api/');
@@ -90,7 +110,13 @@ final class ApiRequestTest extends UnitTestCase
         $site = $this->createMock(SiteInterface::class);
         $extensionConfiguration = $this->createMock(ExtensionConfigurationInterface::class);
 
-        $currentRequest->expects(self::once())->method('getAttribute')->with('site')->willReturn($site);
+        $currentRequest->expects(self::exactly(2))
+            ->method('getAttribute')
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
+                'site' => $site,
+                'language' => null,
+                default => null
+            });
         $currentRequest->expects(self::once())->method('getUri')->willReturn(new Uri('https://example.com/lang/api/v1/my/example/endpoint'));
         $site->expects(self::once())->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
         $extensionConfiguration->expects(self::once())->method('getApiBasePath')->willReturn('/api/');
@@ -107,7 +133,13 @@ final class ApiRequestTest extends UnitTestCase
         $site = $this->createMock(SiteInterface::class);
         $extensionConfiguration = $this->createMock(ExtensionConfigurationInterface::class);
 
-        $currentRequest->expects(self::once())->method('getAttribute')->with('site')->willReturn($site);
+        $currentRequest->expects(self::exactly(2))
+            ->method('getAttribute')
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
+                'site' => $site,
+                'language' => null,
+                default => null
+            });
         $currentRequest->expects(self::once())->method('getUri')->willReturn(new Uri('https://example.com/api/v1/my/example/endpoint'));
         $site->expects(self::once())->method('getBase')->willReturn(new Uri('https://example.com/'));
         $extensionConfiguration->expects(self::once())->method('getApiBasePath')->willReturn('/api/');
@@ -124,7 +156,13 @@ final class ApiRequestTest extends UnitTestCase
         $site = $this->createMock(SiteInterface::class);
         $extensionConfiguration = $this->createMock(ExtensionConfigurationInterface::class);
 
-        $currentRequest->expects(self::once())->method('getAttribute')->with('site')->willReturn($site);
+        $currentRequest->expects(self::exactly(2))
+            ->method('getAttribute')
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
+                'site' => $site,
+                'language' => null,
+                default => null
+            });
         $currentRequest->expects(self::once())->method('getUri')->willReturn(new Uri('https://example.com/lang/api/v1/my/example/endpoint/123/value'));
         $site->expects(self::once())->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
         $extensionConfiguration->expects(self::once())->method('getApiBasePath')->willReturn('/api/');
@@ -155,5 +193,37 @@ final class ApiRequestTest extends UnitTestCase
         );
 
         $this->assertEquals($expectedParameters, $apiRequest->getParameters($apiEndpoint));
+    }
+
+    #[Test]
+    public function request_uses_language_specific_base_uri_when_site_language_is_available(): void // phpcs:ignore
+    {
+        $currentRequest = $this->createMock(ServerRequestInterface::class);
+        $site = $this->createMock(SiteInterface::class);
+        $siteLanguage = $this->createMock(SiteLanguage::class);
+        $extensionConfiguration = $this->createMock(ExtensionConfigurationInterface::class);
+
+        // Mock getAttribute to return site and siteLanguage
+        $currentRequest->expects(self::exactly(2))
+            ->method('getAttribute')
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
+                'site' => $site,
+                'language' => $siteLanguage,
+                default => null
+            });
+        $currentRequest->expects(self::once())->method('getUri')->willReturn(new Uri('https://example.com/de/api/v1/my/example/endpoint'));
+
+        // SiteLanguage should return the language-specific base
+        $siteLanguage->expects(self::once())->method('getBase')->willReturn(new Uri('https://example.com/de/'));
+
+        // Site's getBase should NOT be called when language is available
+        $site->expects(self::never())->method('getBase');
+
+        $extensionConfiguration->expects(self::once())->method('getApiBasePath')->willReturn('/api/');
+
+        $apiRequest = new ApiRequest($currentRequest, $extensionConfiguration);
+
+        $this->assertTrue($apiRequest->isApiRequest());
+        $this->assertSame('/v1/my/example/endpoint', $apiRequest->getEndpointPath());
     }
 }
