@@ -14,7 +14,8 @@
         "json",
         "SPL",
         "Reflection",
-        "date"
+        "date",
+        "filter"
     ],
     "scan-files": []
 }

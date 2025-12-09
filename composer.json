@@ -34,6 +34,7 @@
         "typo3/cms-fluid-styled-content": "^13.4",
         "typo3/cms-info": "^13.4",
         "typo3/cms-install": "^13.4",
+        "typo3/cms-lowlevel": "^13.4",
         "typo3/cms-workspaces": "^13.4",
         "typo3/testing-framework": "^9.1"
     },
