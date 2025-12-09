@@ -20,6 +20,7 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
                     'path' => $attribute->path,
                     'summary' => $attribute->summary,
                     'description' => $attribute->description,
+                    'tags' => $attribute->tags,
                 ]
             );
         }
