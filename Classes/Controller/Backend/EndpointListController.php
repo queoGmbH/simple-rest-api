@@ -24,11 +24,11 @@ final class EndpointListController extends ActionController
     {
         $endpoints = $this->endpointProvider->getAllEndpoints();
 
-        // Filter out internal endpoints unless explicitly enabled
-        if (!$this->extensionConfiguration->showInternalEndpoints()) {
+        // Hide extension's own endpoints unless debug mode is enabled
+        if (!$this->extensionConfiguration->isDebugMode()) {
             $endpoints = array_filter(
                 $endpoints,
-                fn(ApiEndpoint $endpoint): bool => !$endpoint->hasTag('internal')
+                fn(ApiEndpoint $endpoint): bool => !str_starts_with($endpoint->className, 'Queo\\SimpleRestApi\\')
             );
         }
 

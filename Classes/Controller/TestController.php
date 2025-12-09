@@ -25,8 +25,7 @@ final readonly class TestController
         method: 'GET',
         path: '/v1/my-get-endpoint',
         summary: 'Basic GET endpoint example',
-        description: 'Demonstrates a simple GET endpoint that returns success status, current URL, and language information from TYPO3 context',
-        tags: ['internal']
+        description: 'Demonstrates a simple GET endpoint that returns success status, current URL, and language information from TYPO3 context'
     )]
     public function myEndpoint(): JsonResponse
     {
@@ -43,8 +42,7 @@ final readonly class TestController
         method: 'POST',
         path: '/v1/my-post-endpoint',
         summary: 'POST endpoint example',
-        description: 'Shows how to create a POST endpoint. Access request body via $this->request or inject ServerRequestInterface as method parameter',
-        tags: ['internal']
+        description: 'Shows how to create a POST endpoint. Access request body via $this->request or inject ServerRequestInterface as method parameter'
     )]
     public function someOtherEndpoint(): JsonResponse
     {
@@ -65,8 +63,7 @@ final readonly class TestController
         method: 'GET',
         path: '/v1/my-param-endpoint/{param1}/{param2}',
         summary: 'Endpoint with URL parameters',
-        description: 'Demonstrates parameter mapping from URL path to method arguments. Parameters are automatically type-cast (int, string, etc.) and passed to the method',
-        tags: ['internal']
+        description: 'Demonstrates parameter mapping from URL path to method arguments. Parameters are automatically type-cast (int, string, etc.) and passed to the method'
     )]
     public function someParamEndpoint(int $param1, string $param2): JsonResponse
     {
@@ -87,8 +84,7 @@ final readonly class TestController
         method: 'PUT',
         path: '/v1/resources/{resourceId}',
         summary: 'PUT endpoint for full resource update',
-        description: 'Demonstrates a PUT endpoint for replacing an entire resource. Typically used for full updates where all fields are provided',
-        tags: ['internal']
+        description: 'Demonstrates a PUT endpoint for replacing an entire resource. Typically used for full updates where all fields are provided'
     )]
     public function updateResource(int $resourceId): JsonResponse
     {
@@ -113,8 +109,7 @@ final readonly class TestController
         method: 'PATCH',
         path: '/v1/resources/{resourceId}',
         summary: 'PATCH endpoint for partial resource update',
-        description: 'Demonstrates a PATCH endpoint for partially updating a resource. Only provided fields are updated, leaving others unchanged',
-        tags: ['internal']
+        description: 'Demonstrates a PATCH endpoint for partially updating a resource. Only provided fields are updated, leaving others unchanged'
     )]
     public function patchResource(int $resourceId): JsonResponse
     {
@@ -139,8 +134,7 @@ final readonly class TestController
         method: 'DELETE',
         path: '/v1/resources/{resourceId}',
         summary: 'DELETE endpoint for resource removal',
-        description: 'Demonstrates a DELETE endpoint for removing a resource. Returns success confirmation after deletion',
-        tags: ['internal']
+        description: 'Demonstrates a DELETE endpoint for removing a resource. Returns success confirmation after deletion'
     )]
     public function deleteResource(int $resourceId): JsonResponse
     {

@@ -8,5 +8,5 @@ interface ExtensionConfigurationInterface
 {
     public function getApiBasePath(): string;
 
-    public function showInternalEndpoints(): bool;
+    public function isDebugMode(): bool;
 }

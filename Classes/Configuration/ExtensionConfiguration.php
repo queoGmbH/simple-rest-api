@@ -13,7 +13,7 @@ final readonly class ExtensionConfiguration implements ExtensionConfigurationInt
 
     private const SETTING_KEY_BASE_PATH = 'simple_rest_api.basePath';
 
-    private const SETTING_KEY_SHOW_INTERNAL_ENDPOINTS = 'simple_rest_api.showInternalEndpoints';
+    private const SETTING_KEY_DEBUG_MODE = 'simple_rest_api.debugMode';
 
     private const BASE_PATH_PATTERN = '/^\/([a-zA-Z0-9_-]+\/)+$/';
 
@@ -53,42 +53,42 @@ final readonly class ExtensionConfiguration implements ExtensionConfigurationInt
     }
 
     /**
-     * Check if internal endpoints (marked with 'internal' tag) should be shown.
+     * Check if debug mode is enabled.
      *
-     * Defaults to false (hidden) to prevent test/internal endpoints from showing
-     * in production installations. Can be enabled for extension development via
-     * site settings or extension configuration.
+     * When debug mode is disabled (default), endpoints from the extension's own
+     * namespace (Queo\SimpleRestApi\*) are hidden in the backend module.
+     * This prevents test/example controllers from cluttering production installations.
      *
      * Enable via:
-     * - Site settings: settings.simple_rest_api.showInternalEndpoints: true
-     * - LocalConfiguration: $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api']['showInternalEndpoints'] = true
+     * - Site settings: settings.simple_rest_api.debugMode: true
+     * - LocalConfiguration: $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api']['debugMode'] = true
      */
-    public function showInternalEndpoints(): bool
+    public function isDebugMode(): bool
     {
         // Try to get from site settings first
         $site = $this->getCurrentSite();
         if ($site instanceof Site) {
             $settings = $site->getSettings();
-            $showInternal = $settings->get(self::SETTING_KEY_SHOW_INTERNAL_ENDPOINTS);
+            $debugMode = $settings->get(self::SETTING_KEY_DEBUG_MODE);
 
-            if (is_bool($showInternal)) {
-                return $showInternal;
+            if (is_bool($debugMode)) {
+                return $debugMode;
             }
 
             // Handle string values like "1", "true", "0", "false"
-            if (is_string($showInternal)) {
-                return filter_var($showInternal, FILTER_VALIDATE_BOOLEAN);
+            if (is_string($debugMode)) {
+                return filter_var($debugMode, FILTER_VALIDATE_BOOLEAN);
             }
         }
 
         // Fallback to extension configuration
         // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
         $extensionConfig = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] ?? null;
-        if (is_array($extensionConfig) && isset($extensionConfig['showInternalEndpoints'])) {
-            return (bool)$extensionConfig['showInternalEndpoints'];
+        if (is_array($extensionConfig) && isset($extensionConfig['debugMode'])) {
+            return (bool)$extensionConfig['debugMode'];
         }
 
-        // Default: false (hidden)
+        // Default: false (debug mode off, hide extension endpoints)
         return false;
     }
 
