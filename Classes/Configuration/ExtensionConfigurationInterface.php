@@ -7,4 +7,6 @@ namespace Queo\SimpleRestApi\Configuration;
 interface ExtensionConfigurationInterface
 {
     public function getApiBasePath(): string;
+
+    public function showInternalEndpoints(): bool;
 }
