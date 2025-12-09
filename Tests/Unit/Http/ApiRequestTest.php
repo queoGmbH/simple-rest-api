@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Tests\Unit\Http;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception;
@@ -34,7 +35,7 @@ final class ApiRequestTest extends UnitTestCase
 
         $currentRequest->expects(self::exactly(2))
             ->method('getAttribute')
-            ->willReturnCallback(fn($key) => match($key) {
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
                 'site' => $site,
                 'language' => null,
                 default => null
@@ -60,7 +61,7 @@ final class ApiRequestTest extends UnitTestCase
 
         $currentRequest->expects(self::exactly(2))
             ->method('getAttribute')
-            ->willReturnCallback(fn($key) => match($key) {
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
                 'site' => $site,
                 'language' => null,
                 default => null
@@ -86,7 +87,7 @@ final class ApiRequestTest extends UnitTestCase
 
         $currentRequest->expects(self::exactly(2))
             ->method('getAttribute')
-            ->willReturnCallback(fn($key) => match($key) {
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
                 'site' => $site,
                 'language' => null,
                 default => null
@@ -111,7 +112,7 @@ final class ApiRequestTest extends UnitTestCase
 
         $currentRequest->expects(self::exactly(2))
             ->method('getAttribute')
-            ->willReturnCallback(fn($key) => match($key) {
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
                 'site' => $site,
                 'language' => null,
                 default => null
@@ -134,7 +135,7 @@ final class ApiRequestTest extends UnitTestCase
 
         $currentRequest->expects(self::exactly(2))
             ->method('getAttribute')
-            ->willReturnCallback(fn($key) => match($key) {
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
                 'site' => $site,
                 'language' => null,
                 default => null
@@ -157,7 +158,7 @@ final class ApiRequestTest extends UnitTestCase
 
         $currentRequest->expects(self::exactly(2))
             ->method('getAttribute')
-            ->willReturnCallback(fn($key) => match($key) {
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
                 'site' => $site,
                 'language' => null,
                 default => null
@@ -205,7 +206,7 @@ final class ApiRequestTest extends UnitTestCase
         // Mock getAttribute to return site and siteLanguage
         $currentRequest->expects(self::exactly(2))
             ->method('getAttribute')
-            ->willReturnCallback(fn($key) => match($key) {
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
                 'site' => $site,
                 'language' => $siteLanguage,
                 default => null
