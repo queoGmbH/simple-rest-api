@@ -1,0 +1,14 @@
+{
+  "name": "simple-rest-api",
+  "version": "0.2.2",
+  "description": "Simple REST API extension for TYPO3",
+  "private": true,
+  "scripts": {
+    "build": "npm run copy-swagger-ui",
+    "copy-swagger-ui": "mkdir -p Resources/Public/JavaScript/SwaggerUI && cp -r node_modules/swagger-ui-dist/{swagger-ui.css,swagger-ui-bundle.js,swagger-ui-standalone-preset.js,oauth2-redirect.html} Resources/Public/JavaScript/SwaggerUI/"
+  },
+  "dependencies": {
+    "swagger-ui-dist": "^5.10.5"
+  },
+  "devDependencies": {}
+}

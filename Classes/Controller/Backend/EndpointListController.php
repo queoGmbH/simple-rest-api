@@ -4,37 +4,40 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Controller\Backend;
 
-use Queo\SimpleRestApi\Value\ApiEndpoint;
+use TYPO3\CMS\Core\Site\Entity\Site;
 use Psr\Http\Message\ResponseInterface;
 use Queo\SimpleRestApi\Configuration\ExtensionConfigurationInterface;
-use Queo\SimpleRestApi\Provider\ApiEndpointProvider;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
 final class EndpointListController extends ActionController
 {
     public function __construct(
-        private readonly ApiEndpointProvider $endpointProvider,
         private readonly ModuleTemplateFactory $moduleTemplateFactory,
-        private readonly ExtensionConfigurationInterface $extensionConfiguration
+        private readonly ExtensionConfigurationInterface $extensionConfiguration,
+        private readonly PageRenderer $pageRenderer
     ) {
     }
 
     public function listAction(): ResponseInterface
     {
-        $endpoints = $this->endpointProvider->getAllEndpoints();
+        // Get site from request to build OpenAPI spec URL
+        $site = $this->request->getAttribute('site');
+        $baseUrl = $site instanceof Site ? $site->getBase()->__toString() : '';
+        $basePath = $this->extensionConfiguration->getApiBasePath();
+        $openApiUrl = rtrim($baseUrl, '/') . rtrim($basePath, '/') . '/openapi.json';
 
-        // Hide extension's own endpoints unless debug mode is enabled
-        if (!$this->extensionConfiguration->isDebugMode()) {
-            $endpoints = array_filter(
-                $endpoints,
-                fn(ApiEndpoint $endpoint): bool => !str_starts_with($endpoint->className, 'Queo\\SimpleRestApi\\')
-            );
-        }
+        // Include Swagger UI assets via PageRenderer
+        $this->pageRenderer->addCssFile('EXT:simple_rest_api/Resources/Public/JavaScript/SwaggerUI/swagger-ui.css');
+        $this->pageRenderer->addCssFile('EXT:simple_rest_api/Resources/Public/Css/swagger-backend.css');
+        $this->pageRenderer->addJsFile('EXT:simple_rest_api/Resources/Public/JavaScript/SwaggerUI/swagger-ui-bundle.js', 'text/javascript', false, false, '', true);
+        $this->pageRenderer->addJsFile('EXT:simple_rest_api/Resources/Public/JavaScript/SwaggerUI/swagger-ui-standalone-preset.js', 'text/javascript', false, false, '', true);
+        $this->pageRenderer->addJsFile('EXT:simple_rest_api/Resources/Public/JavaScript/swagger-init.js', 'text/javascript', false, false, '', true);
 
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $moduleTemplate->setTitle('REST API Endpoints');
-        $moduleTemplate->assign('endpoints', $endpoints);
+        $moduleTemplate->assign('openApiUrl', $openApiUrl);
 
         return $moduleTemplate->renderResponse('Backend/EndpointList/List');
     }

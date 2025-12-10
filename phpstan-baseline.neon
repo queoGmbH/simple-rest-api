@@ -1,6 +1,24 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^Parameter \$responses of attribute class Queo\\SimpleRestApi\\Attribute\\AsApiEndpoint constructor expects array\<string, mixed\>, array\<int, array\<string, array\<string, array\<string, array\<string, array\<string, array\<string, array\<string, string\>\|string\>\>\|string\>\>\>\|string\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Classes/Controller/TestController.php
+
+		-
+			message: '#^Parameter \$responses of attribute class Queo\\SimpleRestApi\\Attribute\\AsApiEndpoint constructor expects array\<string, mixed\>, array\<int, array\<string, array\<string, array\<string, array\<string, array\<string, array\<string, bool\|int\|string\>\>\|string\>\>\>\|string\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Classes/Controller/TestController.php
+
+		-
+			message: '#^Parameter \$responses of attribute class Queo\\SimpleRestApi\\Attribute\\AsApiEndpoint constructor expects array\<string, mixed\>, array\<int, array\<string, array\<string, array\<string, array\<string, array\<string, array\<string, string\>\>\|string\>\>\>\|string\>\> given\.$#'
+			identifier: argument.type
+			count: 4
+			path: Classes/Controller/TestController.php
+
+		-
 			message: '#^Cannot access offset ''FE'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1

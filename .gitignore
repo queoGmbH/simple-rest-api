@@ -11,3 +11,5 @@ Documentation/.buildinfo
 Documentation/.doctrees
 config/
 .claude/
+node_modules/
+Resources/Public/JavaScript/SwaggerUI/

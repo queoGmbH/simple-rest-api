@@ -13,13 +13,21 @@ final readonly class AsApiEndpoint
 
     /**
      * @param array<string> $tags
+     * @param array<mixed> $requestBody OpenAPI request body specification
+     * @param array<mixed> $responses OpenAPI responses specification
+     * @param array<mixed> $parameters OpenAPI parameters specification
+     * @param array<mixed> $security OpenAPI security requirements
      */
     public function __construct(
         public string $method,
         public string $path,
         public string $summary = '',
         public string $description = '',
-        public array $tags = []
+        public array $tags = [],
+        public array $requestBody = [],
+        public array $responses = [],
+        public array $parameters = [],
+        public array $security = []
     ) {
     }
 }

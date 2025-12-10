@@ -1,0 +1,160 @@
+/**
+ * Swagger UI custom styles for TYPO3 backend integration
+ */
+
+/* Container adjustments */
+#swagger-ui {
+    max-width: 100%;
+    background: #fafafa;
+    border-radius: 4px;
+    padding: 0;
+}
+
+/* Reset TYPO3 backend styles that interfere with Swagger UI */
+#swagger-ui * {
+    box-sizing: border-box;
+}
+
+/* Main wrapper */
+#swagger-ui .swagger-ui {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Improve spacing */
+#swagger-ui .information-container {
+    padding: 20px;
+}
+
+/* Fix button styles */
+#swagger-ui button {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 4px;
+}
+
+/* Fix input fields */
+#swagger-ui input[type="text"],
+#swagger-ui input[type="password"],
+#swagger-ui input[type="email"],
+#swagger-ui textarea,
+#swagger-ui select {
+    min-height: 36px;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+}
+
+/* Operation blocks */
+#swagger-ui .opblock {
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+/* Response section */
+#swagger-ui .responses-wrapper {
+    padding: 20px;
+}
+
+/* Code blocks */
+#swagger-ui .highlight-code {
+    font-family: "Monaco", "Menlo", "Ubuntu Mono", "Consolas", monospace;
+}
+
+/* Topbar (hide it or style it) */
+#swagger-ui .topbar {
+    display: none; /* Hide the default Swagger UI topbar since we have TYPO3's module header */
+}
+
+/* Fix servers label and dropdown overlap */
+#swagger-ui .scheme-container .servers-title {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+#swagger-ui .scheme-container .servers {
+    margin-top: 12px;
+}
+
+/* Information section */
+#swagger-ui .info {
+    margin-bottom: 20px;
+}
+
+#swagger-ui .info .title {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+/* Fix table styles */
+#swagger-ui table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#swagger-ui table thead tr th {
+    padding: 12px;
+    font-weight: 600;
+    text-align: left;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+#swagger-ui table tbody tr td {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* Models section */
+#swagger-ui .models {
+    margin-top: 20px;
+}
+
+/* Try it out section */
+#swagger-ui .try-out {
+    padding: 20px;
+    background: #f7f7f7;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+/* Authorization section */
+#swagger-ui .auth-wrapper {
+    padding: 20px;
+}
+
+/* Ensure proper text color inheritance */
+#swagger-ui {
+    color: #3c4043;
+}
+
+/* Fix potential z-index issues with TYPO3 backend */
+#swagger-ui .swagger-ui select,
+#swagger-ui .swagger-ui input {
+    position: relative;
+    z-index: 1;
+}
+
+/* Parameter name/type styling */
+#swagger-ui .parameter__name {
+    font-weight: 600;
+}
+
+#swagger-ui .parameter__type {
+    color: #55a;
+    font-size: 12px;
+}
+
+/* Response codes */
+#swagger-ui .response-col_status {
+    font-weight: 600;
+}
+
+/* Schema section */
+#swagger-ui .model-box {
+    background: #f9f9f9;
+    border-radius: 4px;
+    padding: 15px;
+}

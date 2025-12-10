@@ -39,8 +39,24 @@ final readonly class ApiEndpointProviderPass implements CompilerPassInterface
                 $summary = $attributes['summary'] ?? '';
                 $description = $attributes['description'] ?? '';
                 $endpointTags = $attributes['tags'] ?? [];
+                $requestBody = $attributes['requestBody'] ?? [];
+                $responses = $attributes['responses'] ?? [];
+                $openApiParameters = $attributes['parameters'] ?? [];
+                $security = $attributes['security'] ?? [];
 
-                $apiEndpointProviderDefinition->addMethodCall('addEndpoint', [$className, $methodName, $httpMethod, $path, $summary, $description, $endpointTags]);
+                $apiEndpointProviderDefinition->addMethodCall('addEndpoint', [
+                    $className,
+                    $methodName,
+                    $httpMethod,
+                    $path,
+                    $summary,
+                    $description,
+                    $endpointTags,
+                    $requestBody,
+                    $responses,
+                    $openApiParameters,
+                    $security
+                ]);
             }
         }
     }

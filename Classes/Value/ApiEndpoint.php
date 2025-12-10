@@ -12,6 +12,10 @@ final readonly class ApiEndpoint
     /**
      * @param class-string $className
      * @param array<string> $tags
+     * @param array<string, mixed> $requestBody
+     * @param array<string, mixed> $responses
+     * @param array<int, array<string, mixed>> $openApiParameters
+     * @param array<int, array<string, mixed>> $security
      */
     public function __construct(
         public string $className,
@@ -21,7 +25,11 @@ final readonly class ApiEndpoint
         public ApiEndpointParameterCollection $parameters,
         public string $summary = '',
         public string $description = '',
-        public array $tags = []
+        public array $tags = [],
+        public array $requestBody = [],
+        public array $responses = [],
+        public array $openApiParameters = [],
+        public array $security = []
     ) {
     }
 
