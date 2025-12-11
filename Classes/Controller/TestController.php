@@ -21,7 +21,6 @@ final readonly class TestController
         $this->request = $simpleRestApi->getRequest();
     }
 
-    /** @noRector */
     #[AsApiEndpoint(
         method: 'GET',
         path: '/my-get-endpoint',
@@ -40,7 +39,6 @@ final readonly class TestController
         ]);
     }
 
-    /** @noRector */
     #[AsApiEndpoint(
         method: 'POST',
         path: '/my-post-endpoint',
@@ -62,7 +60,6 @@ final readonly class TestController
     /**
      * @param int $param1 The first numeric parameter (e.g., user ID or record ID)
      * @param string $param2 The second string parameter (e.g., username or slug)
-     * @noRector
      */
     #[AsApiEndpoint(
         method: 'GET',
@@ -85,7 +82,6 @@ final readonly class TestController
 
     /**
      * @param int $resourceId The ID of the resource to update
-     * @noRector
      */
     #[AsApiEndpoint(
         method: 'PUT',
@@ -112,7 +108,6 @@ final readonly class TestController
 
     /**
      * @param int $resourceId The ID of the resource to partially update
-     * @noRector
      */
     #[AsApiEndpoint(
         method: 'PATCH',
@@ -139,7 +134,6 @@ final readonly class TestController
 
     /**
      * @param int $resourceId The ID of the resource to delete
-     * @noRector
      */
     #[AsApiEndpoint(
         method: 'DELETE',

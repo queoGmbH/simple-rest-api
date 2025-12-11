@@ -35,8 +35,7 @@ return static function (RectorConfig $rectorConfig): void {
             /**
              * rector should not touch these files
              */
-            //__DIR__ . '/src/Example',
-            //__DIR__ . '/src/Example.php',
+            __DIR__ . '/Classes/Controller/TestController.php',
         ]
     );
 };
