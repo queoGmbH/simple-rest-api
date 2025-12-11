@@ -13,20 +13,27 @@ Version 0.2.0
 
 Released: 03.11.2025
 
+.. note::
+   **Configuration Change**: The base path configuration was initially implemented
+   using TYPO3 Site Set Settings but was later refactored to use global extension
+   configuration for better consistency with the global nature of API endpoints.
+   See the "Changed" section below for details.
+
 Added
 -----
 
-* **Configurable API base path** via TYPO3 Site Set Settings
+* **Configurable API base path** via extension configuration
 
-  * Site Set configuration with ``settings.definitions.yaml``
+  * Extension configuration template (``ext_conf_template.txt``)
   * Runtime validation with pattern matching (``^/([a-zA-Z0-9_-]+/)+$``)
   * Support for multi-segment paths (e.g., ``/api/v2/``, ``/rest/v1/``)
-  * Dual-layer validation (backend UI + runtime)
+  * Configuration via Extension Manager or LocalConfiguration
   * Comprehensive test coverage for valid and invalid formats
   * Falls back to default ``/api/`` for invalid configurations
 
 * ``ExtensionConfiguration`` class for managing extension settings
 * Base path format validation with detailed documentation
+* Debug mode configuration to show/hide extension's test endpoints
 * ModifyApiResponseEvent to allow response modifications before returning to client
 * Color-coded HTTP method badges in backend module (GET, POST, PUT, PATCH, DELETE)
 * Comprehensive quick start guide in README with step-by-step instructions
@@ -36,6 +43,16 @@ Added
 Changed
 -------
 
+* **Base path configuration moved from per-site to global** (Breaking: requires reconfiguration)
+
+  * Removed Site Set configuration (``Configuration/Sets/SimpleRestApi/``)
+  * Now uses global extension configuration via ``ext_conf_template.txt``
+  * Removed ``ServerRequestInterface`` dependency from ``ExtensionConfiguration``
+  * Simplified ``isDebugMode()`` to use only extension configuration
+  * Better consistency: endpoints are global → base path is global
+  * Updated all tests to use extension configuration
+  * Updated all documentation (CLAUDE.md, README.md, RST docs)
+
 * ``ExtensionConfiguration`` made readonly for improved type safety
 * Eliminated runtime reflection in parameter resolution
 * Renamed ``Parameters`` class to ``EndpointParameterResolver``
@@ -44,7 +61,6 @@ Changed
 * Restructured PSR-14 events documentation for improved clarity and navigation
 * Replaced 'Adding Request Context' example with more practical 'Loading Extbase Models' example
 * Enhanced README with better project overview and usage examples
-* Updated all documentation (CLAUDE.md, README.md, RST docs) for configurable base path
 
 Fixed
 -----
@@ -56,10 +72,11 @@ Documentation
 -------------
 
 * New documentation section for configurable API base path with examples
-* Updated configuration section with Site Set setup instructions
+* Updated configuration section with Extension Manager setup instructions
 * Added validation requirements and pattern documentation
 * Examples of valid and invalid base path formats
 * URL examples showing default and custom base paths
+* Migration guide for moving from site settings to extension configuration
 
 Technical
 ---------
@@ -251,7 +268,50 @@ Upgrade Guide
 Upgrading from 0.1.x to 0.2.x
 -----------------------------
 
-The 0.2.0 release is backward compatible with 0.1.x. No breaking changes.
+The 0.2.0 release includes a **configuration change** that requires action if you
+customized the API base path.
+
+Required: Migrate Base Path Configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you customized the base path using site settings, you must migrate to extension configuration:
+
+**Before (Site Settings - NO LONGER SUPPORTED):**
+
+.. code-block:: yaml
+
+   # config/sites/<site>/config.yaml
+   sets:
+     - simple_rest_api/main
+
+   settings:
+     simple_rest_api:
+       basePath: '/rest/'
+
+**After (Extension Configuration - REQUIRED):**
+
+Option 1: Via Extension Manager (recommended):
+
+1. Go to **Admin Tools** → **Settings** → **Extension Configuration**
+2. Select ``simple_rest_api``
+3. Set **API Base Path** to ``/rest/``
+
+Option 2: Via LocalConfiguration.php:
+
+.. code-block:: php
+
+   <?php
+   // typo3conf/LocalConfiguration.php or AdditionalConfiguration.php
+   $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] = [
+       'basePath' => '/rest/',
+       'debugMode' => false,
+   ];
+
+**Why this change?**
+
+* Endpoints are global (not site-specific) → base path should be global too
+* Simpler configuration with one source of truth
+* Aligns with extension's simplicity philosophy
 
 Optional Enhancements
 ~~~~~~~~~~~~~~~~~~~~~

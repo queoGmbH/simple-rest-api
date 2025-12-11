@@ -49,33 +49,31 @@ Customizing API Base Path
 ==========================
 
 By default, all API endpoints are accessible under the `/api/` base path. You can
-customize this per site using TYPO3 Site Set Settings.
+customize this globally via extension configuration.
 
-Using Site Sets (Recommended)
-------------------------------
+Extension Manager (Recommended)
+--------------------------------
 
-Add the Simple REST API site set and configure the base path in your site
-configuration (`config/sites/<your-site>/config.yaml`):
+1. Go to **Admin Tools** → **Settings** → **Extension Configuration**
+2. Select ``simple_rest_api``
+3. Configure:
 
-.. code-block:: yaml
+   * **API Base Path**: The base path for all REST API endpoints (default: ``/api/``)
+   * **Debug Mode**: Enable to show extension's own example/test endpoints in backend module
 
-   sets:
-     - simple_rest_api/main
+LocalConfiguration.php
+----------------------
 
-   settings:
-     simple_rest_api:
-       basePath: '/rest/'  # Customize to your needs
+Alternatively, configure directly in your LocalConfiguration.php or AdditionalConfiguration.php:
 
-Direct Configuration
---------------------
+.. code-block:: php
 
-Alternatively, configure the base path directly without using the site set:
-
-.. code-block:: yaml
-
-   settings:
-     simple_rest_api:
-       basePath: '/services/'
+   <?php
+   // In typo3conf/LocalConfiguration.php or AdditionalConfiguration.php
+   $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] = [
+       'basePath' => '/rest/',    // Custom base path
+       'debugMode' => false,      // Hide extension's test endpoints
+   ];
 
 Valid Base Paths
 ----------------
@@ -201,7 +199,8 @@ Configuration Checklist
 After installation, verify these configuration steps:
 
 * ☐ Route enhancer configured in site configuration
-* ☐ API base path customized (optional, defaults to `/api/`)
+* ☐ API base path configured via Extension Manager (optional, defaults to ``/api/``)
+* ☐ Debug mode configured if needed (optional, defaults to disabled)
 * ☐ System cache cleared
 * ☐ Backend module accessible under **Site** → **REST API Endpoints**
 * ☐ Test endpoint created and visible in backend module
