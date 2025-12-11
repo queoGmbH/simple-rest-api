@@ -6,12 +6,21 @@
 <f:layout name="Module" />
 
 <f:section name="Content">
+    <f:asset.script identifier="endpoint-list-filter" src="EXT:simple_rest_api/Resources/Public/JavaScript/EndpointList.js" />
+
     <h1><f:translate key="LLL:EXT:simple_rest_api/Resources/Private/Language/locallang_mod.xlf:module.title" /></h1>
 
     <f:if condition="{endpoints}">
         <f:then>
+            <div class="mb-3">
+                <label for="version-filter" class="form-label">Filter by version:</label>
+                <select id="version-filter" class="form-select form-select-sm" style="width: auto;">
+                    <option value="">All versions</option>
+                </select>
+            </div>
+
             <f:for each="{endpoints}" as="endpoint" iteration="iterator">
-                <div class="panel panel-default mb-3">
+                <div class="panel panel-default mb-3 endpoint-panel" data-version="{endpoint.version}">
                     <div class="panel-heading" role="button" data-bs-toggle="collapse" data-bs-target="#endpoint-{iterator.index}" aria-expanded="false" style="cursor: pointer;">
                         <div class="d-flex align-items-center">
                             <div style="width: 80px;">
@@ -37,7 +46,7 @@
                                 </f:switch>
                             </div>
                             <div class="flex-grow-1">
-                                <strong><code class="text-dark">{endpoint.path}</code></strong>
+                                <strong><code class="text-dark">{apiBasePath}{endpoint.path}</code></strong>
                                 <f:if condition="{endpoint.version}">
                                     <span class="badge bg-dark ms-2">v{endpoint.version}</span>
                                 </f:if>

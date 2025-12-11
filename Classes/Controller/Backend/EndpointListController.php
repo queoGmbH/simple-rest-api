@@ -32,9 +32,13 @@ final class EndpointListController extends ActionController
             );
         }
 
+        // Get API base path without trailing slash for display
+        $apiBasePath = rtrim($this->extensionConfiguration->getApiBasePath(), '/');
+
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $moduleTemplate->setTitle('REST API Endpoints');
         $moduleTemplate->assign('endpoints', $endpoints);
+        $moduleTemplate->assign('apiBasePath', $apiBasePath);
 
         return $moduleTemplate->renderResponse('Backend/EndpointList/List');
     }

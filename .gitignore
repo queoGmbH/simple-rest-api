@@ -11,3 +11,4 @@ Documentation/.buildinfo
 Documentation/.doctrees
 config/
 .claude/
+node_modules

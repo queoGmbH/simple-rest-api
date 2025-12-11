@@ -138,7 +138,7 @@ final readonly class TestController
     #[AsApiEndpoint(
         method: 'DELETE',
         path: '/resources/{resourceId}',
-        version: '1',
+        version: '2.0.1',
         summary: 'DELETE endpoint for resource removal',
         description: 'Demonstrates a DELETE endpoint for removing a resource. Returns success confirmation after deletion'
     )]
