@@ -104,6 +104,77 @@ With custom base path ``/rest/``:
 * Endpoint path: ``/v1/users``
 * Full URL: ``https://example.com/rest/v1/users``
 
+Debug Mode Configuration
+========================
+
+The extension includes example/test endpoints in its own namespace
+(``Queo\SimpleRestApi\*``). By default, these are hidden in production to keep
+the backend module clean.
+
+What Debug Mode Does
+--------------------
+
+When **debug mode is disabled** (default):
+
+* Extension's own test endpoints are **hidden** in the backend module
+* Only your application's endpoints are visible
+* Recommended for production environments
+
+When **debug mode is enabled**:
+
+* Extension's test endpoints are **visible** in the backend module
+* Useful for development and testing
+* Shows example endpoints like ``GET /my-get-endpoint``, ``POST /my-post-endpoint``
+* Helps understand how the extension works
+
+Configuration Methods
+---------------------
+
+Extension Manager (Recommended)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. Go to **Admin Tools** → **Settings** → **Extension Configuration**
+2. Select ``simple_rest_api``
+3. Set **Debug Mode** to:
+
+   * ``0`` or unchecked = Disabled (hide test endpoints) - **Default**
+   * ``1`` or checked = Enabled (show test endpoints)
+
+LocalConfiguration.php
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: php
+
+   <?php
+   // In typo3conf/LocalConfiguration.php or AdditionalConfiguration.php
+   $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] = [
+       'basePath' => '/api/',
+       'debugMode' => false,  // or true to enable
+   ];
+
+Best Practices
+--------------
+
+* **Production**: Keep debug mode **disabled** (``false``)
+* **Development**: Enable debug mode to see example endpoints
+* **Testing**: Enable temporarily to verify the extension is working
+* **Documentation**: The test endpoints serve as working examples of the extension's features
+
+Test Endpoints Included
+------------------------
+
+When debug mode is enabled, these example endpoints become visible:
+
+* ``GET /my-get-endpoint`` - Basic GET example
+* ``POST /my-post-endpoint`` - POST example
+* ``GET /my-param-endpoint/{param1}/{param2}`` - URL parameters example
+* ``PUT /resources/{resourceId}`` - PUT example
+* ``PATCH /resources/{resourceId}`` - PATCH example
+* ``DELETE /resources/{resourceId}`` - DELETE example
+
+These endpoints are defined in ``Classes/Controller/TestController.php`` and serve
+as reference implementations.
+
 Backend Module Access
 =====================
 
