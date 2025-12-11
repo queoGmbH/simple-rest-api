@@ -1,0 +1,5 @@
+# cat=basic; type=string; label=API Base Path: The base path for all REST API endpoints (must start and end with /). Examples: /api/, /rest/, /services/
+basePath = /api/
+
+# cat=basic; type=boolean; label=Debug Mode: Enable to show extension's own example/test endpoints in the backend module. Disable in production to hide them.
+debugMode = 0

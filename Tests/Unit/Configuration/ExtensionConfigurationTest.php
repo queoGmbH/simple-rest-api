@@ -6,17 +6,23 @@ namespace Queo\SimpleRestApi\Tests\Unit\Configuration;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use Psr\Http\Message\ServerRequestInterface;
 use Queo\SimpleRestApi\Configuration\ExtensionConfiguration;
-use TYPO3\CMS\Core\Site\Entity\Site;
-use TYPO3\CMS\Core\Site\Entity\SiteSettings;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 #[CoversClass(ExtensionConfiguration::class)]
 final class ExtensionConfigurationTest extends UnitTestCase
 {
+    protected bool $resetSingletonInstances = true;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Reset extension configuration before each test
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api']);
+    }
+
     #[Test]
-    public function returnsDefaultBasePathWhenNoSiteAvailable(): void
+    public function returnsDefaultBasePathWhenNoConfigurationAvailable(): void
     {
         $config = new ExtensionConfiguration();
 
@@ -26,37 +32,13 @@ final class ExtensionConfigurationTest extends UnitTestCase
     }
 
     #[Test]
-    public function returnsDefaultBasePathWhenRequestHasNoSite(): void
+    public function returnsCustomBasePathFromExtensionConfiguration(): void
     {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->expects(self::once())
-            ->method('getAttribute')
-            ->with('site')
-            ->willReturn(null);
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] = [
+            'basePath' => '/rest/',
+        ];
 
-        $config = new ExtensionConfiguration($request);
-
-        $basePath = $config->getApiBasePath();
-
-        $this->assertSame('/api/', $basePath);
-    }
-
-    #[Test]
-    public function returnsCustomBasePathFromSiteSettings(): void
-    {
-        $site = $this->createSiteWithSettings([
-            'simple_rest_api' => [
-                'basePath' => '/rest/',
-            ],
-        ]);
-
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->expects(self::once())
-            ->method('getAttribute')
-            ->with('site')
-            ->willReturn($site);
-
-        $config = new ExtensionConfiguration($request);
+        $config = new ExtensionConfiguration();
 
         $basePath = $config->getApiBasePath();
 
@@ -64,21 +46,13 @@ final class ExtensionConfigurationTest extends UnitTestCase
     }
 
     #[Test]
-    public function returnsDefaultBasePathWhenSettingIsEmpty(): void
+    public function returnsDefaultBasePathWhenConfigurationIsEmpty(): void
     {
-        $site = $this->createSiteWithSettings([
-            'simple_rest_api' => [
-                'basePath' => '',
-            ],
-        ]);
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] = [
+            'basePath' => '',
+        ];
 
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->expects(self::once())
-            ->method('getAttribute')
-            ->with('site')
-            ->willReturn($site);
-
-        $config = new ExtensionConfiguration($request);
+        $config = new ExtensionConfiguration();
 
         $basePath = $config->getApiBasePath();
 
@@ -86,17 +60,11 @@ final class ExtensionConfigurationTest extends UnitTestCase
     }
 
     #[Test]
-    public function returnsDefaultBasePathWhenSettingIsNotSet(): void
+    public function returnsDefaultBasePathWhenBasePathIsNotSet(): void
     {
-        $site = $this->createSiteWithSettings([]);
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] = [];
 
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->expects(self::once())
-            ->method('getAttribute')
-            ->with('site')
-            ->willReturn($site);
-
-        $config = new ExtensionConfiguration($request);
+        $config = new ExtensionConfiguration();
 
         $basePath = $config->getApiBasePath();
 
@@ -116,19 +84,11 @@ final class ExtensionConfigurationTest extends UnitTestCase
         ];
 
         foreach ($testCases as $input => $expected) {
-            $site = $this->createSiteWithSettings([
-                'simple_rest_api' => [
-                    'basePath' => $input,
-                ],
-            ]);
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] = [
+                'basePath' => $input,
+            ];
 
-            $request = $this->createMock(ServerRequestInterface::class);
-            $request->expects(self::once())
-                ->method('getAttribute')
-                ->with('site')
-                ->willReturn($site);
-
-            $config = new ExtensionConfiguration($request);
+            $config = new ExtensionConfiguration();
 
             $this->assertSame($expected, $config->getApiBasePath(), 'Failed for input: ' . $input);
         }
@@ -151,36 +111,45 @@ final class ExtensionConfigurationTest extends UnitTestCase
         ];
 
         foreach ($invalidPaths as $invalidPath) {
-            $site = $this->createSiteWithSettings([
-                'simple_rest_api' => [
-                    'basePath' => $invalidPath,
-                ],
-            ]);
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] = [
+                'basePath' => $invalidPath,
+            ];
 
-            $request = $this->createMock(ServerRequestInterface::class);
-            $request->expects(self::once())
-                ->method('getAttribute')
-                ->with('site')
-                ->willReturn($site);
-
-            $config = new ExtensionConfiguration($request);
+            $config = new ExtensionConfiguration();
 
             $this->assertSame('/api/', $config->getApiBasePath(), 'Should return default for invalid path: ' . $invalidPath);
         }
     }
 
-    /**
-     * @param array<string, mixed> $settings
-     */
-    private function createSiteWithSettings(array $settings): Site
+    #[Test]
+    public function debugModeIsDisabledByDefault(): void
     {
-        return new Site(
-            'test-site',
-            1,
-            [
-                'base' => 'https://example.com/',
-                'settings' => $settings,
-            ]
-        );
+        $config = new ExtensionConfiguration();
+
+        $this->assertFalse($config->isDebugMode());
+    }
+
+    #[Test]
+    public function debugModeCanBeEnabled(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] = [
+            'debugMode' => '1',
+        ];
+
+        $config = new ExtensionConfiguration();
+
+        $this->assertTrue($config->isDebugMode());
+    }
+
+    #[Test]
+    public function debugModeCanBeDisabled(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] = [
+            'debugMode' => '0',
+        ];
+
+        $config = new ExtensionConfiguration();
+
+        $this->assertFalse($config->isDebugMode());
     }
 }
