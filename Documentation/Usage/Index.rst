@@ -24,14 +24,18 @@ The simplest API endpoint returns a JSON response:
 
    final class ApiController
    {
-       #[AsApiEndpoint(method: 'GET', path: '/v1/hello')]
+       #[AsApiEndpoint(method: 'GET', path: '/hello', version: '1')]
        public function hello(): ResponseInterface
        {
            return new JsonResponse(['message' => 'Hello, World!']);
        }
    }
 
-This endpoint will be accessible at: `/api/v1/hello`
+This endpoint will be accessible at: ``/api/v1/hello``
+
+.. note::
+   The ``version: '1'`` parameter automatically prefixes the path with ``/v1/``.
+   Don't add the version manually to the path!
 
 With Documentation
 ------------------
@@ -43,7 +47,8 @@ Add summary and description for better documentation:
    <?php
    #[AsApiEndpoint(
        method: 'GET',
-       path: '/v1/hello',
+       path: '/hello',
+       version: '1',
        summary: 'Simple hello world endpoint',
        description: 'Returns a friendly greeting message in JSON format'
    )]
@@ -67,7 +72,8 @@ Extract parameters from the URL path:
     */
    #[AsApiEndpoint(
        method: 'GET',
-       path: '/v1/users/{userId}',
+       path: '/users/{userId}',
+       version: '1',
        summary: 'Get user by ID',
        description: 'Fetches a single user by their unique identifier'
    )]
@@ -103,7 +109,8 @@ Multiple Parameters
     */
    #[AsApiEndpoint(
        method: 'GET',
-       path: '/v1/users/{userId}/posts/{postId}',
+       path: '/users/{userId}/posts/{postId}',
+       version: '1',
        summary: 'Get user post',
        description: 'Fetches a specific post from a specific user'
    )]
@@ -137,7 +144,8 @@ Supported parameter types:
     */
    #[AsApiEndpoint(
        method: 'GET',
-       path: '/v1/pages/{slug}',
+       path: '/pages/{slug}',
+       version: '1',
        summary: 'Get page by slug'
    )]
    public function getPageBySlug(string $slug): ResponseInterface
@@ -160,7 +168,8 @@ Use `ServerRequestInterface` to access request body and headers:
 
    #[AsApiEndpoint(
        method: 'POST',
-       path: '/v1/users',
+       path: '/users',
+       version: '1',
        summary: 'Create new user',
        description: 'Creates a new user from JSON request body'
    )]
@@ -213,7 +222,7 @@ Access GET query parameters:
 .. code-block:: php
 
    <?php
-   #[AsApiEndpoint(method: 'GET', path: '/v1/search')]
+   #[AsApiEndpoint(method: 'GET', path: '/search', version: '1')]
    public function search(ServerRequestInterface $request): ResponseInterface
    {
        $queryParams = $request->getQueryParams();
@@ -242,7 +251,8 @@ the URL parameters and the request body/headers/query parameters:
     */
    #[AsApiEndpoint(
        method: 'PATCH',
-       path: '/v1/users/{userId}',
+       path: '/users/{userId}',
+       version: '1',
        summary: 'Update user',
        description: 'Updates a user with data from request body'
    )]
@@ -301,7 +311,7 @@ GET Requests
 .. code-block:: php
 
    <?php
-   #[AsApiEndpoint(method: 'GET', path: '/v1/items')]
+   #[AsApiEndpoint(method: 'GET', path: '/items', version: '1')]
    public function listItems(): ResponseInterface
    {
        // Fetch and return list
@@ -313,7 +323,7 @@ POST Requests
 .. code-block:: php
 
    <?php
-   #[AsApiEndpoint(method: 'POST', path: '/v1/items')]
+   #[AsApiEndpoint(method: 'POST', path: '/items', version: '1')]
    public function createItem(ServerRequestInterface $request): ResponseInterface
    {
        // Create new item
@@ -325,7 +335,7 @@ PUT Requests
 .. code-block:: php
 
    <?php
-   #[AsApiEndpoint(method: 'PUT', path: '/v1/items/{id}')]
+   #[AsApiEndpoint(method: 'PUT', path: '/items/{id}', version: '1')]
    public function updateItem(int $id, ServerRequestInterface $request): ResponseInterface
    {
        // Update existing item
@@ -337,7 +347,7 @@ DELETE Requests
 .. code-block:: php
 
    <?php
-   #[AsApiEndpoint(method: 'DELETE', path: '/v1/items/{id}')]
+   #[AsApiEndpoint(method: 'DELETE', path: '/items/{id}', version: '1')]
    public function deleteItem(int $id): ResponseInterface
    {
        // Delete item
@@ -462,7 +472,7 @@ Use constructor injection for repositories and services:
            private readonly LoggerInterface $logger
        ) {}
 
-       #[AsApiEndpoint(method: 'GET', path: '/v1/users')]
+       #[AsApiEndpoint(method: 'GET', path: '/users', version: '1')]
        public function listUsers(): ResponseInterface
        {
            $users = $this->userRepository->findAll();
@@ -583,7 +593,7 @@ Best Practices
 5. **Validate input** - Never trust user input, always validate
 6. **Use dependency injection** - Don't instantiate dependencies manually
 7. **Keep endpoints focused** - One endpoint should do one thing well
-8. **Version your API** - Use `/v1/`, `/v2/` prefixes for versioning
+8. **Version your API** - Use the `version` parameter (e.g., `version: '1'`) to automatically add version prefixes
 9. **Use events for cross-cutting concerns** - CORS, logging, caching should be in event listeners
 
 Next Steps

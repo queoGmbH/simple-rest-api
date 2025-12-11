@@ -133,8 +133,8 @@ Match endpoints by their URL path:
    {
        $endpoint = $event->getEndpoint();
 
-       // Match exact path
-       if ($endpoint->matchesPath('/v1/users/{userId}')) {
+       // Match exact path (without version prefix)
+       if ($endpoint->matchesPath('/users/{userId}')) {
            // Add custom headers for this specific endpoint
        }
    }
@@ -182,8 +182,8 @@ All ``ApiEndpoint`` objects provide these methods:
        ProductController::class => '*',
    ]): bool
 
-   // Check path (exact match only)
-   $endpoint->matchesPath('/v1/users/{userId}'): bool
+   // Check path (exact match only, without version prefix)
+   $endpoint->matchesPath('/users/{userId}'): bool
 
    // Check tags
    $endpoint->hasTag('authenticated'): bool
@@ -222,7 +222,8 @@ Add tags when defining endpoints:
    {
        #[AsApiEndpoint(
            method: 'GET',
-           path: '/v1/users/{userId}',
+           path: '/users/{userId}',
+           version: '1',
            tags: ['authenticated', 'user-management', 'cacheable']
        )]
        public function getUser(int $userId): ResponseInterface
@@ -232,7 +233,8 @@ Add tags when defining endpoints:
 
        #[AsApiEndpoint(
            method: 'POST',
-           path: '/v1/users',
+           path: '/users',
+           version: '1',
            tags: ['authenticated', 'user-management', 'admin-only']
        )]
        public function createUser(ServerRequestInterface $request): ResponseInterface

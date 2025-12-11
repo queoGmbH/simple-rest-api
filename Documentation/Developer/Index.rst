@@ -391,7 +391,11 @@ Example test:
                stdClass::class,
                'myEndpoint',
                'GET',
-               '/v1/my-api-endpoint'
+               '/my-api-endpoint',
+               'My API endpoint',
+               'Description of my endpoint',
+               [],
+               '1'
            );
 
            // Test endpoint resolution
@@ -515,9 +519,9 @@ When creating endpoints:
    * PATCH - Partial update
    * DELETE - Remove resource
 
-2. **Use plural nouns** for collections: `/v1/users`, not `/v1/user`
-3. **Use resource nesting** sparingly: `/v1/users/{id}/posts`
-4. **Version your API**: Always include `/v1/`, `/v2/` in paths
+2. **Use plural nouns** for collections: `/users`, not `/user`
+3. **Use resource nesting** sparingly: `/users/{id}/posts`
+4. **Version your API**: Use the `version` parameter (e.g., `version: '1'`) to automatically add version prefixes
 5. **Return appropriate status codes**
 6. **Use consistent response structure**
 

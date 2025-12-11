@@ -86,7 +86,7 @@ Endpoint receives wrong parameter type (e.g., string instead of int).
 
 .. code-block:: php
 
-   #[AsApiEndpoint(method: 'GET', path: '/v1/users/{userId}')]
+   #[AsApiEndpoint(method: 'GET', path: '/users/{userId}', version: '1')]
    public function getUser(int $userId): ResponseInterface
    {
        // $userId might be string
@@ -207,7 +207,7 @@ Add CORS headers in your endpoint or via middleware:
 
 .. code-block:: php
 
-   #[AsApiEndpoint(method: 'GET', path: '/v1/data')]
+   #[AsApiEndpoint(method: 'GET', path: '/data', version: '1')]
    public function getData(): ResponseInterface
    {
        $response = new JsonResponse(['data' => 'value']);
@@ -235,7 +235,7 @@ Verify the HTTP method in the attribute matches your request:
 
 .. code-block:: php
 
-   #[AsApiEndpoint(method: 'POST', path: '/v1/users')]  // Note: POST
+   #[AsApiEndpoint(method: 'POST', path: '/users', version: '1')]  // Note: POST
    public function createUser(ServerRequestInterface $request): ResponseInterface
 
 Test with cURL:
@@ -392,7 +392,7 @@ For large datasets, use pagination:
 
 .. code-block:: php
 
-   #[AsApiEndpoint(method: 'GET', path: '/v1/items')]
+   #[AsApiEndpoint(method: 'GET', path: '/items', version: '1')]
    public function listItems(ServerRequestInterface $request): ResponseInterface
    {
        $page = (int)($request->getQueryParams()['page'] ?? 1);

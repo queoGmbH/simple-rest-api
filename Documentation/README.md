@@ -96,7 +96,7 @@ Always use proper syntax highlighting:
 ```rst
 .. code-block:: php
 
-   #[AsApiEndpoint(method: 'GET', path: '/v1/hello')]
+   #[AsApiEndpoint(method: 'GET', path: '/hello', version: '1')]
    public function hello(): ResponseInterface
    {
        return new JsonResponse(['message' => 'Hello!']);

@@ -324,12 +324,13 @@ To take advantage of new documentation features:
 
       <?php
       // Before (still works)
-      #[AsApiEndpoint(method: 'GET', path: '/v1/users')]
+      #[AsApiEndpoint(method: 'GET', path: '/users', version: '1')]
 
       // After (recommended)
       #[AsApiEndpoint(
           method: 'GET',
-          path: '/v1/users',
+          path: '/users',
+          version: '1',
           summary: 'List all users',
           description: 'Returns a paginated list of all users in the system'
       )]
@@ -342,7 +343,7 @@ To take advantage of new documentation features:
       /**
        * @param int $userId The unique identifier of the user
        */
-      #[AsApiEndpoint(method: 'GET', path: '/v1/users/{userId}')]
+      #[AsApiEndpoint(method: 'GET', path: '/users/{userId}', version: '1')]
       public function getUser(int $userId): ResponseInterface
 
 3. **Clear caches after upgrade**
@@ -378,7 +379,7 @@ If migrating from other TYPO3 REST API extensions:
    }
 
    // After: Simple REST API
-   #[AsApiEndpoint(method: 'GET', path: '/v1/users')]
+   #[AsApiEndpoint(method: 'GET', path: '/users', version: '1')]
    public function listUsers(): ResponseInterface
    {
        return new JsonResponse(['users' => $users]);

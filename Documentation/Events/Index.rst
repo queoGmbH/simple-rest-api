@@ -240,7 +240,7 @@ Now your endpoint method receives the User model directly:
    <?php
    use MyVendor\MyExtension\Domain\Model\User;
 
-   #[AsApiEndpoint(method: 'GET', path: '/v1/users/{userId}')]
+   #[AsApiEndpoint(method: 'GET', path: '/users/{userId}', version: '1')]
    public function getUser(User $user): ResponseInterface
    {
        // Receive User model directly instead of ID!
@@ -603,8 +603,8 @@ You can conditionally handle events based on endpoint path or other criteria:
    {
        $endpoint = $event->getEndpoint();
 
-       // Only handle specific endpoints
-       if (!str_starts_with($endpoint->path, '/v1/admin/')) {
+       // Only handle specific endpoints (version-specific check)
+       if ($endpoint->version !== '1' || !str_starts_with($endpoint->path, '/admin/')) {
            return;
        }
 
@@ -663,7 +663,17 @@ Unit Test Example
            $listener = new CorsHeaderListener();
 
            $response = new JsonResponse(['data' => 'test']);
-           $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', []);
+           $endpoint = new ApiEndpoint(
+               'TestClass',
+               'testMethod',
+               '/test',
+               'GET',
+               new ApiEndpointParameterCollection([]),
+               '',
+               '',
+               [],
+               '1'
+           );
            $apiRequest = $this->createMock(ApiRequestInterface::class);
 
            $event = new ModifyApiResponseEvent($response, $endpoint, $apiRequest);
