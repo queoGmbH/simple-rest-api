@@ -23,7 +23,8 @@ final readonly class TestController
 
     #[AsApiEndpoint(
         method: 'GET',
-        path: '/v1/my-get-endpoint',
+        path: '/my-get-endpoint',
+        version: '1',
         summary: 'Basic GET endpoint example',
         description: 'Demonstrates a simple GET endpoint that returns success status, current URL, and language information from TYPO3 context'
     )]
@@ -40,7 +41,8 @@ final readonly class TestController
 
     #[AsApiEndpoint(
         method: 'POST',
-        path: '/v1/my-post-endpoint',
+        path: '/my-post-endpoint',
+        version: '1',
         summary: 'POST endpoint example',
         description: 'Shows how to create a POST endpoint. Access request body via $this->request or inject ServerRequestInterface as method parameter'
     )]
@@ -61,7 +63,8 @@ final readonly class TestController
      */
     #[AsApiEndpoint(
         method: 'GET',
-        path: '/v1/my-param-endpoint/{param1}/{param2}',
+        path: '/my-param-endpoint/{param1}/{param2}',
+        version: '1',
         summary: 'Endpoint with URL parameters',
         description: 'Demonstrates parameter mapping from URL path to method arguments. Parameters are automatically type-cast (int, string, etc.) and passed to the method'
     )]
@@ -82,7 +85,8 @@ final readonly class TestController
      */
     #[AsApiEndpoint(
         method: 'PUT',
-        path: '/v1/resources/{resourceId}',
+        path: '/resources/{resourceId}',
+        version: '1',
         summary: 'PUT endpoint for full resource update',
         description: 'Demonstrates a PUT endpoint for replacing an entire resource. Typically used for full updates where all fields are provided'
     )]
@@ -107,7 +111,8 @@ final readonly class TestController
      */
     #[AsApiEndpoint(
         method: 'PATCH',
-        path: '/v1/resources/{resourceId}',
+        path: '/resources/{resourceId}',
+        version: '1',
         summary: 'PATCH endpoint for partial resource update',
         description: 'Demonstrates a PATCH endpoint for partially updating a resource. Only provided fields are updated, leaving others unchanged'
     )]
@@ -132,7 +137,8 @@ final readonly class TestController
      */
     #[AsApiEndpoint(
         method: 'DELETE',
-        path: '/v1/resources/{resourceId}',
+        path: '/resources/{resourceId}',
+        version: '1',
         summary: 'DELETE endpoint for resource removal',
         description: 'Demonstrates a DELETE endpoint for removing a resource. Returns success confirmation after deletion'
     )]

@@ -12,6 +12,7 @@ final readonly class ApiEndpoint
     /**
      * @param class-string $className
      * @param array<string> $tags
+     * @param string|null $version API version (e.g., '1', '1.0', '1.2.3')
      */
     public function __construct(
         public string $className,
@@ -21,7 +22,8 @@ final readonly class ApiEndpoint
         public ApiEndpointParameterCollection $parameters,
         public string $summary = '',
         public string $description = '',
-        public array $tags = []
+        public array $tags = [],
+        public readonly ?string $version = null
     ) {
     }
 
@@ -157,5 +159,58 @@ final readonly class ApiEndpoint
     public function getClass(): string
     {
         return $this->className;
+    }
+
+    /**
+     * Get the major version number from the version string.
+     *
+     * @return string|null Major version (e.g., '1' from '1.2.3') or null if unversioned
+     */
+    public function getMajorVersion(): ?string
+    {
+        if ($this->version === null) {
+            return null;
+        }
+
+        return explode('.', $this->version)[0];
+    }
+
+    /**
+     * Check if this endpoint is versioned.
+     */
+    public function isVersioned(): bool
+    {
+        return $this->version !== null;
+    }
+
+    /**
+     * Check if this endpoint matches a specific version filter.
+     *
+     * Matching rules:
+     * - If filter is '1', matches: '1', '1.0', '1.2', '1.2.3' (major version match)
+     * - If filter is '1.2', matches: '1.2' exactly, not '1.0' or '1.2.3'
+     * - Unversioned endpoints never match any version filter
+     *
+     * @param string $versionFilter Version to filter by (e.g., '1', '2.1')
+     */
+    public function matchesVersion(string $versionFilter): bool
+    {
+        // Unversioned endpoints don't match any version filter
+        if ($this->version === null) {
+            return false;
+        }
+
+        // Exact match
+        if ($this->version === $versionFilter) {
+            return true;
+        }
+
+        // Major version match (filter '1' matches '1.2.3')
+        if (!str_contains($versionFilter, '.')) {
+            return $this->getMajorVersion() === $versionFilter;
+        }
+
+        // If filter has dots, require exact match (already checked above)
+        return false;
     }
 }

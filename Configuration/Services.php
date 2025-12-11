@@ -21,6 +21,7 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
                     'summary' => $attribute->summary,
                     'description' => $attribute->description,
                     'tags' => $attribute->tags,
+                    'version' => $attribute->version,
                 ]
             );
         }

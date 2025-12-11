@@ -356,4 +356,129 @@ final class ApiEndpointTest extends UnitTestCase
 
         $this->assertSame($className, $apiEndpoint->getClass());
     }
+
+    #[Test]
+    public function stores_version_information(): void // phpcs:ignore
+    {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
+        $apiEndpoint = new ApiEndpoint(
+            $className,
+            'myApiMethod',
+            '/v1/my-endpoint',
+            'GET',
+            new ApiEndpointParameterCollection(),
+            '',
+            '',
+            [],
+            '1'
+        );
+
+        $this->assertSame('1', $apiEndpoint->version);
+        $this->assertTrue($apiEndpoint->isVersioned());
+        $this->assertSame('1', $apiEndpoint->getMajorVersion());
+    }
+
+    #[Test]
+    public function handles_semantic_versioning(): void // phpcs:ignore
+    {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
+        $apiEndpoint = new ApiEndpoint(
+            $className,
+            'myApiMethod',
+            '/v1/my-endpoint',
+            'GET',
+            new ApiEndpointParameterCollection(),
+            '',
+            '',
+            [],
+            '1.2.3'
+        );
+
+        $this->assertSame('1.2.3', $apiEndpoint->version);
+        $this->assertSame('1', $apiEndpoint->getMajorVersion());
+        $this->assertTrue($apiEndpoint->isVersioned());
+    }
+
+    #[Test]
+    public function handles_unversioned_endpoints(): void // phpcs:ignore
+    {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
+        $apiEndpoint = new ApiEndpoint(
+            $className,
+            'myApiMethod',
+            '/my-endpoint',
+            'GET',
+            new ApiEndpointParameterCollection()
+        );
+
+        $this->assertNull($apiEndpoint->version);
+        $this->assertFalse($apiEndpoint->isVersioned());
+        $this->assertNull($apiEndpoint->getMajorVersion());
+    }
+
+    #[Test]
+    public function matches_version_with_major_only(): void // phpcs:ignore
+    {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
+
+        // Version 1.2.3 should match filter '1'
+        $apiEndpoint = new ApiEndpoint(
+            $className,
+            'myApiMethod',
+            '/v1/my-endpoint',
+            'GET',
+            new ApiEndpointParameterCollection(),
+            '',
+            '',
+            [],
+            '1.2.3'
+        );
+
+        $this->assertTrue($apiEndpoint->matchesVersion('1'));
+        $this->assertFalse($apiEndpoint->matchesVersion('2'));
+    }
+
+    #[Test]
+    public function matches_version_exactly(): void // phpcs:ignore
+    {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
+        $apiEndpoint = new ApiEndpoint(
+            $className,
+            'myApiMethod',
+            '/v1/my-endpoint',
+            'GET',
+            new ApiEndpointParameterCollection(),
+            '',
+            '',
+            [],
+            '1.2.3'
+        );
+
+        $this->assertTrue($apiEndpoint->matchesVersion('1.2.3'));
+        $this->assertFalse($apiEndpoint->matchesVersion('1.2'));
+        $this->assertFalse($apiEndpoint->matchesVersion('1.0'));
+    }
+
+    #[Test]
+    public function unversioned_endpoints_do_not_match_any_version(): void // phpcs:ignore
+    {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
+        $apiEndpoint = new ApiEndpoint(
+            $className,
+            'myApiMethod',
+            '/my-endpoint',
+            'GET',
+            new ApiEndpointParameterCollection()
+        );
+
+        $this->assertFalse($apiEndpoint->matchesVersion('1'));
+        $this->assertFalse($apiEndpoint->matchesVersion('2'));
+        $this->assertFalse($apiEndpoint->matchesVersion('1.2.3'));
+    }
 }

@@ -38,6 +38,9 @@
                             </div>
                             <div class="flex-grow-1">
                                 <strong><code class="text-dark">{endpoint.path}</code></strong>
+                                <f:if condition="{endpoint.version}">
+                                    <span class="badge bg-info ms-2">v{endpoint.version}</span>
+                                </f:if>
                                 <f:if condition="{endpoint.summary}">
                                     <span class="text-muted ms-3">{endpoint.summary}</span>
                                 </f:if>

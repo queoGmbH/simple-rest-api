@@ -21,6 +21,7 @@ final class ApiEndpointProvider
     /**
      * @param class-string  $className
      * @param array<string> $tags
+     * @param string|null $version API version (e.g., '1', '1.0', '1.2.3'). If specified, path will be automatically prefixed with /v{major}/
      */
     public function addEndpoint(
         string $className,
@@ -29,9 +30,29 @@ final class ApiEndpointProvider
         string $path,
         string $summary = '',
         string $description = '',
-        array $tags = []
+        array $tags = [],
+        ?string $version = null
     ): void {
-        $pathParts = explode('/', trim($path, '/'));
+        // Validate: Prevent manual version prefixes in path
+        if ($version !== null && preg_match('#^/v\d+/#', $path)) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Path "%s" should not contain version prefix (e.g., /v1/). ' .
+                    'The version "%s" is specified in the attribute and will be automatically prefixed. ' .
+                    'Remove the version from the path. (Controller: %s::%s())',
+                    $path,
+                    $version,
+                    $className,
+                    $methodName
+                ),
+                1733918400
+            );
+        }
+
+        // Auto-prefix path with version if specified
+        $versionedPath = $this->buildVersionedPath($path, $version);
+
+        $pathParts = explode('/', trim($versionedPath, '/'));
 
         $identifierPathParts = [];
         $parameterNames = [];
@@ -50,7 +71,7 @@ final class ApiEndpointProvider
         // Extract detailed parameter information via reflection
         $parameters = $this->extractParameterInformation($className, $methodName, $parameterNames);
 
-        $endpoint = new ApiEndpoint($className, $methodName, $path, $httpMethod, $parameters, $summary, $description, $tags);
+        $endpoint = new ApiEndpoint($className, $methodName, $versionedPath, $httpMethod, $parameters, $summary, $description, $tags, $version);
         $this->endpoints[$this->getIdentifier($httpMethod, $identifierPath)] = $endpoint;
     }
 
@@ -169,5 +190,33 @@ final class ApiEndpointProvider
     private function getIdentifier(string $httpMethod, string $path): string
     {
         return $httpMethod . '_' . $path;
+    }
+
+    /**
+     * Build a versioned path by prefixing with /v{major}/ if version is specified.
+     *
+     * Examples:
+     * - buildVersionedPath('/users', null) → '/users'
+     * - buildVersionedPath('/users', '1') → '/v1/users'
+     * - buildVersionedPath('/users', '1.2.3') → '/v1/users'
+     *
+     * @param string $path Original path from attribute
+     * @param string|null $version Version string (e.g., '1', '1.0', '1.2.3')
+     * @return string Versioned path or original if no version
+     */
+    private function buildVersionedPath(string $path, ?string $version): string
+    {
+        if ($version === null) {
+            return $path;
+        }
+
+        // Extract major version (everything before first dot)
+        $majorVersion = explode('.', $version)[0];
+
+        // Ensure path starts with /
+        $normalizedPath = '/' . ltrim($path, '/');
+
+        // Prefix with /v{major}
+        return '/v' . $majorVersion . $normalizedPath;
     }
 }
