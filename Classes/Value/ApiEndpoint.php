@@ -23,7 +23,7 @@ final readonly class ApiEndpoint
         public string $summary = '',
         public string $description = '',
         public array $tags = [],
-        public readonly ?string $version = null
+        public ?string $version = null
     ) {
     }
 

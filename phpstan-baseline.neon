@@ -165,7 +165,7 @@ parameters:
 		-
 			message: '#^PHPDoc tag @var with type class\-string is not subtype of native type ''MyApiController''\.$#'
 			identifier: varTag.nativeType
-			count: 14
+			count: 20
 			path: Tests/Unit/Value/ApiEndpointTest.php
 
 		-

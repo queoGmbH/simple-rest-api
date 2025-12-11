@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Tests\Unit\Provider;
 
+use InvalidArgumentException;
 use stdClass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -157,8 +158,7 @@ final class ApiEndpointProviderTest extends UnitTestCase
             '/health',  // No version
             '',
             '',
-            [],
-            null  // No version parameter
+            []  // No version parameter
         );
 
         $apiRequest = $this->createMock(ApiRequestInterface::class);
@@ -175,7 +175,7 @@ final class ApiEndpointProviderTest extends UnitTestCase
     #[Test]
     public function throws_exception_when_path_contains_manual_version_prefix(): void // phpcs:ignore
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionCode(1733918400);
         $this->expectExceptionMessageMatches('/should not contain version prefix/');
 

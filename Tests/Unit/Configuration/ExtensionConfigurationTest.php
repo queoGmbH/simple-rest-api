@@ -18,6 +18,7 @@ final class ExtensionConfigurationTest extends UnitTestCase
     {
         parent::setUp();
         // Reset extension configuration before each test
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
         unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api']);
     }
 
@@ -34,6 +35,7 @@ final class ExtensionConfigurationTest extends UnitTestCase
     #[Test]
     public function returnsCustomBasePathFromExtensionConfiguration(): void
     {
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] = [
             'basePath' => '/rest/',
         ];
@@ -48,6 +50,7 @@ final class ExtensionConfigurationTest extends UnitTestCase
     #[Test]
     public function returnsDefaultBasePathWhenConfigurationIsEmpty(): void
     {
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] = [
             'basePath' => '',
         ];
@@ -62,6 +65,7 @@ final class ExtensionConfigurationTest extends UnitTestCase
     #[Test]
     public function returnsDefaultBasePathWhenBasePathIsNotSet(): void
     {
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] = [];
 
         $config = new ExtensionConfiguration();
@@ -84,6 +88,7 @@ final class ExtensionConfigurationTest extends UnitTestCase
         ];
 
         foreach ($testCases as $input => $expected) {
+            // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
             $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] = [
                 'basePath' => $input,
             ];
@@ -111,6 +116,7 @@ final class ExtensionConfigurationTest extends UnitTestCase
         ];
 
         foreach ($invalidPaths as $invalidPath) {
+            // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
             $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] = [
                 'basePath' => $invalidPath,
             ];
@@ -132,6 +138,7 @@ final class ExtensionConfigurationTest extends UnitTestCase
     #[Test]
     public function debugModeCanBeEnabled(): void
     {
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] = [
             'debugMode' => '1',
         ];
@@ -144,6 +151,7 @@ final class ExtensionConfigurationTest extends UnitTestCase
     #[Test]
     public function debugModeCanBeDisabled(): void
     {
+        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] = [
             'debugMode' => '0',
         ];

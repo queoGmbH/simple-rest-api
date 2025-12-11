@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Provider;
 
+use InvalidArgumentException;
 use ReflectionException;
 use ReflectionParameter;
 use Psr\Http\Message\ServerRequestInterface;
@@ -35,7 +36,7 @@ final class ApiEndpointProvider
     ): void {
         // Validate: Prevent manual version prefixes in path
         if ($version !== null && preg_match('#^/v\d+/#', $path)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     'Path "%s" should not contain version prefix (e.g., /v1/). ' .
                     'The version "%s" is specified in the attribute and will be automatically prefixed. ' .
