@@ -8,6 +8,27 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
+Version 0.2.3
+=============
+
+Released: 16.01.2026
+
+Documentation
+-------------
+
+* **Complete changelog documentation** for versions 0.2.1 and 0.2.2
+
+  * Added comprehensive changelog entries for version 0.2.1 (multi-language support, integration tests)
+  * Added comprehensive changelog entries for version 0.2.2 (debug mode configuration)
+  * Documented all features, fixes, and technical changes
+  * Added configuration examples and usage instructions
+
+Technical
+---------
+
+* This is a documentation-only release with no code changes
+* All functionality from 0.2.2 remains unchanged
+
 Version 0.2.2
 =============
 
