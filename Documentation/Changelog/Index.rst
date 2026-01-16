@@ -8,6 +8,111 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
+Version 0.2.2
+=============
+
+Released: 09.12.2025
+
+Added
+-----
+
+* **Debug mode configuration** to control visibility of extension's internal endpoints
+
+  * New ``debugMode`` configuration option (default: ``false``)
+  * When disabled, hides all endpoints from extension namespace (``Queo\SimpleRestApi\*``)
+  * Prevents extension's example/test endpoints from appearing in backend module
+  * Configurable via site settings or extension configuration
+  * Automatic namespace-based filtering
+
+* Added ``typo3/cms-lowlevel`` as dev dependency for Configuration module access
+
+Changed
+-------
+
+* Renamed ``showInternalEndpoints()`` to ``isDebugMode()`` in ``ExtensionConfiguration``
+* Changed configuration key from ``showInternalEndpoints`` to ``debugMode``
+* Backend module now filters endpoints based on class namespace instead of tags
+* Removed ``internal`` tags from TestController endpoints (no longer needed)
+
+Fixed
+-----
+
+* **Missing tags parameter** in Services.php configuration preventing tag-based filtering
+* Tag-based endpoint filtering now works correctly with proper service configuration
+
+Configuration
+-------------
+
+Enable debug mode to see extension's test endpoints in backend module:
+
+**Via Site Settings:**
+
+.. code-block:: yaml
+
+   settings:
+     simple_rest_api:
+       debugMode: true
+
+**Via LocalConfiguration:**
+
+.. code-block:: php
+
+   <?php
+   $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api']['debugMode'] = true;
+
+Version 0.2.1
+=============
+
+Released: 09.12.2025
+
+This is a bugfix release that improves multi-language support and adds comprehensive
+integration test coverage for all HTTP methods.
+
+Added
+-----
+
+* **Comprehensive integration tests** for all HTTP methods
+
+  * GET request tests
+  * POST request tests with JSON body
+  * PUT request tests for resource updates
+  * PATCH request tests for partial updates
+  * DELETE request tests
+  * Complete test coverage for endpoint resolution
+
+Fixed
+-----
+
+* **Language-specific base URI support** for multi-language TYPO3 setups
+
+  * ``ApiRequest`` now correctly uses language-specific base URIs from ``SiteLanguage``
+  * Fixed routing for multi-language sites with different base paths (e.g., ``/en/``, ``/de/``)
+  * Fixed routing for multi-language sites with different domains (e.g., ``example.com``, ``example.de``)
+  * Falls back to site base for backwards compatibility
+  * Updated test coverage (7 tests for ApiRequest)
+
+* **PHPStan level 9 compliance** in integration tests
+
+  * Fixed type annotation issues
+  * Improved test code quality
+
+* **Code style improvements** for GrumPHP compliance
+
+  * Applied PHP_CodeSniffer fixes
+  * Updated code formatting
+
+Technical
+---------
+
+* Enhanced ``ApiRequest`` constructor to retrieve and use ``SiteLanguage`` from request
+* Removed deprecated Rector rules from configuration
+
+  * Removed strict boolean comparison rules that were causing issues
+  * Cleaned up Rector configuration
+
+* All code quality checks passing (PHPStan, Rector, PHPCS, GrumPHP)
+* Integration test suite now covers all supported HTTP methods
+
 Version 0.2.0
 =============
 
