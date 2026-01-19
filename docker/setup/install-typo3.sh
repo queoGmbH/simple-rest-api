@@ -12,8 +12,8 @@ COUNTER=0
 while [ $COUNTER -lt $MAX_TRIES ]; do
     COUNTER=$((COUNTER + 1))
 
-    # Try to connect and run a simple query
-    if mysql -h"$TYPO3_DB_HOST" -u"$TYPO3_DB_USER" -p"$TYPO3_DB_PASSWORD" "$TYPO3_DB_NAME" -e "SELECT 1" >/dev/null 2>&1; then
+    # Try to connect and run a simple query (skip SSL for local development)
+    if mysql -h"$TYPO3_DB_HOST" -u"$TYPO3_DB_USER" -p"$TYPO3_DB_PASSWORD" "$TYPO3_DB_NAME" --skip-ssl -e "SELECT 1" >/dev/null 2>&1; then
         echo "✓ Database connection successful!"
         break
     fi
@@ -50,11 +50,11 @@ if [ ! -f "/var/www/html/config/system/settings.php" ]; then
         --username="$TYPO3_DB_USER" \
         --password="$TYPO3_DB_PASSWORD" \
         --admin-username="${TYPO3_ADMIN_USERNAME:-admin}" \
-        --admin-user-password="${TYPO3_ADMIN_PASSWORD:-password123}" \
+        --admin-user-password="${TYPO3_ADMIN_PASSWORD:-Admin123!}" \
         --admin-email="admin@example.com" \
-        --site-name="${TYPO3_SITE_NAME:-E2E Test Site}" \
-        --site-setup-type=site \
-        --project-name="typo3-e2e"
+        --project-name="typo3-e2e" \
+        --server-type="apache" \
+        --create-site="http://localhost:8080/"
 
     echo "TYPO3 installed successfully!"
 else
@@ -71,10 +71,16 @@ if [ -d "/var/www/html/extensions/simple_rest_api" ]; then
         ln -sf /var/www/html/extensions/simple_rest_api /var/www/html/public/typo3conf/ext/simple_rest_api
     fi
 
-    # Activate extension
-    vendor/bin/typo3 extension:activate simple_rest_api || true
+    # Add extension to composer repositories
+    composer config repositories.simple_rest_api path /var/www/html/extensions/simple_rest_api
 
-    echo "Extension activated!"
+    # Require the extension via composer
+    composer require queo/simple-rest-api:"@dev" --no-interaction || echo "Extension already required"
+
+    # Setup extension
+    vendor/bin/typo3 extension:setup simple_rest_api || true
+
+    echo "Extension set up!"
 fi
 
 # Create site configuration with route enhancer
