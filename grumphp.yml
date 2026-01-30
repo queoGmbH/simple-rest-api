@@ -1,9 +1,3 @@
-parameters:
-  convention.rector_ignore_pattern: [ ]
-  convention.rector_enabled: true
-  convention.rector_config: 'rector.php'
-  convention.rector_clear-cache: false
-
 grumphp:
   tasks:
     composer:
@@ -20,11 +14,6 @@ grumphp:
       no_check_lock: true
       no_update_lock: false
       verbose: false
-    composer_require_checker:
-      composer_file: 'composer.json'
-      config_file: '.composer-require-checker.json'
-      ignore_parse_errors: false
-      triggered_by: [ 'composer.json', 'composer.lock', '*.php' ]
     git_blacklist:
       keywords:
         - "die\\("
@@ -65,10 +54,3 @@ grumphp:
     phpstan:
       memory_limit: "-1"
       configuration: phpstan.neon
-    rector:
-      metadata:
-        enabled: "%convention.rector_enabled%"
-      config: "%convention.rector_config%"
-      triggered_by: [ 'php' ]
-      clear_cache: "%convention.rector_clear-cache%"
-      ignore_patterns: "%convention.rector_ignore_pattern%"
