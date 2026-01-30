@@ -1,11 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^No error to ignore is reported on line 86\.$#'
-			count: 1
-			path: Classes/Configuration/ExtensionConfiguration.php
-
-		-
 			message: '#^Instanceof between TYPO3\\CMS\\Core\\Site\\Entity\\Site and TYPO3\\CMS\\Core\\Site\\Entity\\NullSite will always evaluate to false\.$#'
 			count: 1
 			path: Classes/Middleware/CacheHashFixer.php

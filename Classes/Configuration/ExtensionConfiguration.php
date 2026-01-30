@@ -82,7 +82,6 @@ final class ExtensionConfiguration implements ExtensionConfigurationInterface
         }
 
         // Fallback to extension configuration
-        // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible
         $extensionConfig = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api'] ?? null;
         if (is_array($extensionConfig) && isset($extensionConfig['debugMode'])) {
             return (bool)$extensionConfig['debugMode'];
