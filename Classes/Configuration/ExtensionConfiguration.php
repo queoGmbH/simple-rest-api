@@ -7,7 +7,7 @@ namespace Queo\SimpleRestApi\Configuration;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Site\Entity\Site;
 
-final readonly class ExtensionConfiguration implements ExtensionConfigurationInterface
+final class ExtensionConfiguration implements ExtensionConfigurationInterface
 {
     private const DEFAULT_API_BASE_PATH = '/api/';
 
