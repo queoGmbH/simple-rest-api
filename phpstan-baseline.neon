@@ -1,2 +1,51 @@
 parameters:
-	ignoreErrors: []
+	ignoreErrors:
+		-
+			message: '#^No error to ignore is reported on line 86\.$#'
+			count: 1
+			path: Classes/Configuration/ExtensionConfiguration.php
+
+		-
+			message: '#^Instanceof between TYPO3\\CMS\\Core\\Site\\Entity\\Site and TYPO3\\CMS\\Core\\Site\\Entity\\NullSite will always evaluate to false\.$#'
+			count: 1
+			path: Classes/Middleware/CacheHashFixer.php
+
+		-
+			message: '#^Left side of && is always true\.$#'
+			count: 1
+			path: Classes/Middleware/CacheHashFixer.php
+
+		-
+			message: '#^Property Queo\\SimpleRestApi\\Provider\\ApiEndpointProvider::\$endpoints type has no value type specified in iterable type array\.$#'
+			count: 1
+			path: Classes/Provider/ApiEndpointProvider.php
+
+		-
+			message: '#^Cannot clone Symfony\\Component\\Routing\\Route\|null\.$#'
+			count: 1
+			path: Classes/Routing/Enhancer/SimpleRestApiEnhancer.php
+
+		-
+			message: '#^Cannot call method setPath\(\) on Symfony\\Component\\Routing\\Route\|null\.$#'
+			count: 1
+			path: Classes/Routing/Enhancer/SimpleRestApiEnhancer.php
+
+		-
+			message: '#^Cannot call method setRequirement\(\) on Symfony\\Component\\Routing\\Route\|null\.$#'
+			count: 1
+			path: Classes/Routing/Enhancer/SimpleRestApiEnhancer.php
+
+		-
+			message: '#^Parameter \#1 \$object of function spl_object_hash expects object, Symfony\\Component\\Routing\\Route\|null given\.$#'
+			count: 1
+			path: Classes/Routing/Enhancer/SimpleRestApiEnhancer.php
+
+		-
+			message: '#^Parameter \#2 \$route of method TYPO3\\CMS\\Core\\Routing\\RouteCollection::add\(\) expects Symfony\\Component\\Routing\\Route\|TYPO3\\CMS\\Backend\\Routing\\Route, Symfony\\Component\\Routing\\Route\|null given\.$#'
+			count: 1
+			path: Classes/Routing/Enhancer/SimpleRestApiEnhancer.php
+
+		-
+			message: '#^Method Queo\\SimpleRestApi\\Routing\\Enhancer\\SimpleRestApiEnhancer::enhanceForGeneration\(\) has parameter \$parameters with no value type specified in iterable type array\.$#'
+			count: 1
+			path: Classes/Routing/Enhancer/SimpleRestApiEnhancer.php
