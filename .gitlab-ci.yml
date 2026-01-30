@@ -38,29 +38,23 @@ variables:
     - php ./.Build/bin/phpunit -c phpunit.xml
     - php ./.Build/bin/phpunit -c phpunit-integration.xml
 
-# TYPO3 12 LTS - PHP 8.1, 8.2, 8.3
-php-grumphp-8.2-12:
+# TYPO3 12 LTS - PHP 8.3, 8.4
+php-grumphp-8.3-12:
   extends: .php-grumphp
   variables:
-    PHP_VERSION: "8.2"
-    TYPO3_VERSION: "^12.4"
-
-php-unit-test-8.1-12:
-  extends: .php-unit-test
-  variables:
-    PHP_VERSION: "8.1"
-    TYPO3_VERSION: "^12.4"
-
-php-unit-test-8.2-12:
-  extends: .php-unit-test
-  variables:
-    PHP_VERSION: "8.2"
+    PHP_VERSION: "8.3"
     TYPO3_VERSION: "^12.4"
 
 php-unit-test-8.3-12:
   extends: .php-unit-test
   variables:
     PHP_VERSION: "8.3"
+    TYPO3_VERSION: "^12.4"
+
+php-unit-test-8.4-12:
+  extends: .php-unit-test
+  variables:
+    PHP_VERSION: "8.4"
     TYPO3_VERSION: "^12.4"
 
 release_composer_package:
