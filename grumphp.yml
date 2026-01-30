@@ -49,8 +49,6 @@ grumphp:
     phplint: ~
     xmllint: ~
     yamllint: ~
-    securitychecker_enlightn:
-      run_always: true
     phpstan:
       memory_limit: "-1"
       configuration: phpstan.neon

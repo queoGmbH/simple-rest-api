@@ -20,8 +20,7 @@
         "typo3/cms-frontend": "^12.4"
     },
     "require-dev": {
-        "enlightn/security-checker": "^1.0",
-        "ergebnis/composer-normalize": "^2.47",
+                "ergebnis/composer-normalize": "^2.47",
         "php-parallel-lint/php-parallel-lint": "^1.4",
         "phpro/grumphp-shim": "^2.13",
         "pluswerk/grumphp-xliff-task": "^6.1",
