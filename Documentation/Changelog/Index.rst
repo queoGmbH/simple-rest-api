@@ -8,6 +8,30 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
+Version 0.2.4
+=============
+
+Released: 23.03.2026
+
+Fixed
+-----
+
+* **CacheHashFixer now uses dynamic API base path** from extension configuration instead of hardcoded ``/api/``
+
+  * Cache hash validation bypass now correctly applies when a custom base path (e.g. ``/rest/``, ``/services/``) is configured
+  * Previously, API requests with a custom base path would not trigger the cHash fix and could result in TYPO3 404 errors
+
+* **CacheHashFixer now respects language base path** in multi-language TYPO3 sites
+
+  * For sites with language-specific base paths (e.g. ``/en/``, ``/de/``), the correct language base is now used
+  * Previously, only the site base was used, causing the cHash fix to not trigger for non-default languages
+
+Technical
+---------
+
+* Updated ``CacheHashFixer`` to resolve ``ExtensionConfiguration`` dynamically from the request context
+* ``CacheHashFixer`` now reads ``SiteLanguage`` from the request attribute and prefers it over the site base path
+
 Version 0.2.3
 =============
 
