@@ -47,8 +47,8 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
         $_SERVER['SCRIPT_NAME'] = '/index.php';
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
 
-        $site = $this->createMock(SiteInterface::class);
-        $site->expects(self::any())->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
+        $site = $this->createStub(SiteInterface::class);
+        $site->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
         $request = ServerRequestFactory::fromGlobals();
         $request = $request->withAttribute('site', $site);
 
@@ -83,8 +83,8 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
         $_SERVER['SCRIPT_NAME'] = '/index.php';
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
 
-        $site = $this->createMock(SiteInterface::class);
-        $site->expects(self::any())->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
+        $site = $this->createStub(SiteInterface::class);
+        $site->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
         $request = ServerRequestFactory::fromGlobals();
         $request = $request->withAttribute('site', $site);
 
@@ -137,8 +137,8 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
         $_SERVER['SCRIPT_NAME'] = '/index.php';
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
 
-        $site = $this->createMock(SiteInterface::class);
-        $site->expects(self::any())->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
+        $site = $this->createStub(SiteInterface::class);
+        $site->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
         $request = ServerRequestFactory::fromGlobals();
         $request = $request->withAttribute('site', $site);
 
