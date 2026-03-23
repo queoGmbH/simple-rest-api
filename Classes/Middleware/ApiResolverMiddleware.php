@@ -41,7 +41,6 @@ class ApiResolverMiddleware implements MiddlewareInterface
         $endpoint = $this->endpointProvider->getEndpoint($apiRequest);
 
         if ($endpoint instanceof ApiEndpoint) {
-            /** @var object $className */
             $className = GeneralUtility::makeInstance($endpoint->className);
             $methodName = $endpoint->method;
             $pathParameters = $apiRequest->getParameters($endpoint);
