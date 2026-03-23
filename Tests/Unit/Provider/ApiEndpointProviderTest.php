@@ -43,9 +43,9 @@ final class ApiEndpointProviderTest extends UnitTestCase
 
         $apiEndpointProvider->addEndpoint(stdClass::class, 'myEndpoint', 'GET', '/v1/my-api-endpoint/{param1}/{param2}');
 
-        $apiRequest = $this->createMock(ApiRequestInterface::class);
-        $apiRequest->expects(self::any())->method('getHttpMethod')->willReturn('GET');
-        $apiRequest->expects(self::any())->method('getEndpointPath')->willReturn('/v1/my-api-endpoint/value1/value2');
+        $apiRequest = $this->createStub(ApiRequestInterface::class);
+        $apiRequest->method('getHttpMethod')->willReturn('GET');
+        $apiRequest->method('getEndpointPath')->willReturn('/v1/my-api-endpoint/value1/value2');
 
         $actualEndpoint = $apiEndpointProvider->getEndpoint($apiRequest);
 
