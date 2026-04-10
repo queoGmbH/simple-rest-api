@@ -44,6 +44,12 @@ php-grumphp-8.2-13:
     PHP_VERSION: "8.2"
     TYPO3_VERSION: "^13.4"
 
+php-grumphp-8.5-13:
+  extends: .php-grumphp
+  variables:
+    PHP_VERSION: "8.5"
+    TYPO3_VERSION: "^13.4"
+
 php-unit-test-8.2-13:
   extends: .php-unit-test
   variables:
@@ -62,12 +68,39 @@ php-unit-test-8.4-13:
     PHP_VERSION: "8.4"
     TYPO3_VERSION: "^13.4"
 
-#php-unit-test-8.4-14:
-#  extends: .php-unit-test
-#  variables:
-#    PHP_VERSION: "8.4"
-#    TYPO3_VERSION: "14.0.x-dev"
-#  allow_failure: true
+php-unit-test-8.5-13:
+  extends: .php-unit-test
+  variables:
+    PHP_VERSION: "8.5"
+    TYPO3_VERSION: "^13.4"
+
+php-unit-test-8.2-14:
+  extends: .php-unit-test
+  variables:
+    PHP_VERSION: "8.2"
+    TYPO3_VERSION: "^14"
+  allow_failure: true
+
+php-unit-test-8.3-14:
+  extends: .php-unit-test
+  variables:
+    PHP_VERSION: "8.3"
+    TYPO3_VERSION: "^14"
+  allow_failure: true
+
+php-unit-test-8.4-14:
+  extends: .php-unit-test
+  variables:
+    PHP_VERSION: "8.4"
+    TYPO3_VERSION: "^14"
+  allow_failure: true
+
+php-unit-test-8.5-14:
+  extends: .php-unit-test
+  variables:
+    PHP_VERSION: "8.5"
+    TYPO3_VERSION: "^14"
+  allow_failure: true
 
 release_composer_package:
   stage: release
