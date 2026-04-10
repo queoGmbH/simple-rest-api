@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Queo\SimpleRestApi\Routing\Enhancer\SimpleRestApiEnhancer;
 use TYPO3\CMS\Core\Cache\Backend\FileBackend;
 use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
