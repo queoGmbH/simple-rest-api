@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Queo\SimpleRestApi\Middleware\ApiAspectMiddleware;
 use Queo\SimpleRestApi\Middleware\ApiResolverMiddleware;
 use Queo\SimpleRestApi\Middleware\CacheHashFixer;
