@@ -34,7 +34,7 @@ grumphp:
         - "<f:debug"
       whitelist_patterns: [ ]
       triggered_by: [ 'php' ]
-      regexp_type: G
+      regexp_type: E
       match_word: false
       ignore_patterns: [ ]
     git_commit_message:

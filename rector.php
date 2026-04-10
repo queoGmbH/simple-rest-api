@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Queo\SimpleRestApi\Dev\RectorSettings;
 use Rector\Config\RectorConfig;
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
+use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->parallel();
@@ -24,6 +25,10 @@ return static function (RectorConfig $rectorConfig): void {
             ...RectorSettings::setsTypo3(false),
         ]
     );
+
+    $rectorConfig->rules([
+        DeclareStrictTypesRector::class,
+    ]);
 
     // remove some rules
     // ignore some files
