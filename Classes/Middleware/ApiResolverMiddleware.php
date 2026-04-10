@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Queo\SimpleRestApi\Middleware;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Queo\SimpleRestApi\Event\AfterParameterMappingEvent;
 use Queo\SimpleRestApi\Event\BeforeParameterMappingEvent;
 use Queo\SimpleRestApi\Event\ModifyApiResponseEvent;
+use Queo\SimpleRestApi\Exception\InvalidParameterException;
 use Queo\SimpleRestApi\Http\ApiRequest;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -17,10 +20,13 @@ use Queo\SimpleRestApi\Configuration\ExtensionConfiguration;
 use Queo\SimpleRestApi\Provider\ApiEndpointProvider;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
 use RuntimeException;
+use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class ApiResolverMiddleware implements MiddlewareInterface
+class ApiResolverMiddleware implements MiddlewareInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     public function __construct(
         private readonly ApiEndpointProvider $endpointProvider,
         private readonly ExtensionConfiguration $extensionConfiguration,
@@ -49,7 +55,19 @@ class ApiResolverMiddleware implements MiddlewareInterface
             $event = $this->eventDispatcher->dispatch(new BeforeParameterMappingEvent($pathParameters, $endpoint, $apiRequest));
             $pathParameters = $event->getPathParameters();
 
-            $methodParameters = $pathParameters->buildMethodParameters();
+            try {
+                $methodParameters = $pathParameters->buildMethodParameters();
+            } catch (InvalidParameterException $e) {
+                $this->logger?->warning(
+                    'API parameter coercion failed for endpoint {method} {path}: {message}',
+                    [
+                        'method' => $endpoint->httpMethod,
+                        'path' => $endpoint->path,
+                        'message' => $e->getMessage(),
+                    ]
+                );
+                return new JsonResponse(['error' => $e->getMessage()], 400);
+            }
 
             /** @var AfterParameterMappingEvent $event */
             $event = $this->eventDispatcher->dispatch(new AfterParameterMappingEvent($methodParameters, $endpoint, $apiRequest));
@@ -75,6 +93,14 @@ class ApiResolverMiddleware implements MiddlewareInterface
                 4976710617
             );
         }
+
+        $this->logger?->warning(
+            'API endpoint not found for {method} {path}',
+            [
+                'method' => $apiRequest->getHttpMethod(),
+                'path' => $apiRequest->getEndpointPath(),
+            ]
+        );
 
         // If no endpoint was found, forward request
         return $handler->handle($request);

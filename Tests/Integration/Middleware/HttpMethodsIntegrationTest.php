@@ -29,6 +29,8 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 #[CoversClass(ApiResolverMiddleware::class)]
 final class HttpMethodsIntegrationTest extends UnitTestCase
 {
+    protected bool $resetSingletonInstances = true;
+
     private function createMiddleware(ApiEndpointProvider $provider): ApiResolverMiddleware
     {
         $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
