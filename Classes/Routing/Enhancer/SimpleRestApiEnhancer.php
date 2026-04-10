@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Queo\SimpleRestApi\Routing\Enhancer;
 
 use Queo\SimpleRestApi\Context\SimpleRestApiAspect;

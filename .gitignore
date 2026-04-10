@@ -10,4 +10,4 @@ Documentation/_build
 Documentation/.buildinfo
 Documentation/.doctrees
 config/
-.claude/
+.claude/settings.local.json
