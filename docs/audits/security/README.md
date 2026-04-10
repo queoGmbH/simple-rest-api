@@ -26,4 +26,4 @@ Example: `2026-04-10-v0.2.4.md`
 
 | Date | Version | Status | Findings |
 |---|---|---|---|
-| *(no audits yet)* | | | |
+| 2026-04-10 | [v0.2.4](./2026-04-10-v0.2.4.md) | ⚠️ Passed with warnings | 3 Medium, 4 Low/Informational |
