@@ -28,3 +28,4 @@ Example: `2026-04-10-v0.2.4.md`
 |---|---|---|---|
 | 2026-04-10 | [v0.2.4](./2026-04-10-v0.2.4.md) | ⚠️ Passed with warnings | 3 Medium, 4 Low/Informational |
 | 2026-04-10 | [v0.3.0](./2026-04-10-v0.3.0.md) | ✅ Passed | 0 findings (all v0.2.4 findings resolved) |
+| 2026-04-16 | [v0.3.1](./2026-04-16-v0.3.1.md) | ✅ Passed | 0 findings (metadata release) |
