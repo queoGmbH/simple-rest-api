@@ -5,32 +5,30 @@ declare(strict_types=1);
 namespace Queo\SimpleRestApi\Middleware;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\LoggerInterface;
+use Queo\SimpleRestApi\Configuration\ExtensionConfiguration;
 use Queo\SimpleRestApi\Event\AfterParameterMappingEvent;
 use Queo\SimpleRestApi\Event\BeforeParameterMappingEvent;
 use Queo\SimpleRestApi\Event\ModifyApiResponseEvent;
 use Queo\SimpleRestApi\Exception\InvalidParameterException;
 use Queo\SimpleRestApi\Http\ApiRequest;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use Queo\SimpleRestApi\Configuration\ExtensionConfiguration;
 use Queo\SimpleRestApi\Provider\ApiEndpointProvider;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
 use RuntimeException;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class ApiResolverMiddleware implements MiddlewareInterface, LoggerAwareInterface
+class ApiResolverMiddleware implements MiddlewareInterface
 {
-    use LoggerAwareTrait;
-
     public function __construct(
         private readonly ApiEndpointProvider $endpointProvider,
         private readonly ExtensionConfiguration $extensionConfiguration,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger
     ) {
     }
 
@@ -58,7 +56,7 @@ class ApiResolverMiddleware implements MiddlewareInterface, LoggerAwareInterface
             try {
                 $methodParameters = $pathParameters->buildMethodParameters();
             } catch (InvalidParameterException $e) {
-                $this->logger?->warning(
+                $this->logger->warning(
                     'API parameter coercion failed for endpoint {method} {path}: {message}',
                     [
                         'method' => $endpoint->httpMethod,
@@ -94,7 +92,7 @@ class ApiResolverMiddleware implements MiddlewareInterface, LoggerAwareInterface
             );
         }
 
-        $this->logger?->warning(
+        $this->logger->warning(
             'API endpoint not found for {method} {path}',
             [
                 'method' => $apiRequest->getHttpMethod(),

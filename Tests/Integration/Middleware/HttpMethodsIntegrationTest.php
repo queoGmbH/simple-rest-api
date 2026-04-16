@@ -20,6 +20,7 @@ use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
+use Psr\Log\NullLogger;
 
 /**
  * Comprehensive integration tests for all HTTP methods
@@ -45,7 +46,8 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
             ApiResolverMiddleware::class,
             $provider,
             $extensionConfiguration,
-            $eventDispatcher
+            $eventDispatcher,
+            new NullLogger()
         );
     }
 

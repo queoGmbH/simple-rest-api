@@ -10,6 +10,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Queo\SimpleRestApi\Configuration\ExtensionConfiguration;
 use Queo\SimpleRestApi\Event\ModifyApiResponseEvent;
 use Queo\SimpleRestApi\Middleware\ApiResolverMiddleware;
@@ -27,21 +28,39 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
 {
     protected bool $resetSingletonInstances = true;
 
+    private function makeMiddleware(
+        ApiEndpointProvider $provider,
+        EventDispatcherInterface $eventDispatcher,
+        ?LoggerInterface $logger = null
+    ): ApiResolverMiddleware {
+        $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
+
+        return GeneralUtility::makeInstance(
+            ApiResolverMiddleware::class,
+            $provider,
+            $extensionConfiguration,
+            $eventDispatcher,
+            $logger ?? new NullLogger()
+        );
+    }
+
+    private function makePassthroughDispatcher(): EventDispatcherInterface
+    {
+        return new class implements EventDispatcherInterface {
+            public function dispatch(object $event): object
+            {
+                return $event;
+            }
+        };
+    }
+
     #[Test]
     public function middleware_routs_api_request_to_endpoint(): void //phpcs:ignore
     {
         $apiEndpointProvider = GeneralUtility::makeInstance(ApiEndpointProvider::class);
         $apiEndpointProvider->addEndpoint(DummyController::class, 'dummyApiMethod', 'GET', '/v1/my/api-endpoint');
 
-        $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
-        $eventDispatcher = new class implements EventDispatcherInterface {
-            public function dispatch(object $event): object
-            {
-                return $event;
-            }
-        };
-
-        $middleware = GeneralUtility::makeInstance(ApiResolverMiddleware::class, $apiEndpointProvider, $extensionConfiguration, $eventDispatcher);
+        $middleware = $this->makeMiddleware($apiEndpointProvider, $this->makePassthroughDispatcher());
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/lang/api/v1/my/api-endpoint';
@@ -55,9 +74,7 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
         $request = ServerRequestFactory::fromGlobals();
         $request = $request->withAttribute('site', $site);
 
-        $handler = $this->createStub(RequestHandlerInterface::class);
-
-        $response = $middleware->process($request, $handler);
+        $response = $middleware->process($request, $this->createStub(RequestHandlerInterface::class));
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals((new JsonResponse(['success' => true]))->getBody()->getContents(), $response->getBody()->getContents());
@@ -69,15 +86,7 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
         $apiEndpointProvider = GeneralUtility::makeInstance(ApiEndpointProvider::class);
         $apiEndpointProvider->addEndpoint(DummyController::class, 'dummyApiMethodWithParams', 'GET', '/v1/my/api-endpoint/{param1}/{param2}');
 
-        $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
-        $eventDispatcher = new class implements EventDispatcherInterface {
-            public function dispatch(object $event): object
-            {
-                return $event;
-            }
-        };
-
-        $middleware = GeneralUtility::makeInstance(ApiResolverMiddleware::class, $apiEndpointProvider, $extensionConfiguration, $eventDispatcher);
+        $middleware = $this->makeMiddleware($apiEndpointProvider, $this->makePassthroughDispatcher());
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/lang/api/v1/my/api-endpoint/123/parValue';
@@ -91,9 +100,7 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
         $request = ServerRequestFactory::fromGlobals();
         $request = $request->withAttribute('site', $site);
 
-        $handler = $this->createStub(RequestHandlerInterface::class);
-
-        $response = $middleware->process($request, $handler);
+        $response = $middleware->process($request, $this->createStub(RequestHandlerInterface::class));
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(
@@ -112,19 +119,8 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
     #[Test]
     public function middleware_logs_warning_when_api_path_has_no_matching_endpoint(): void // phpcs:ignore
     {
-        // Register endpoint on a different path
         $apiEndpointProvider = GeneralUtility::makeInstance(ApiEndpointProvider::class);
         $apiEndpointProvider->addEndpoint(DummyController::class, 'dummyApiMethod', 'GET', '/v1/other-endpoint');
-
-        $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
-        $eventDispatcher = new class implements EventDispatcherInterface {
-            public function dispatch(object $event): object
-            {
-                return $event;
-            }
-        };
-
-        $middleware = GeneralUtility::makeInstance(ApiResolverMiddleware::class, $apiEndpointProvider, $extensionConfiguration, $eventDispatcher);
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
@@ -133,7 +129,8 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
                 $this->stringContains('API endpoint not found'),
                 $this->arrayHasKey('method')
             );
-        $middleware->setLogger($logger);
+
+        $middleware = $this->makeMiddleware($apiEndpointProvider, $this->makePassthroughDispatcher(), $logger);
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/lang/api/v1/unknown-endpoint';
@@ -157,19 +154,11 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
     public function middleware_does_not_log_for_non_api_requests(): void // phpcs:ignore
     {
         $apiEndpointProvider = GeneralUtility::makeInstance(ApiEndpointProvider::class);
-        $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
-        $eventDispatcher = new class implements EventDispatcherInterface {
-            public function dispatch(object $event): object
-            {
-                return $event;
-            }
-        };
-
-        $middleware = GeneralUtility::makeInstance(ApiResolverMiddleware::class, $apiEndpointProvider, $extensionConfiguration, $eventDispatcher);
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->never())->method('warning');
-        $middleware->setLogger($logger);
+
+        $middleware = $this->makeMiddleware($apiEndpointProvider, $this->makePassthroughDispatcher(), $logger);
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/lang/not-api/some-page';
@@ -195,13 +184,10 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
         $apiEndpointProvider = GeneralUtility::makeInstance(ApiEndpointProvider::class);
         $apiEndpointProvider->addEndpoint(DummyController::class, 'dummyApiMethod', 'GET', '/v1/my/api-endpoint');
 
-        $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
-
         $eventDispatcher = new class implements EventDispatcherInterface {
             public function dispatch(object $event): object
             {
                 if ($event instanceof ModifyApiResponseEvent) {
-                    // Test that we can modify the response
                     $response = $event->getResponse();
                     $response = $response->withHeader('X-Test-Header', 'test-value');
                     $event->setResponse($response);
@@ -211,7 +197,7 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
             }
         };
 
-        $middleware = GeneralUtility::makeInstance(ApiResolverMiddleware::class, $apiEndpointProvider, $extensionConfiguration, $eventDispatcher);
+        $middleware = $this->makeMiddleware($apiEndpointProvider, $eventDispatcher);
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/lang/api/v1/my/api-endpoint';
@@ -225,9 +211,7 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
         $request = ServerRequestFactory::fromGlobals();
         $request = $request->withAttribute('site', $site);
 
-        $handler = $this->createStub(RequestHandlerInterface::class);
-
-        $response = $middleware->process($request, $handler);
+        $response = $middleware->process($request, $this->createStub(RequestHandlerInterface::class));
 
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertTrue($response->hasHeader('X-Test-Header'), 'Response should have the custom header added by event listener');
