@@ -3,7 +3,7 @@
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Simple REST API',
     'description' => 'A simple REST API framework for TYPO3 — create endpoints via PHP attributes.',
-    'category' => 'plugin',
+    'category' => 'misc',
     'author' => 'Sebastian Hofer',
     'author_email' => 's.hofer@queo-group.com',
     'author_company' => 'Queo Group',

@@ -17,7 +17,7 @@ All notable changes are documented here. For full details see
 - `CHANGELOG.md` in repository root
 - `composer.json` metadata: `authors`, `keywords`, `homepage`, `support`
 
-## [0.3.0] — 2026-04-10
+## [0.3.0] — 2026-04-16
 
 ### Security
 - Security logging added to `ApiResolverMiddleware` for unmatched API paths (M-01)

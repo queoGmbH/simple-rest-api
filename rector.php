@@ -40,6 +40,7 @@ return static function (RectorConfig $rectorConfig): void {
             /**
              * rector should not touch these files
              */
+            __DIR__ . '/ext_emconf.php',
             //__DIR__ . '/src/Example',
             //__DIR__ . '/src/Example.php',
         ]
