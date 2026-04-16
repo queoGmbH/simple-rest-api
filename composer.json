@@ -1,72 +1,95 @@
 {
-    "name": "queo/simple-rest-api",
-    "description": "This extension provides a simple REST API to create simple endpoints API calls.",
-    "license": [
-        "GPL-2.0-or-later"
-    ],
-    "type": "typo3-cms-extension",
-    "require": {
-        "php": ">=8.2",
-        "psr/container": "^1.0 || ^2.0",
-        "psr/event-dispatcher": "^1.0",
-        "psr/http-message": "^1.0 || ^2.0",
-        "psr/http-server-handler": "^1.0",
-        "psr/http-server-middleware": "^1.0",
-        "psr/log": "^3.0",
-        "symfony/dependency-injection": "^6.0 || ^7.0",
-        "symfony/polyfill-php80": "^1.32",
-        "typo3/cms-backend": "^13.4",
-        "typo3/cms-core": "^13.4",
-        "typo3/cms-extbase": "^13.4",
-        "typo3/cms-frontend": "^13.4"
-    },
-    "require-dev": {
-        "b13/make": "^0.1.8",
-        "enlightn/security-checker": "^2.0",
-        "ergebnis/composer-normalize": "^2.47",
-        "maglnet/composer-require-checker": "^4.16",
-        "php-parallel-lint/php-parallel-lint": "^1.4",
-        "phpro/grumphp-shim": "^2.13",
-        "pluswerk/grumphp-xliff-task": "^10.1",
-        "rector/rector": "^2.1",
-        "saschaegerer/phpstan-typo3": "^2.1",
-        "squizlabs/php_codesniffer": "^3.13",
-        "ssch/typo3-rector": "^3.6",
-        "typo3/cms-fluid-styled-content": "^13.4",
-        "typo3/cms-info": "^13.4",
-        "typo3/cms-install": "^13.4",
-        "typo3/cms-lowlevel": "^13.4",
-        "typo3/cms-workspaces": "^13.4",
-        "typo3/testing-framework": "^9.1"
-    },
-    "autoload": {
-        "psr-4": {
-            "Queo\\SimpleRestApi\\": "Classes/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Queo\\SimpleRestApi\\Dev\\": "Dev/",
-            "Queo\\SimpleRestApi\\Tests\\": "Tests/"
-        }
-    },
-    "config": {
-        "allow-plugins": {
-            "ergebnis/composer-normalize": true,
-            "phpro/grumphp-shim": true,
-            "typo3/class-alias-loader": true,
-            "typo3/cms-composer-installers": true
+        "name": "queo/simple-rest-api",
+        "description": "A simple REST API framework for TYPO3 — create endpoints via PHP attributes.",
+        "license": [
+                "GPL-2.0-or-later"
+        ],
+        "type": "typo3-cms-extension",
+        "keywords": [
+                "typo3",
+                "typo3-cms-extension",
+                "rest",
+                "rest-api",
+                "api",
+                "attribute",
+                "routing",
+                "middleware"
+        ],
+        "authors": [
+                {
+                        "name": "Sebastian Hofer",
+                        "email": "s.hofer@queo-group.com",
+                        "role": "Developer"
+                }
+        ],
+        "homepage": "https://github.com/queoGmbH/simple-rest-api",
+        "support": {
+                "issues": "https://github.com/queoGmbH/simple-rest-api/issues",
+                "source": "https://github.com/queoGmbH/simple-rest-api",
+                "docs": "https://docs.typo3.org/p/queo/simple-rest-api/main/en_us/"
         },
-        "bin-dir": ".Build/bin",
-        "sort-packages": true,
-        "vendor-dir": ".Build/vendor"
-    },
-    "extra": {
-        "typo3/cms": {
-            "app-dir": ".Build",
-            "cms-package-dir": "{$vendor-dir}/typo3/cms",
-            "extension-key": "simple_rest_api",
-            "web-dir": ".Build/Web"
+        "require": {
+                "php": ">=8.2",
+                "psr/container": "^1.0 || ^2.0",
+                "psr/event-dispatcher": "^1.0",
+                "psr/http-message": "^1.0 || ^2.0",
+                "psr/http-server-handler": "^1.0",
+                "psr/http-server-middleware": "^1.0",
+                "psr/log": "^3.0",
+                "symfony/dependency-injection": "^6.0 || ^7.0",
+                "symfony/polyfill-php80": "^1.32",
+                "typo3/cms-backend": "^13.4",
+                "typo3/cms-core": "^13.4",
+                "typo3/cms-extbase": "^13.4",
+                "typo3/cms-frontend": "^13.4"
+        },
+        "require-dev": {
+                "b13/make": "^0.1.8",
+                "enlightn/security-checker": "^2.0",
+                "ergebnis/composer-normalize": "^2.47",
+                "maglnet/composer-require-checker": "^4.16",
+                "php-parallel-lint/php-parallel-lint": "^1.4",
+                "phpro/grumphp-shim": "^2.13",
+                "pluswerk/grumphp-xliff-task": "^10.1",
+                "rector/rector": "^2.1",
+                "saschaegerer/phpstan-typo3": "^2.1",
+                "squizlabs/php_codesniffer": "^3.13",
+                "ssch/typo3-rector": "^3.6",
+                "typo3/cms-fluid-styled-content": "^13.4",
+                "typo3/cms-info": "^13.4",
+                "typo3/cms-install": "^13.4",
+                "typo3/cms-lowlevel": "^13.4",
+                "typo3/cms-workspaces": "^13.4",
+                "typo3/testing-framework": "^9.1"
+        },
+        "autoload": {
+                "psr-4": {
+                        "Queo\\SimpleRestApi\\": "Classes/"
+                }
+        },
+        "autoload-dev": {
+                "psr-4": {
+                        "Queo\\SimpleRestApi\\Dev\\": "Dev/",
+                        "Queo\\SimpleRestApi\\Tests\\": "Tests/"
+                }
+        },
+        "config": {
+                "allow-plugins": {
+                        "ergebnis/composer-normalize": true,
+                        "phpro/grumphp-shim": true,
+                        "typo3/class-alias-loader": true,
+                        "typo3/cms-composer-installers": true
+                },
+                "bin-dir": ".Build/bin",
+                "sort-packages": true,
+                "vendor-dir": ".Build/vendor"
+        },
+        "extra": {
+                "typo3/cms": {
+                        "app-dir": ".Build",
+                        "cms-package-dir": "{$vendor-dir}/typo3/cms",
+                        "extension-key": "simple_rest_api",
+                        "web-dir": ".Build/Web"
+                }
         }
-    }
 }

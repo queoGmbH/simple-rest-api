@@ -68,6 +68,7 @@ grumphp:
       configuration: phpstan.neon
       ignore_patterns:
         - /ext_localconf\.php/
+        - /ext_emconf\.php/
         - /Configuration\//
     rector:
       metadata:

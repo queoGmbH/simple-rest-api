@@ -22,8 +22,8 @@ $iconRegistry->registerIcon(
 );
 
 // Cache-Konfiguration für die API-Endpunkte
-if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['somple_rest_api'])) {
-    $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['somple_rest_api'] = [
+if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['simple_rest_api'])) {
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['simple_rest_api'] = [
         'frontend' => VariableFrontend::class,
         'backend' => FileBackend::class,
         'options' => [
