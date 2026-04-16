@@ -84,23 +84,4 @@ final readonly class ApiResponseModifierExample
 
         $event->setResponse($response);
     }
-
-    /**
-     * Example: Log response details.
-     *
-     * This demonstrates accessing request and endpoint information.
-     */
-    public function logResponse(ModifyApiResponseEvent $event): void
-    {
-        $endpoint = $event->getEndpoint();
-        $response = $event->getResponse();
-
-        // In a real implementation, you would use a proper logger
-        error_log(sprintf(
-            'API Response: %s %s -> HTTP %d',
-            $endpoint->httpMethod,
-            $endpoint->path,
-            $response->getStatusCode()
-        ));
-    }
 }
