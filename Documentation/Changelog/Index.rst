@@ -8,6 +8,68 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
+Version 0.3.0
+=============
+
+Released: 10.04.2026
+
+Security
+--------
+
+* **[M-01] Security logging for unmatched API paths**
+
+  * ``ApiResolverMiddleware`` now emits a ``WARNING`` log entry when the API base path
+    is matched but no registered endpoint is found for the requested method/path
+  * Log channel: ``simple_rest_api``
+
+* **[M-02] Security logging on parameter coercion failure (400)**
+
+  * ``ApiResolverMiddleware`` catches ``InvalidParameterException`` and logs a ``WARNING``
+    with the parameter name before returning a ``400 Bad Request`` JSON response
+
+* **[M-03] Validated type coercion for URL parameters**
+
+  * Bare PHP casts (``(int)``, ``(float)``, ``(bool)``) replaced with ``filter_var()``-based
+    validation in ``EndpointParameterResolver``
+  * Invalid values (e.g. ``"abc"`` for an ``int`` parameter) now throw
+    ``InvalidParameterException`` and return 400 instead of silently coercing to ``0``
+  * Empty strings are explicitly rejected for numeric and boolean types
+  * New exception class: ``Queo\SimpleRestApi\Exception\InvalidParameterException``
+
+* **[L-01] Security notice added to** ``AsApiEndpoint`` **attribute**
+
+  * PHPDoc block now includes an explicit ``SECURITY NOTICE`` documenting that
+    authentication, authorization, rate limiting, and input validation beyond scalar
+    type coercion are the consumer's responsibility
+
+* **[L-02] CacheHashFixer restores global config after request handling**
+
+  * Original values of ``$GLOBALS['TYPO3_CONF_VARS']['FE']['pageNotFoundOnCHashError']``
+    and ``$GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash']['enforceValidation']`` are now
+    saved before mutation and restored in a ``finally`` block
+
+* **[L-03] Remove** ``error_log()`` **from example event listener**
+
+  * Removed ``logResponse()`` method from ``ApiResponseModifierExample`` which used
+    ``error_log()`` instead of TYPO3's logging API
+
+Added
+-----
+
+* ``LoggerInterface`` constructor injection in ``ApiResolverMiddleware`` (TYPO3 13
+  ``LoggerInterfacePass`` autowires this automatically)
+* ``InvalidParameterException`` as a dedicated exception class for parameter coercion
+  failures
+* ``psr/log: ^3.0`` as explicit Composer dependency
+
+Technical
+---------
+
+* Extended test suite with ``#[DataProvider]``-driven coercion tests (16 valid, 8 invalid
+  cases)
+* ``HttpMethodsIntegrationTest`` and ``ApiResolverMiddlewareTest`` updated to inject
+  ``NullLogger`` and set ``$resetSingletonInstances = true`` for TYPO3 test isolation
+
 Version 0.2.4
 =============
 
@@ -497,13 +559,6 @@ Roadmap
 
 Planned for Future Versions
 ----------------------------
-
-Version 0.3.0
-~~~~~~~~~~~~~
-
-* OpenAPI/Swagger documentation generation
-* Export endpoint documentation as JSON
-* Support for PUT and PATCH methods (currently experimental)
 
 Version 0.4.0
 ~~~~~~~~~~~~~
