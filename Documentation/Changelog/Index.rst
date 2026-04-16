@@ -8,10 +8,40 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
+Version 0.3.1
+=============
+
+Released: 16.04.2026
+
+Fixed
+-----
+
+* **Cache key typo corrected** — ``somple_rest_api`` → ``simple_rest_api`` in ``ext_localconf.php``
+
+  * The cache configuration was silently registered under a misspelled key and never used
+
+Added
+-----
+
+* **ext_emconf.php** for TYPO3 Extension Repository (TER) compatibility
+* **LICENSE** file (GPL-2.0-or-later)
+* **Resources/Public/Icons/Extension.svg** for TER extension listing
+* **SECURITY.md** with vulnerability reporting policy and supported versions
+* **CHANGELOG.md** in repository root for Packagist and GitHub visitors
+* **GitHub mirror CI pipeline** — strips ``.claude/`` and ``CLAUDE.md`` before mirroring
+  to ``github.com:queoGmbH/simple-rest-api`` on every push to ``main`` and every tag
+
+Technical
+---------
+
+* ``composer.json`` extended with ``authors``, ``keywords``, ``homepage``, ``support`` fields
+* ``Documentation/Settings.cfg`` version corrected to ``0.3.1``
+* ``ext_emconf.php`` added to GrumPHP PHPStan and Rector ignore patterns (TYPO3 legacy format)
+
 Version 0.3.0
 =============
 
-Released: 10.04.2026
+Released: 16.04.2026
 
 Security
 --------
