@@ -35,3 +35,4 @@ Use the template in `_template.md`.
 | [0004](0004-configurable-base-path-via-site-settings.md) | Configurable Base Path via TYPO3 Site Settings | Accepted |
 | [0005](0005-no-builtin-auth-or-serialization.md) | No Built-in Authentication or Serialization | Accepted |
 | [0006](0006-internal-annotation-for-public-api-boundary.md) | @internal Annotation for Public API Boundary | Accepted |
+| [0007](0007-github-mirror-via-ci-filtered-push.md) | GitHub Mirror via CI Filtered Push | Accepted |
