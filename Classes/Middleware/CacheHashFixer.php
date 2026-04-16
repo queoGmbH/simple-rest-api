@@ -37,8 +37,18 @@ class CacheHashFixer implements MiddlewareInterface
 
             // if yes: Override the settings in the `LocalConfiguration.php`
             if (str_starts_with($path, $basePath)) {
+                $originalPageNotFoundOnCHashError = $GLOBALS['TYPO3_CONF_VARS']['FE']['pageNotFoundOnCHashError'];
+                $originalEnforceValidation = $GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash']['enforceValidation'];
+
                 $GLOBALS['TYPO3_CONF_VARS']['FE']['pageNotFoundOnCHashError'] = false;
                 $GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash']['enforceValidation'] = false;
+
+                try {
+                    return $handler->handle($request);
+                } finally {
+                    $GLOBALS['TYPO3_CONF_VARS']['FE']['pageNotFoundOnCHashError'] = $originalPageNotFoundOnCHashError;
+                    $GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash']['enforceValidation'] = $originalEnforceValidation;
+                }
             }
         }
 
