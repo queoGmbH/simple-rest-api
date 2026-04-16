@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Queo\SimpleRestApi\Tests\Unit\Collection;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
 use Queo\SimpleRestApi\Collection\ApiEndpointParameterCollection;
 use Queo\SimpleRestApi\Collection\EndpointParameterResolver;
+use Queo\SimpleRestApi\Exception\InvalidParameterException;
 use Queo\SimpleRestApi\Value\ApiEndpointParameter;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
@@ -145,6 +147,79 @@ final class EndpointParameterResolverTest extends UnitTestCase
         $this->assertIsFloat($result[2]);
         $this->assertSame(true, $result[3]);
         $this->assertIsBool($result[3]);
+    }
+
+    /**
+     * @return array<string, array{string, string, mixed}>
+     */
+    public static function validCoercions(): array
+    {
+        return [
+            'int positive'      => ['int',   '42',    42],
+            'int negative'      => ['int',   '-7',    -7],
+            'int zero'          => ['int',   '0',     0],
+            'float decimal'     => ['float', '3.14',  3.14],
+            'float integer'     => ['float', '2',     2.0],
+            'float negative'    => ['float', '-1.5',  -1.5],
+            'bool 1'            => ['bool',  '1',     true],
+            'bool 0'            => ['bool',  '0',     false],
+            'bool true'         => ['bool',  'true',  true],
+            'bool false'        => ['bool',  'false', false],
+            'bool yes'          => ['bool',  'yes',   true],
+            'bool no'           => ['bool',  'no',    false],
+            'bool on'           => ['bool',  'on',    true],
+            'bool off'          => ['bool',  'off',   false],
+            'string any'        => ['string', 'hello', 'hello'],
+            'string empty'      => ['string', '',      ''],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('validCoercions')]
+    public function resolverCoercesValidValues(string $type, string $raw, mixed $expected): void // phpcs:ignore
+    {
+        $resolver = new EndpointParameterResolver(
+            new ApiEndpointParameterCollection(new ApiEndpointParameter('p', $type)),
+            [$raw],
+            $this->createStub(ServerRequestInterface::class)
+        );
+
+        $result = $resolver->buildMethodParameters();
+
+        $this->assertSame($expected, $result[0]);
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     */
+    public static function invalidCoercions(): array
+    {
+        return [
+            'int letters'       => ['int',   'abc'],
+            'int float string'  => ['int',   '1.5'],
+            'int empty'         => ['int',   ''],
+            'float letters'     => ['float', 'abc'],
+            'float empty'       => ['float', ''],
+            'bool random'       => ['bool',  'maybe'],
+            'bool number two'   => ['bool',  '2'],
+            'bool empty'        => ['bool',  ''],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('invalidCoercions')]
+    public function resolverThrowsOnInvalidValue(string $type, string $raw): void // phpcs:ignore
+    {
+        $resolver = new EndpointParameterResolver(
+            new ApiEndpointParameterCollection(new ApiEndpointParameter('myParam', $type)),
+            [$raw],
+            $this->createStub(ServerRequestInterface::class)
+        );
+
+        $this->expectException(InvalidParameterException::class);
+        $this->expectExceptionMessageMatches("/myParam/");
+
+        $resolver->buildMethodParameters();
     }
 
     #[Test]
