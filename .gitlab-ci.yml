@@ -129,7 +129,7 @@ mirror_to_github:
   script:
     - git clone --bare "$CI_REPOSITORY_URL" repo.git
     - cd repo.git
-    - git filter-repo --path .claude --invert-paths --force
+    - git filter-repo --path .claude --path CLAUDE.md --invert-paths --force
     - git remote add github "git@github.com:queoGmbH/simple-rest-api.git"
     - git push github 'refs/heads/*:refs/heads/*' --force
     - git push github 'refs/tags/*:refs/tags/*' --force
