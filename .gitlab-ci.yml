@@ -202,7 +202,6 @@ e2e_tests:
   script:
     - cd Tests/E2e
     - npm ci
-    - npx playwright install --with-deps chromium
     - npx playwright test
   artifacts:
     when: always
