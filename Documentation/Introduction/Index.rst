@@ -64,7 +64,7 @@ This extension is perfect for:
 Requirements
 ============
 
-* TYPO3 13.4 or higher
+* TYPO3 13.4 or 14.0 or higher
 * PHP 8.2 or higher
 
 Backend Module

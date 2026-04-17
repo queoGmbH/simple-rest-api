@@ -8,6 +8,31 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
+Version 0.4.0
+=============
+
+Released: 17.04.2026
+
+Added
+-----
+
+* **TYPO3 14.0 compatibility** — extension now supports ``^13.4 || ^14.0`` simultaneously
+
+  * ``composer.json`` constraints widened to ``^13.4 || ^14.0`` for all ``typo3/cms-*`` packages
+  * ``ext_emconf.php`` constraint updated to ``13.4.0-14.99.99``
+  * Backend module icon registration moved from ``ext_localconf.php`` to ``Configuration/Icons.php``
+    (TYPO3 12+ convention, compatible with both TYPO3 13 and 14)
+
+* **PHP 8.5 compatibility** — CI pipeline now tests against PHP 8.5; no code changes required
+
+* **Extended CI matrix** — full test coverage across PHP 8.2 / 8.3 / 8.4 / 8.5 × TYPO3 13 / 14
+
+Technical
+---------
+
+* ``b13/make`` removed from require-dev (local scaffolding tool, no TYPO3 14 support)
+* Git hooks (``pre-commit``, ``commit-msg``) updated to invoke GrumPHP via ``ddev exec``
+
 Version 0.3.1
 =============
 
