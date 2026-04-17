@@ -205,6 +205,8 @@ e2e_tests:
       php .Build/bin/typo3 setup --no-interaction --force
     # Overwrite generated site config with CI fixture (adds SimpleRestApiEnhancer)
     - find config/sites -name "config.yaml" | xargs -I{} cp Tests/Fixtures/ci/site-config.yaml {}
+    # Flush TYPO3 caches so routing tables are rebuilt with the new site config
+    - php .Build/bin/typo3 cache:flush
     # Start TYPO3 via PHP built-in server (inherits TYPO3_CONTEXT=Development)
     - php -S 0.0.0.0:8080 -t .Build/Web/ Tests/Fixtures/ci/router.php &
     # Wait until PHP server responds (any HTTP status counts — TYPO3 homepage
