@@ -207,11 +207,15 @@ e2e_tests:
     - find config/sites -name "config.yaml" | xargs -I{} cp Tests/Fixtures/ci/site-config.yaml {}
     # Flush TYPO3 caches so routing tables are rebuilt with the new site config
     - php .Build/bin/typo3 cache:flush
+    # Verify site config was overwritten correctly
+    - echo "=== Site config ===" && cat config/sites/*/config.yaml
     # Start TYPO3 via PHP built-in server (inherits TYPO3_CONTEXT=Development)
     - php -S 0.0.0.0:8080 -t .Build/Web/ Tests/Fixtures/ci/router.php &
     # Wait until PHP server responds (any HTTP status counts — TYPO3 homepage
     # may return a redirect or 404, so -f is intentionally omitted)
     - until curl -s -o /dev/null http://localhost:8080/ 2>/dev/null; do sleep 1; done
+    # Diagnostic: show what the API endpoint actually returns before tests run
+    - echo "=== API ping response ===" && curl -si http://localhost:8080/api/e2e/ping | head -20 || true
   script:
     - cd Tests/E2e
     - npm ci
