@@ -44,7 +44,6 @@
                 "typo3/cms-frontend": "^13.4 || ^14.0"
         },
         "require-dev": {
-                "b13/make": "^0.1.8",
                 "enlightn/security-checker": "^2.0",
                 "ergebnis/composer-normalize": "^2.47",
                 "maglnet/composer-require-checker": "^4.16",
