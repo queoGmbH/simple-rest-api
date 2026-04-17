@@ -100,7 +100,6 @@ class ApiResolverMiddleware implements MiddlewareInterface
             ]
         );
 
-        // If no endpoint was found, forward request
-        return $handler->handle($request);
+        return new JsonResponse(['error' => 'Not Found'], 404);
     }
 }
