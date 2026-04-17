@@ -163,6 +163,9 @@ e2e_tests:
     - name: mariadb:10.11
       alias: mariadb
   variables:
+    # MariaDB 10.6+ prefers MARIADB_* variables over MYSQL_*
+    MARIADB_ROOT_PASSWORD: root
+    MARIADB_DATABASE: typo3_test
     MYSQL_ROOT_PASSWORD: root
     MYSQL_DATABASE: typo3_test
     TYPO3_CONTEXT: Development
@@ -172,12 +175,15 @@ e2e_tests:
     - if: '$CI_MERGE_REQUEST_IID'
     - when: never
   before_script:
-    # Node.js + mariadb-client (for mysqladmin ping) via Alpine apk
-    - apk add --no-cache nodejs npm mariadb-client
+    # Node.js + mariadb-client + netcat via Alpine apk
+    - apk add --no-cache nodejs npm mariadb-client netcat-openbsd
     # PHP dependencies
     - composer install --no-progress --no-interaction
-    # Wait for MariaDB service to accept connections
-    - until mysqladmin ping -h mariadb -u root -proot --silent 2>/dev/null; do sleep 1; done
+    # Wait for MariaDB port to be open (up to 60s), then wait for ping
+    - echo "Waiting for MariaDB..."
+    - for i in $(seq 1 60); do nc -z mariadb 3306 2>/dev/null && break; sleep 1; done
+    - for i in $(seq 1 30); do mysqladmin ping -h mariadb -u root -proot --silent 2>/dev/null && break; sleep 2; done
+    - mysqladmin ping -h mariadb -u root -proot --silent
     # Bootstrap TYPO3: creates DB tables, admin user, root page (PID 1),
     # and a basic site config under config/sites/
     - >
