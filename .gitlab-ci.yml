@@ -77,7 +77,6 @@ php-unit-test-8.5-13:
 
 # TYPO3 14 unit tests: saschaegerer/phpstan-typo3 has no TYPO3 14 release yet,
 # so we strip analysis-only dev packages that conflict before pinning TYPO3 14.
-# allow_failure: true until all jobs are green; remove once compatibility is confirmed.
 .php-unit-test-typo3-14:
   stage: test
   image: kanti/buildy:${PHP_VERSION}
@@ -93,7 +92,6 @@ php-unit-test-8.5-13:
   script:
     - php ./.Build/bin/phpunit -c phpunit.xml
     - php ./.Build/bin/phpunit -c phpunit-integration.xml
-  allow_failure: true
 
 php-unit-test-8.2-14:
   extends: .php-unit-test-typo3-14
