@@ -179,11 +179,12 @@ e2e_tests:
     - apk add --no-cache nodejs npm mariadb-client netcat-openbsd
     # PHP dependencies
     - composer install --no-progress --no-interaction
-    # Wait for MariaDB port to be open (up to 60s), then wait for ping
-    - echo "Waiting for MariaDB..."
-    - for i in $(seq 1 60); do nc -z mariadb 3306 2>/dev/null && break; sleep 1; done
-    - for i in $(seq 1 30); do mysqladmin ping -h mariadb -u root -proot --silent 2>/dev/null && break; sleep 2; done
-    - mysqladmin ping -h mariadb -u root -proot --silent
+    # Wait for MariaDB port to be open (up to 90s), then wait for ping (up to 120s)
+    - echo "Waiting for MariaDB port..."
+    - for i in $(seq 1 90); do nc -z mariadb 3306 2>/dev/null && echo "Port open after ${i}s" && break; sleep 1; done
+    - echo "Waiting for MariaDB to accept connections..."
+    - for i in $(seq 1 60); do mariadb-admin ping -h mariadb -u root -proot 2>/dev/null && echo "MariaDB ready after $((i*2))s" && break; sleep 2; done
+    - mariadb-admin ping -h mariadb -u root -proot
     # Bootstrap TYPO3: creates DB tables, admin user, root page (PID 1),
     # and a basic site config under config/sites/
     - >
