@@ -170,6 +170,8 @@ e2e_tests:
     MYSQL_DATABASE: typo3_test
     TYPO3_CONTEXT: Development
     BASE_URL: "http://localhost:8080"
+    # Credentials below are throwaway CI-only values — the DB container and TYPO3
+    # instance are not reachable outside the CI runner network.
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
     - if: '$CI_MERGE_REQUEST_IID'
@@ -209,6 +211,7 @@ e2e_tests:
   script:
     - cd Tests/E2e
     - npm ci
+    - npm audit --audit-level=high
     - npx playwright test
   artifacts:
     when: always

@@ -16,4 +16,5 @@ routeEnhancers:
     type: SimpleRestApiEnhancer
 settings:
   simple_rest_api:
+    # Enables extra endpoints in the backend module list — no effect on routing or request handling.
     debugMode: true

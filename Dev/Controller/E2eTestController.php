@@ -11,7 +11,7 @@ use TYPO3\CMS\Core\Http\JsonResponse;
 /**
  * Stable test endpoints for Playwright E2E tests.
  *
- * Registered only in Development context via Configuration/Services.dev.yaml.
+ * Registered only in Development context via the runtime guard in Configuration/Services.php.
  * Must NOT be loaded in production.
  */
 final class E2eTestController
