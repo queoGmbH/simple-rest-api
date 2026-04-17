@@ -3,6 +3,17 @@
 All notable changes are documented here. For full details see
 [Documentation/Changelog/Index.rst](Documentation/Changelog/Index.rst).
 
+## [0.4.0] — 2026-04-17
+
+### Added
+- TYPO3 14.0 compatibility — `composer.json` widened to `^13.4 || ^14.0`, `ext_emconf.php` updated to `13.4.0-14.99.99`
+- PHP 8.5 compatibility — CI pipeline extended; no code changes required
+- Full CI matrix: PHP 8.2 / 8.3 / 8.4 / 8.5 × TYPO3 13 / 14
+- Icon registration moved to `Configuration/Icons.php` (TYPO3 12+ convention, fixes TYPO3 14 breaking change)
+
+### Changed
+- `b13/make` removed from require-dev
+
 ## [0.3.1] — 2026-04-16
 
 ### Fixed
