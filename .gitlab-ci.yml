@@ -51,6 +51,13 @@ php-grumphp-8.5-13:
     PHP_VERSION: "8.5"
     TYPO3_VERSION: "^13.4"
 
+php-grumphp-8.2-14:
+  extends: .php-grumphp
+  variables:
+    PHP_VERSION: "8.2"
+    TYPO3_VERSION: "^14"
+  allow_failure: true
+
 php-unit-test-8.2-13:
   extends: .php-unit-test
   variables:
