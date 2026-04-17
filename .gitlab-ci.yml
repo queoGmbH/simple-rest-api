@@ -185,8 +185,8 @@ e2e_tests:
     - echo "Waiting for MariaDB port..."
     - for i in $(seq 1 90); do nc -z mariadb 3306 2>/dev/null && echo "Port open after ${i}s" && break; sleep 1; done
     - echo "Waiting for MariaDB to accept connections..."
-    - for i in $(seq 1 60); do mariadb-admin ping -h mariadb -u root -proot 2>/dev/null && echo "MariaDB ready after $((i*2))s" && break; sleep 2; done
-    - mariadb-admin ping -h mariadb -u root -proot
+    - for i in $(seq 1 60); do mariadb-admin ping -h mariadb -u root -proot --skip-ssl 2>/dev/null && echo "MariaDB ready after $((i*2))s" && break; sleep 2; done
+    - mariadb-admin ping -h mariadb -u root -proot --skip-ssl
     # Bootstrap TYPO3: creates DB tables, admin user, root page (PID 1),
     # and a basic site config under config/sites/
     - >
