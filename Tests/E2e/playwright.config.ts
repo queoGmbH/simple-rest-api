@@ -8,7 +8,7 @@ export default defineConfig({
         ? [['list'], ['junit', { outputFile: 'test-results/results.xml' }]]
         : [['list']],
     use: {
-        baseURL: 'http://simple-rest-api.ddev.site',
+        baseURL: process.env.BASE_URL ?? 'http://simple-rest-api.ddev.site',
         extraHTTPHeaders: {
             Accept: 'application/json',
         },

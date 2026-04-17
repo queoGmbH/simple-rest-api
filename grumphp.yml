@@ -71,6 +71,7 @@ grumphp:
         - /ext_emconf\.php/
         - /Configuration\//
         - /Dev\//
+        - /Tests\/Fixtures\//
     rector:
       metadata:
         enabled: "%convention.rector_enabled%"

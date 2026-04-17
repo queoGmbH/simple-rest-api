@@ -156,22 +156,61 @@ release_composer_package:
         exit 1
       fi
 
-# E2E tests require a runner with Docker + ddev available.
-# Until such a runner is configured, this job validates the setup only
-# (npm ci + config check) and is allowed to fail.
 e2e_tests:
   stage: test
-  image: node:22-slim
-  allow_failure: true
+  image: kanti/buildy:8.4
+  services:
+    - name: mariadb:10.11
+      alias: mariadb
+  variables:
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_DATABASE: typo3_test
+    TYPO3_CONTEXT: Development
+    BASE_URL: "http://localhost:8080"
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
     - if: '$CI_MERGE_REQUEST_IID'
     - when: never
+  before_script:
+    # Node.js + mariadb-client (for mysqladmin ping) via Alpine apk
+    - apk add --no-cache nodejs npm mariadb-client
+    # PHP dependencies
+    - composer install --no-progress --no-interaction
+    # Wait for MariaDB service to accept connections
+    - until mysqladmin ping -h mariadb -u root -proot --silent 2>/dev/null; do sleep 1; done
+    # Bootstrap TYPO3: creates DB tables, admin user, root page (PID 1),
+    # and a basic site config under config/sites/
+    - >
+      TYPO3_DB_DRIVER=mysqli
+      TYPO3_DB_HOST=mariadb
+      TYPO3_DB_PORT=3306
+      TYPO3_DB_DBNAME=typo3_test
+      TYPO3_DB_USERNAME=root
+      TYPO3_DB_PASSWORD=root
+      TYPO3_SETUP_ADMIN_USERNAME=admin
+      TYPO3_SETUP_ADMIN_PASSWORD=Password1!
+      TYPO3_SETUP_ADMIN_EMAIL=admin@example.com
+      TYPO3_SETUP_CREATE_SITE="http://localhost:8080/"
+      TYPO3_PROJECT_NAME=main
+      php .Build/bin/typo3 setup --no-interaction --force
+    # Overwrite generated site config with CI fixture (adds SimpleRestApiEnhancer)
+    - find config/sites -name "config.yaml" | xargs -I{} cp Tests/Fixtures/ci/site-config.yaml {}
+    # Start TYPO3 via PHP built-in server (inherits TYPO3_CONTEXT=Development)
+    - php -S 0.0.0.0:8080 -t .Build/Web/ Tests/Fixtures/ci/router.php &
+    # Wait until TYPO3 responds
+    - until curl -sf http://localhost:8080/ > /dev/null 2>&1; do sleep 1; done
   script:
     - cd Tests/E2e
     - npm ci
-    - npx playwright --version
-    - npx playwright test --list 2>&1 || true
+    - npx playwright install --with-deps chromium
+    - npx playwright test
+  artifacts:
+    when: always
+    paths:
+      - Tests/E2e/test-results/
+      - Tests/E2e/playwright-report/
+    reports:
+      junit: Tests/E2e/test-results/results.xml
 
 mirror_to_github:
   stage: mirror
