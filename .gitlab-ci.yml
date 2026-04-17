@@ -156,6 +156,23 @@ release_composer_package:
         exit 1
       fi
 
+# E2E tests require a runner with Docker + ddev available.
+# Until such a runner is configured, this job validates the setup only
+# (npm ci + config check) and is allowed to fail.
+e2e_tests:
+  stage: test
+  image: node:22-slim
+  allow_failure: true
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_MERGE_REQUEST_IID'
+    - when: never
+  script:
+    - cd Tests/E2e
+    - npm ci
+    - npx playwright --version
+    - npx playwright test --list 2>&1 || true
+
 mirror_to_github:
   stage: mirror
   image: python:3.12-slim
