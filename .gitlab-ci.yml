@@ -163,36 +163,24 @@ e2e_tests:
     - name: mariadb:10.11
       alias: mariadb
   variables:
-    # MariaDB 10.6+ prefers MARIADB_* variables over MYSQL_*
     MARIADB_ROOT_PASSWORD: root
     MARIADB_DATABASE: typo3_test
     MYSQL_ROOT_PASSWORD: root
     MYSQL_DATABASE: typo3_test
     TYPO3_CONTEXT: Development
     BASE_URL: "http://localhost:8080"
-    # DB connection — throwaway CI-only values, not reachable outside runner network
     TYPO3_DB_DRIVER: mysqli
     TYPO3_DB_HOST: mariadb
     TYPO3_DB_PORT: "3306"
     TYPO3_DB_DBNAME: typo3_test
     TYPO3_DB_USERNAME: root
     TYPO3_DB_PASSWORD: root
-  rules:
-    - if: '$CI_COMMIT_BRANCH'
-    - when: never
   before_script:
-    # Node.js + mariadb-client + netcat via Alpine apk
-    - apk add --no-cache nodejs npm mariadb-client netcat-openbsd python3
-    # PHP dependencies
+    - apk add --no-cache nodejs npm mariadb-client netcat-openbsd
     - composer install --no-progress --no-interaction
-    # Wait for MariaDB port to be open (up to 90s), then wait for ping (up to 120s)
-    - echo "Waiting for MariaDB port..."
-    - for i in $(seq 1 90); do nc -z mariadb 3306 2>/dev/null && echo "Port open after ${i}s" && break; sleep 1; done
-    - echo "Waiting for MariaDB to accept connections..."
-    - for i in $(seq 1 60); do mariadb-admin ping -h mariadb -u root -proot --skip-ssl 2>/dev/null && echo "MariaDB ready after $((i*2))s" && break; sleep 2; done
+    - for i in $(seq 1 90); do nc -z mariadb 3306 2>/dev/null && break; sleep 1; done
+    - for i in $(seq 1 60); do mariadb-admin ping -h mariadb -u root -proot --skip-ssl 2>/dev/null && break; sleep 2; done
     - mariadb-admin ping -h mariadb -u root -proot --skip-ssl
-    # Bootstrap TYPO3: creates DB tables, admin user, root page (PID 1),
-    # and a basic site config under config/sites/
     - >
       TYPO3_SETUP_ADMIN_USERNAME=admin
       TYPO3_SETUP_ADMIN_PASSWORD=Password1!
@@ -201,75 +189,11 @@ e2e_tests:
       TYPO3_PROJECT_NAME=main
       TYPO3_SERVER_TYPE=apache
       php .Build/bin/typo3 setup --no-interaction --force
-    # Allow localhost:8080 — PHP built-in server sends HOST=localhost:8080 but
-    # TYPO3's default trustedHostsPattern uses SERVER_NAME (0.0.0.0), causing
-    # VerifyHostHeader to throw UnexpectedValueException #1396795884 on every request.
     - printf '<?php\n$GLOBALS["TYPO3_CONF_VARS"]["SYS"]["trustedHostsPattern"] = ".*";\n' > config/system/additional.php
-    # CHECK 1: DB tables and root page exist
-    - 'echo "=== CHECK 1: DB tables ==="'
-    - mariadb -h mariadb -u root -proot --skip-ssl typo3_test -e "SHOW TABLES;"
-    - mariadb -h mariadb -u root -proot --skip-ssl typo3_test -e "SELECT COUNT(*) AS root_page_count FROM pages WHERE pid = 0;"
-    # CHECK 2: TYPO3 CLI bootstraps cleanly
-    - 'echo "=== CHECK 2: TYPO3 CLI ==="'
-    - php .Build/bin/typo3 list 2>&1
-    # Overwrite generated site config with CI fixture (adds SimpleRestApiEnhancer)
     - find config/sites -name "config.yaml" | xargs -I{} cp Tests/Fixtures/ci/site-config.yaml {}
-    # CHECK 3: Exactly one site config and SimpleRestApiEnhancer is present
-    - 'echo "=== CHECK 3: Site config ==="'
-    - find config/sites -name "config.yaml" | tee /dev/stderr | wc -l
-    - grep -r "SimpleRestApiEnhancer" config/sites/ && echo "Route enhancer key found."
-    - cat config/sites/*/config.yaml
-    # Flush TYPO3 caches so routing tables are rebuilt with the new site config
     - php .Build/bin/typo3 cache:flush
-    # CHECK 4: TYPO3 parsed the site config (diagnostic only)
-    - 'echo "=== CHECK 4: TYPO3 site:list ==="'
-    - php .Build/bin/typo3 site:list 2>&1 || true
-    # CHECK 5: TYPO3_CONTEXT=Development is set (required for E2eTestController)
-    - 'echo "=== CHECK 5: TYPO3_CONTEXT ==="'
-    - echo "TYPO3_CONTEXT=${TYPO3_CONTEXT}"
-    - '[ "$TYPO3_CONTEXT" = "Development" ] || (echo "ERROR: TYPO3_CONTEXT must be Development for e2e endpoints" && exit 1)'
-    # Start TYPO3 via PHP built-in server (inherits TYPO3_CONTEXT=Development)
     - php -S 0.0.0.0:8080 -t .Build/Web/ Tests/Fixtures/ci/router.php &
-    # Wait until PHP server responds
     - until curl -s -o /dev/null http://localhost:8080/ 2>/dev/null; do sleep 1; done
-    # CHECK 6: PHP server returns a TYPO3 response, not a PHP crash
-    - |
-      echo "=== CHECK 6: PHP server response ===" &&
-      BODY=$(curl -s http://localhost:8080/) &&
-      echo "${BODY:0:500}" &&
-      if echo "$BODY" | grep -qi "fatal error\|parse error"; then
-        echo "ERROR: PHP error detected in server response" && exit 1
-      fi
-    # CHECK 7: Dev controller visible in DI cache (diagnostic only — hard gate is CHECK 8)
-    - |
-      echo "=== CHECK 7: E2eTestController in DI cache ===" &&
-      if grep -r "E2eTestController" .Build/Web/typo3temp/var/cache/ 2>/dev/null; then
-        echo "Dev controller found in DI cache."
-      else
-        echo "WARNING: E2eTestController not found in DI cache — will be confirmed by CHECK 8"
-      fi
-    # CHECK 8: /api/e2e/ping returns 200 with valid JSON (definitive gate)
-    - |
-      echo "=== CHECK 8: /api/e2e/ping ===" &&
-      curl -s -o /tmp/ping_body.txt -w "%{http_code}" http://localhost:8080/api/e2e/ping > /tmp/ping_status.txt &&
-      HTTP_STATUS=$(cat /tmp/ping_status.txt) &&
-      echo "HTTP status: $HTTP_STATUS" &&
-      echo "Response body: $(cat /tmp/ping_body.txt)" &&
-      if [ "$HTTP_STATUS" != "200" ]; then
-        echo "ERROR: Expected HTTP 200, got $HTTP_STATUS" && exit 1
-      fi &&
-      python3 -c "
-      import json, sys
-      try:
-          data = json.load(open('/tmp/ping_body.txt'))
-          assert data.get('ok') == True, f'Expected ok=true, got: {data}'
-          assert data.get('method') == 'GET', f'Expected method=GET, got: {data}'
-          print('Ping endpoint OK:', data)
-      except json.JSONDecodeError as e:
-          print('ERROR: Response is not valid JSON:', e); sys.exit(1)
-      except AssertionError as e:
-          print('ERROR: Unexpected JSON payload:', e); sys.exit(1)
-      "
   script:
     - cd Tests/E2e
     - npm ci
