@@ -170,7 +170,7 @@ mirror_to_github:
     - pip install git-filter-repo --quiet
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - echo "$GITHUB_DEPLOY_KEY" | base64 -d > ~/.ssh/id_ed25519
+    - cp "$GITHUB_DEPLOY_KEY" ~/.ssh/id_ed25519
     - chmod 600 ~/.ssh/id_ed25519
     - ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null
   script:
