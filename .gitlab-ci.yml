@@ -207,8 +207,9 @@ e2e_tests:
     - find config/sites -name "config.yaml" | xargs -I{} cp Tests/Fixtures/ci/site-config.yaml {}
     # Start TYPO3 via PHP built-in server (inherits TYPO3_CONTEXT=Development)
     - php -S 0.0.0.0:8080 -t .Build/Web/ Tests/Fixtures/ci/router.php &
-    # Wait until TYPO3 responds
-    - until curl -sf http://localhost:8080/ > /dev/null 2>&1; do sleep 1; done
+    # Wait until PHP server responds (any HTTP status counts — TYPO3 homepage
+    # may return a redirect or 404, so -f is intentionally omitted)
+    - until curl -s -o /dev/null http://localhost:8080/ 2>/dev/null; do sleep 1; done
   script:
     - cd Tests/E2e
     - npm ci
