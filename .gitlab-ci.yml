@@ -215,7 +215,9 @@ e2e_tests:
     # may return a redirect or 404, so -f is intentionally omitted)
     - until curl -s -o /dev/null http://localhost:8080/ 2>/dev/null; do sleep 1; done
     # Diagnostic: show what the API endpoint actually returns before tests run
-    - echo "=== API ping response ===" && curl -si http://localhost:8080/api/e2e/ping | head -20 || true
+    - echo "=== Homepage response ===" && curl -si http://localhost:8080/ | head -10 || true
+    - echo "=== API ping response ===" && curl -si http://localhost:8080/api/e2e/ping | head -200 || true
+    - echo "=== API ping exception text ===" && curl -s http://localhost:8080/api/e2e/ping | grep -oiE '(exception|TYPO3)[^<]{0,300}' | head -10 || true
   script:
     - cd Tests/E2e
     - npm ci
