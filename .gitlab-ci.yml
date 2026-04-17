@@ -178,7 +178,7 @@ e2e_tests:
     - when: never
   before_script:
     # Node.js + mariadb-client + netcat via Alpine apk
-    - apk add --no-cache nodejs npm mariadb-client netcat-openbsd
+    - apk add --no-cache nodejs npm mariadb-client netcat-openbsd python3
     # PHP dependencies
     - composer install --no-progress --no-interaction
     # Wait for MariaDB port to be open (up to 90s), then wait for ping (up to 120s)
