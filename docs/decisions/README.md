@@ -36,3 +36,4 @@ Use the template in `_template.md`.
 | [0005](0005-no-builtin-auth-or-serialization.md) | No Built-in Authentication or Serialization | Accepted |
 | [0006](0006-internal-annotation-for-public-api-boundary.md) | @internal Annotation for Public API Boundary | Accepted |
 | [0007](0007-github-mirror-via-ci-filtered-push.md) | GitHub Mirror via CI Filtered Push | Accepted |
+| [0008](0008-dev-directory-for-e2e-test-fixtures.md) | Dev Directory for E2E Test Fixture Controllers | Accepted |
