@@ -45,6 +45,12 @@ php-grumphp-8.2-13:
     PHP_VERSION: "8.2"
     TYPO3_VERSION: "^13.4"
 
+php-grumphp-8.5-13:
+  extends: .php-grumphp
+  variables:
+    PHP_VERSION: "8.5"
+    TYPO3_VERSION: "^13.4"
+
 php-unit-test-8.2-13:
   extends: .php-unit-test
   variables:
@@ -63,12 +69,53 @@ php-unit-test-8.4-13:
     PHP_VERSION: "8.4"
     TYPO3_VERSION: "^13.4"
 
-#php-unit-test-8.4-14:
-#  extends: .php-unit-test
-#  variables:
-#    PHP_VERSION: "8.4"
-#    TYPO3_VERSION: "14.0.x-dev"
-#  allow_failure: true
+php-unit-test-8.5-13:
+  extends: .php-unit-test
+  variables:
+    PHP_VERSION: "8.5"
+    TYPO3_VERSION: "^13.4"
+
+# TYPO3 14 unit tests: saschaegerer/phpstan-typo3 has no TYPO3 14 release yet,
+# so we strip analysis-only dev packages that conflict before pinning TYPO3 14.
+.php-unit-test-typo3-14:
+  stage: test
+  image: kanti/buildy:${PHP_VERSION}
+  cache:
+    key: composer-cache-${PHP_VERSION}
+    paths:
+      - .composer-cache/
+  before_script:
+    - composer remove --dev saschaegerer/phpstan-typo3 --no-update
+    - composer req typo3/cms-core:${TYPO3_VERSION} typo3/cms-frontend:${TYPO3_VERSION}
+    - composer req --dev typo3/cms-backend:${TYPO3_VERSION} typo3/cms-fluid-styled-content:${TYPO3_VERSION} typo3/cms-info:${TYPO3_VERSION} typo3/cms-install:${TYPO3_VERSION} typo3/cms-workspaces:${TYPO3_VERSION}
+    - composer install --no-progress --no-interaction
+  script:
+    - php ./.Build/bin/phpunit -c phpunit.xml
+    - php ./.Build/bin/phpunit -c phpunit-integration.xml
+
+php-unit-test-8.2-14:
+  extends: .php-unit-test-typo3-14
+  variables:
+    PHP_VERSION: "8.2"
+    TYPO3_VERSION: "^14"
+
+php-unit-test-8.3-14:
+  extends: .php-unit-test-typo3-14
+  variables:
+    PHP_VERSION: "8.3"
+    TYPO3_VERSION: "^14"
+
+php-unit-test-8.4-14:
+  extends: .php-unit-test-typo3-14
+  variables:
+    PHP_VERSION: "8.4"
+    TYPO3_VERSION: "^14"
+
+php-unit-test-8.5-14:
+  extends: .php-unit-test-typo3-14
+  variables:
+    PHP_VERSION: "8.5"
+    TYPO3_VERSION: "^14"
 
 release_composer_package:
   stage: release
