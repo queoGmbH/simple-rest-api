@@ -170,11 +170,15 @@ e2e_tests:
     MYSQL_DATABASE: typo3_test
     TYPO3_CONTEXT: Development
     BASE_URL: "http://localhost:8080"
-    # Credentials below are throwaway CI-only values — the DB container and TYPO3
-    # instance are not reachable outside the CI runner network.
+    # DB connection — throwaway CI-only values, not reachable outside runner network
+    TYPO3_DB_DRIVER: mysqli
+    TYPO3_DB_HOST: mariadb
+    TYPO3_DB_PORT: "3306"
+    TYPO3_DB_DBNAME: typo3_test
+    TYPO3_DB_USERNAME: root
+    TYPO3_DB_PASSWORD: root
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-    - if: '$CI_MERGE_REQUEST_IID'
+    - if: '$CI_COMMIT_BRANCH'
     - when: never
   before_script:
     # Node.js + mariadb-client + netcat via Alpine apk
@@ -190,12 +194,6 @@ e2e_tests:
     # Bootstrap TYPO3: creates DB tables, admin user, root page (PID 1),
     # and a basic site config under config/sites/
     - >
-      TYPO3_DB_DRIVER=mysqli
-      TYPO3_DB_HOST=mariadb
-      TYPO3_DB_PORT=3306
-      TYPO3_DB_DBNAME=typo3_test
-      TYPO3_DB_USERNAME=root
-      TYPO3_DB_PASSWORD=root
       TYPO3_SETUP_ADMIN_USERNAME=admin
       TYPO3_SETUP_ADMIN_PASSWORD=Password1!
       TYPO3_SETUP_ADMIN_EMAIL=admin@example.com
@@ -203,27 +201,71 @@ e2e_tests:
       TYPO3_PROJECT_NAME=main
       TYPO3_SERVER_TYPE=apache
       php .Build/bin/typo3 setup --no-interaction --force
+    # CHECK 1: DB tables and root page exist
+    - echo "=== CHECK 1: DB tables ==="
+    - mariadb -h mariadb -u root -proot --skip-ssl typo3_test -e "SHOW TABLES;"
+    - mariadb -h mariadb -u root -proot --skip-ssl typo3_test -e "SELECT COUNT(*) AS root_page_count FROM pages WHERE pid = 0;"
+    # CHECK 2: TYPO3 CLI bootstraps cleanly
+    - echo "=== CHECK 2: TYPO3 CLI ==="
+    - php .Build/bin/typo3 list 2>&1 | head -20
     # Overwrite generated site config with CI fixture (adds SimpleRestApiEnhancer)
     - find config/sites -name "config.yaml" | xargs -I{} cp Tests/Fixtures/ci/site-config.yaml {}
+    # CHECK 3: Exactly one site config and SimpleRestApiEnhancer is present
+    - echo "=== CHECK 3: Site config ==="
+    - find config/sites -name "config.yaml" | tee /dev/stderr | wc -l
+    - grep -r "SimpleRestApiEnhancer" config/sites/ && echo "Route enhancer key found."
+    - cat config/sites/*/config.yaml
     # Flush TYPO3 caches so routing tables are rebuilt with the new site config
     - php .Build/bin/typo3 cache:flush
-    # Verify site config was overwritten correctly
-    - echo "=== Site config ===" && cat config/sites/*/config.yaml
+    # CHECK 4: TYPO3 parsed the site config
+    - echo "=== CHECK 4: TYPO3 site:list ==="
+    - php .Build/bin/typo3 site:list 2>&1
+    # CHECK 5: TYPO3_CONTEXT=Development is set (required for E2eTestController)
+    - echo "=== CHECK 5: TYPO3_CONTEXT ==="
+    - echo "TYPO3_CONTEXT=${TYPO3_CONTEXT}"
+    - '[ "$TYPO3_CONTEXT" = "Development" ] || (echo "ERROR: TYPO3_CONTEXT must be Development for e2e endpoints" && exit 1)'
     # Start TYPO3 via PHP built-in server (inherits TYPO3_CONTEXT=Development)
     - php -S 0.0.0.0:8080 -t .Build/Web/ Tests/Fixtures/ci/router.php &
-    # Wait until PHP server responds (any HTTP status counts — TYPO3 homepage
-    # may return a redirect or 404, so -f is intentionally omitted)
+    # Wait until PHP server responds
     - until curl -s -o /dev/null http://localhost:8080/ 2>/dev/null; do sleep 1; done
-    # Diagnostic: extract the TYPO3 exception message from any 500 response
+    # CHECK 6: PHP server returns a TYPO3 response, not a PHP crash
     - |
-      echo "=== TYPO3 exception diagnostic ===" && curl -s http://localhost:8080/api/e2e/ping | python3 -c "
-      import sys, re
-      c = sys.stdin.read()
-      for pat in [r'trace-class[^>]*>([^<]+)', r'trace-message[^>]*>([^<]+)', r'<h1[^>]*>([^<]+)']:
-          for m in re.findall(pat, c, re.DOTALL):
-              t = m.strip()
-              if t: print(t[:400])
-      " || true
+      echo "=== CHECK 6: PHP server response ===" &&
+      BODY=$(curl -s http://localhost:8080/) &&
+      echo "${BODY:0:500}" &&
+      if echo "$BODY" | grep -qi "fatal error\|parse error"; then
+        echo "ERROR: PHP error detected in server response" && exit 1
+      fi
+    # CHECK 7: Dev controller compiled into DI container cache
+    - |
+      echo "=== CHECK 7: E2eTestController in DI cache ===" &&
+      if grep -r "E2eTestController" .Build/Web/typo3temp/var/cache/ 2>/dev/null; then
+        echo "Dev controller found in DI cache."
+      else
+        echo "ERROR: E2eTestController not found in DI cache — TYPO3_CONTEXT was likely wrong at cache:flush time" && exit 1
+      fi
+    # CHECK 8: /api/e2e/ping returns 200 with valid JSON (definitive gate)
+    - |
+      echo "=== CHECK 8: /api/e2e/ping ===" &&
+      curl -s -o /tmp/ping_body.txt -w "%{http_code}" http://localhost:8080/api/e2e/ping > /tmp/ping_status.txt &&
+      HTTP_STATUS=$(cat /tmp/ping_status.txt) &&
+      echo "HTTP status: $HTTP_STATUS" &&
+      echo "Response body: $(cat /tmp/ping_body.txt)" &&
+      if [ "$HTTP_STATUS" != "200" ]; then
+        echo "ERROR: Expected HTTP 200, got $HTTP_STATUS" && exit 1
+      fi &&
+      python3 -c "
+      import json, sys
+      try:
+          data = json.load(open('/tmp/ping_body.txt'))
+          assert data.get('ok') == True, f'Expected ok=true, got: {data}'
+          assert data.get('method') == 'GET', f'Expected method=GET, got: {data}'
+          print('Ping endpoint OK:', data)
+      except json.JSONDecodeError as e:
+          print('ERROR: Response is not valid JSON:', e); sys.exit(1)
+      except AssertionError as e:
+          print('ERROR: Unexpected JSON payload:', e); sys.exit(1)
+      "
   script:
     - cd Tests/E2e
     - npm ci
