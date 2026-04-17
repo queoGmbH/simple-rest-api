@@ -204,7 +204,7 @@ e2e_tests:
     # Allow localhost:8080 — PHP built-in server sends HOST=localhost:8080 but
     # TYPO3's default trustedHostsPattern uses SERVER_NAME (0.0.0.0), causing
     # VerifyHostHeader to throw UnexpectedValueException #1396795884 on every request.
-    - php .Build/bin/typo3 configuration:set SYS/trustedHostsPattern '.*'
+    - printf '<?php\n$GLOBALS["TYPO3_CONF_VARS"]["SYS"]["trustedHostsPattern"] = ".*";\n' > config/system/additional.php
     # CHECK 1: DB tables and root page exist
     - 'echo "=== CHECK 1: DB tables ==="'
     - mariadb -h mariadb -u root -proot --skip-ssl typo3_test -e "SHOW TABLES;"
