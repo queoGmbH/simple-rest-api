@@ -60,7 +60,9 @@ grumphp:
       tab_width: 4
     phplint: ~
     xmllint: ~
-    yamllint: ~
+    yamllint:
+      ignore_patterns:
+        - /\.gitlab-ci\.yml/
     securitychecker_enlightn:
       run_always: true
     phpstan:
