@@ -39,7 +39,8 @@ per PHP version and tagged accordingly.
 
 ### Registry
 
-Images are built and pushed to the project's GitLab Container Registry:
+Images are pushed to the GitLab Container Registry via CI (`$CI_REGISTRY_IMAGE`) and pulled
+using the public-facing Docker Hub proxy hostname:
 
 ```
 dockerhub.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/test-runner:8.2
@@ -49,7 +50,7 @@ dockerhub.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/test-runner:8.5
 ```
 
 The registry is the single source of truth. CI pulls from there; developers pull from there
-after a one-time `docker login`. This guarantees local/CI parity.
+after a one-time `docker login dockerhub.cloud.queo.org`. This guarantees local/CI parity.
 
 ### Rebuild policy
 
