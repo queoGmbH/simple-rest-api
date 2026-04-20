@@ -1,0 +1,12 @@
+ARG PHP_VERSION
+FROM php:${PHP_VERSION}-cli
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        unzip \
+    && rm -rf /var/lib/apt/lists/* \
+    && pecl install pcov \
+    && docker-php-ext-enable pcov \
+    && curl -sSL https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+WORKDIR /app
