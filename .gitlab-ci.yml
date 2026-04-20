@@ -160,6 +160,11 @@ build-test-runner-8.4:
   variables:
     PHP_VERSION: "8.4"
 
+build-test-runner-8.5:
+  extends: .build-test-runner-image
+  variables:
+    PHP_VERSION: "8.5"
+
 # --- Coverage ------------------------------------------------------------------
 
 coverage:
