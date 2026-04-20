@@ -42,10 +42,10 @@ per PHP version and tagged accordingly.
 Images are built and pushed to the project's GitLab Container Registry:
 
 ```
-registry.gitlab.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/test-runner:8.2
-registry.gitlab.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/test-runner:8.3
-registry.gitlab.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/test-runner:8.4
-registry.gitlab.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/test-runner:8.5
+dockerhub.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/test-runner:8.2
+dockerhub.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/test-runner:8.3
+dockerhub.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/test-runner:8.4
+dockerhub.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/test-runner:8.5
 ```
 
 The registry is the single source of truth. CI pulls from there; developers pull from there

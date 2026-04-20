@@ -10,6 +10,7 @@ variables:
   TYPO3_PATH_ROOT: "$CI_PROJECT_DIR/.Build/Web"
   GIT_STRATEGY: fetch   # Tags werden benötigt
   GIT_DEPTH: 0          # Voller Clone, um Tags zu bekommen
+  TEST_RUNNER_REGISTRY: "dockerhub.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api"
 
 .php-grumphp:
   stage: test
@@ -128,15 +129,15 @@ php-unit-test-8.5-14:
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
   before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" -u "$CI_REGISTRY_USER" --password-stdin
+    - echo "$CI_REGISTRY_PASSWORD" | docker login "dockerhub.cloud.queo.org" -u "$CI_REGISTRY_USER" --password-stdin
   script:
     - |
       docker build \
         --build-arg PHP_VERSION=${PHP_VERSION} \
-        -t "$CI_REGISTRY_IMAGE/test-runner:${PHP_VERSION}" \
+        -t "$TEST_RUNNER_REGISTRY/test-runner:${PHP_VERSION}" \
         -f Dev/Dockerfile.test-runner \
         .
-    - docker push "$CI_REGISTRY_IMAGE/test-runner:${PHP_VERSION}"
+    - docker push "$TEST_RUNNER_REGISTRY/test-runner:${PHP_VERSION}"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
     - if: '$CI_COMMIT_BRANCH == "main"'
@@ -168,7 +169,7 @@ build-test-runner-8.5:
 
 coverage:
   stage: test
-  image: $CI_REGISTRY_IMAGE/test-runner:8.4
+  image: $TEST_RUNNER_REGISTRY/test-runner:8.4
   cache:
     key: composer-cache-coverage
     paths:
