@@ -173,14 +173,16 @@ coverage:
     - composer req --dev typo3/cms-backend:^13.4 typo3/cms-fluid-styled-content:^13.4 typo3/cms-info:^13.4 typo3/cms-install:^13.4 typo3/cms-workspaces:^13.4
     - composer install --no-progress --no-interaction
   script:
-    - php .Build/bin/phpunit -c phpunit.xml --coverage-cobertura=coverage-unit.xml
+    # Integration first — Cobertura only (different bootstrap, no stdout needed for badge)
     - php .Build/bin/phpunit -c phpunit-integration.xml --coverage-cobertura=coverage-integration.xml
+    # Unit last — Cobertura + text so the badge regex captures unit coverage percentage
+    - php .Build/bin/phpunit -c phpunit.xml --coverage-cobertura=coverage-unit.xml --coverage-text
   coverage: '/Lines:\s+\d+\.\d+%/'
   artifacts:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: coverage-unit.xml
+        path: "coverage-*.xml"
 
 # -------------------------------------------------------------------------------
 

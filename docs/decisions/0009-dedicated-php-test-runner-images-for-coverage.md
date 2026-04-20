@@ -54,14 +54,15 @@ Note: a `test-runner:8.5` tag is not created until PHP 8.5 ships an official Doc
 
 ### Rebuild policy
 
-Images are **not** rebuilt on every push. The `build-test-images` CI job runs only when:
+Images are **not** rebuilt on every push. The `build-test-runner-*` CI jobs run only when:
 
 1. `Dev/Dockerfile.test-runner` changes on `main`
 2. A scheduled pipeline runs (weekly, for security patch rebuilds)
 
 Feature branch pipelines pull the last image published from `main`. If no image has been
 published yet (e.g. fresh project setup), the coverage job will fail with a pull error. In that
-case, the `build-test-images` job must be triggered manually from `main` first.
+case, one of the `build-test-runner-8.2/8.3/8.4` jobs must be triggered manually from
+`main` first.
 
 ### Coverage job scope
 
@@ -132,7 +133,7 @@ would increase pipeline duration significantly for no meaningful gain in coverag
 - PHP 8.5 coverage is not available until an official `php:8.5-cli` Docker Hub image ships.
 - The `Dev/Dockerfile.test-runner` is a new file that contributors must be aware of when
   diagnosing CI failures related to coverage.
-- Authentication in the `build-test-images` CI job relies on `CI_JOB_TOKEN` (the standard
+- Authentication in the `build-test-runner-*` CI jobs relies on `CI_JOB_TOKEN` (the standard
   GitLab ephemeral token for registry access). If the project's GitLab settings restrict
   job token scope, a project-level CI/CD variable may be required instead.
 

@@ -2,8 +2,7 @@
 # Run PHPUnit with pcov coverage using the project test runner image.
 # Requires: docker login registry.gitlab.cloud.queo.org (one-time setup)
 #
-# Usage: ./Dev/coverage.sh [phpunit-args]
-# Example: ./Dev/coverage.sh --filter MyTest
+# Usage: ./Dev/coverage.sh
 
 set -e
 
@@ -13,4 +12,7 @@ docker run --rm \
   -v "$(pwd):/app" \
   -w /app \
   "$IMAGE" \
-  php .Build/bin/phpunit -c phpunit.xml --coverage-text "$@"
+  sh -c "
+    php .Build/bin/phpunit -c phpunit-integration.xml --coverage-text && \
+    php .Build/bin/phpunit -c phpunit.xml --coverage-text
+  "
