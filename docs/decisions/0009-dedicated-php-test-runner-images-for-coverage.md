@@ -45,12 +45,11 @@ Images are built and pushed to the project's GitLab Container Registry:
 registry.gitlab.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/test-runner:8.2
 registry.gitlab.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/test-runner:8.3
 registry.gitlab.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/test-runner:8.4
+registry.gitlab.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/test-runner:8.5
 ```
 
 The registry is the single source of truth. CI pulls from there; developers pull from there
 after a one-time `docker login`. This guarantees local/CI parity.
-
-Note: a `test-runner:8.5` tag is not created until PHP 8.5 ships an official Docker Hub image.
 
 ### Rebuild policy
 
@@ -81,16 +80,14 @@ Existing `kanti/buildy`-based jobs (grumphp, unit tests) are not changed.
 # One-time registry login
 docker login registry.gitlab.cloud.queo.org
 
-# Run coverage locally
-docker run --rm -v $(pwd):/app -w /app \
-  registry.gitlab.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/test-runner:8.4 \
-  php .Build/bin/phpunit -c phpunit.xml --coverage-text
+# Run coverage locally (integration + unit, matches CI)
+bash Dev/coverage.sh
 ```
 
-An optional `ddev coverage` custom command wraps the above `docker run` call. It must NOT be
-implemented as `ddev exec phpunit --coverage-*` because ddev's PHP runtime lacks pcov; doing
-so would silently produce reports without actual coverage data. The custom command must invoke
-`docker run` as shown above to preserve local/CI parity.
+`Dev/coverage.sh` runs both integration and unit suites in the same order as the CI `coverage`
+job, using the PHP 8.4 test runner image. It must NOT be replaced with `ddev exec phpunit
+--coverage-*` because ddev's PHP runtime lacks pcov; doing so would silently produce reports
+without actual coverage data.
 
 ## Reasoning
 
