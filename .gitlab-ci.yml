@@ -142,6 +142,7 @@ php-unit-test-8.5-14:
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
         - Dev/Dockerfile.test-runner
+    - if: '$CI_COMMIT_BRANCH == "feature/24-install-pcov-ddev"' # temporary: bootstrap registry
     - when: never
 
 build-test-runner-8.2:
