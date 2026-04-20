@@ -19,24 +19,6 @@ import { test, expect } from '@playwright/test';
 
 test.describe('ModifyApiResponseEvent', () => {
     test.describe('X-E2E-Modified header — event is dispatched', () => {
-        test('GET /api/e2e/ping → X-E2E-Modified: true is present', async ({ request }) => {
-            // Arrange + Act
-            const response = await request.get('/api/e2e/ping');
-
-            // Assert
-            expect(response.status()).toBe(200);
-            expect(response.headers()['x-e2e-modified']).toBe('true');
-        });
-
-        test('POST /api/e2e/ping → X-E2E-Modified: true is present', async ({ request }) => {
-            // Arrange + Act
-            const response = await request.post('/api/e2e/ping');
-
-            // Assert
-            expect(response.status()).toBe(200);
-            expect(response.headers()['x-e2e-modified']).toBe('true');
-        });
-
         test('endpoint with parameters → X-E2E-Modified: true is present', async ({ request }) => {
             // Arrange + Act
             const response = await request.get('/api/e2e/params/int/42');

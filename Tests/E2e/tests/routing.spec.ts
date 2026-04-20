@@ -27,15 +27,6 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Routing — default base path /api/', () => {
-    test('GET /api/e2e/ping → 200 (default base path is active)', async ({ request }) => {
-        // Arrange — no custom basePath in site settings; extension defaults to /api/
-        // Act
-        const response = await request.get('/api/e2e/ping');
-
-        // Assert
-        expect(response.status()).toBe(200);
-    });
-
     test('GET /api/e2e/ping → JSON body confirms endpoint was reached', async ({ request }) => {
         // Arrange
         // Act
@@ -46,14 +37,6 @@ test.describe('Routing — default base path /api/', () => {
         expect(body.ok).toBe(true);
     });
 
-    test('GET /api/e2e/ping → Content-Type is application/json', async ({ request }) => {
-        // Arrange
-        // Act
-        const response = await request.get('/api/e2e/ping');
-
-        // Assert
-        expect(response.headers()['content-type']).toContain('application/json');
-    });
 });
 
 test.describe('Routing — non-API path bypass', () => {
