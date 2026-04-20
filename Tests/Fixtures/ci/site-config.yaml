@@ -1,0 +1,20 @@
+base: 'http://localhost:8080/'
+errorHandling: {  }
+languages:
+  -
+    title: English
+    enabled: true
+    languageId: 0
+    base: /
+    locale: en_US.UTF-8
+    navigationTitle: English
+    flag: us
+rootPageId: 1
+routes: {  }
+routeEnhancers:
+  SimpleRestApiEnhancer:
+    type: SimpleRestApiEnhancer
+settings:
+  simple_rest_api:
+    # Enables extra endpoints in the backend module list — no effect on routing or request handling.
+    debugMode: true

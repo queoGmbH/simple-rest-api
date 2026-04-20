@@ -145,9 +145,14 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
         $request = $request->withAttribute('site', $site);
 
         $handler = $this->createMock(RequestHandlerInterface::class);
-        $handler->expects($this->once())->method('handle')->willReturn(new JsonResponse([], 404));
+        $handler->expects($this->never())->method('handle');
 
-        $middleware->process($request, $handler);
+        // Act
+        $response = $middleware->process($request, $handler);
+
+        // Assert
+        self::assertSame(404, $response->getStatusCode());
+        self::assertSame(['error' => 'Not Found'], json_decode($response->getBody()->getContents(), true));
     }
 
     #[Test]

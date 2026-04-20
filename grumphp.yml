@@ -60,7 +60,9 @@ grumphp:
       tab_width: 4
     phplint: ~
     xmllint: ~
-    yamllint: ~
+    yamllint:
+      ignore_patterns:
+        - /\.gitlab-ci\.yml/
     securitychecker_enlightn:
       run_always: true
     phpstan:
@@ -70,6 +72,8 @@ grumphp:
         - /ext_localconf\.php/
         - /ext_emconf\.php/
         - /Configuration\//
+        - /Dev\//
+        - /Tests\/Fixtures\//
     rector:
       metadata:
         enabled: "%convention.rector_enabled%"

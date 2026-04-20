@@ -6,5 +6,6 @@ parameters:
     excludePaths:
       - ext_localconf.php
       - Dev/
+      - Tests/Fixtures/
 includes:
   - phpstan-baseline.neon

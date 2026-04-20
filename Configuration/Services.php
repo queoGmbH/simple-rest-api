@@ -7,8 +7,17 @@ use Queo\SimpleRestApi\DependencyInjection\ApiEndpointProviderPass;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use TYPO3\CMS\Core\Core\Environment;
 
 return static function (ContainerConfigurator $container, ContainerBuilder $containerBuilder): void {
+    if (Environment::getContext()->isDevelopment()) {
+        $container->services()
+            ->defaults()
+            ->autowire()
+            ->autoconfigure()
+            ->load('Queo\\SimpleRestApi\\Dev\\', '../Dev/');
+    }
+
     $containerBuilder->registerAttributeForAutoconfiguration(
         AsApiEndpoint::class,
         static function (ChildDefinition $definition, AsApiEndpoint $attribute, Reflector $reflector): void {
