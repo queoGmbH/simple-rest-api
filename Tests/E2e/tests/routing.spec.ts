@@ -1,0 +1,156 @@
+import { test, expect } from '@playwright/test';
+
+/**
+ * E2E tests: routing and base path configuration (#15)
+ *
+ * Verifies that the SimpleRestApiEnhancer and ApiResolverMiddleware correctly
+ * route requests based on the configured API base path, and that the
+ * CacheHashFixer middleware allows API requests to bypass cHash enforcement.
+ *
+ * All tests use the stable /e2e/ping endpoint from E2eTestController,
+ * which is registered only in Development context.
+ *
+ * Feasibility notes (assessed before writing):
+ *
+ * TESTABLE:
+ *   - Default base path /api/ — site has no basePath setting, falls back to /api/
+ *   - Non-API path bypass — requests without /api/ prefix pass through to TYPO3
+ *   - cHash bypass — CacheHashFixer disables cHash enforcement for API paths
+ *
+ * SKIPPED:
+ *   - Custom base path /rest/ — requires a second TYPO3 site with a different
+ *     site setting. Cannot be set up in CI without a dedicated page tree and
+ *     site fixture. Out of scope for this issue.
+ *   - Multi-language routing with path prefix — adding a second language (e.g.
+ *     base: /en/) to the site config risks breaking existing tests that depend
+ *     on the current single-language setup. Out of scope for this issue.
+ */
+
+test.describe('Routing — default base path /api/', () => {
+    test('GET /api/e2e/ping → 200 (default base path is active)', async ({ request }) => {
+        // Arrange — no custom basePath in site settings; extension defaults to /api/
+        // Act
+        const response = await request.get('/api/e2e/ping');
+
+        // Assert
+        expect(response.status()).toBe(200);
+    });
+
+    test('GET /api/e2e/ping → JSON body confirms endpoint was reached', async ({ request }) => {
+        // Arrange
+        // Act
+        const response = await request.get('/api/e2e/ping');
+
+        // Assert
+        const body = await response.json();
+        expect(body.ok).toBe(true);
+    });
+
+    test('GET /api/e2e/ping → Content-Type is application/json', async ({ request }) => {
+        // Arrange
+        // Act
+        const response = await request.get('/api/e2e/ping');
+
+        // Assert
+        expect(response.headers()['content-type']).toContain('application/json');
+    });
+});
+
+test.describe('Routing — non-API path bypass', () => {
+    test('GET /e2e/ping (no /api/ prefix) → does not reach API middleware (404)', async ({ request }) => {
+        // Arrange — path lacks the /api/ prefix; ApiResolverMiddleware.isApiRequest()
+        // returns false and delegates to the TYPO3 page handler, which returns 404.
+        // Act
+        const response = await request.get('/e2e/ping');
+
+        // Assert
+        expect(response.status()).toBe(404);
+    });
+
+    test('GET /e2e/ping (no /api/ prefix) → response is NOT the API JSON format', async ({ request }) => {
+        // Arrange — TYPO3's own error handler responds; the API { ok, method } shape
+        // must not appear, confirming the request never reached ApiResolverMiddleware.
+        // Act
+        const response = await request.get('/e2e/ping');
+        const body = await response.json();
+
+        // Assert
+        expect(body).not.toHaveProperty('ok');
+        expect(body).not.toHaveProperty('method');
+    });
+
+    test('GET /rest/e2e/ping (wrong prefix) → does not reach API middleware (404)', async ({ request }) => {
+        // Arrange — /rest/ is not the configured base path; request bypasses the API.
+        // Act
+        const response = await request.get('/rest/e2e/ping');
+
+        // Assert
+        expect(response.status()).toBe(404);
+    });
+});
+
+test.describe('Routing — cHash bypass via CacheHashFixer', () => {
+    // CacheHashFixer disables pageNotFoundOnCHashError and cacheHash.enforceValidation
+    // for any request whose path starts with the configured API base path.
+    // Without this middleware, TYPO3 would return 404 when query parameters are
+    // present but no valid cHash is supplied.
+
+    test('GET /api/e2e/ping?foo=bar (unknown query param, no cHash) → 200', async ({ request }) => {
+        // Arrange — arbitrary query parameters without a cHash would normally trigger
+        // TYPO3's cHash error handling; CacheHashFixer must suppress it for API paths.
+        // Act
+        const response = await request.get('/api/e2e/ping?foo=bar');
+
+        // Assert
+        expect(response.status()).toBe(200);
+    });
+
+    test('GET /api/e2e/ping?cHash=invalidhash → 200 (invalid cHash is tolerated)', async ({ request }) => {
+        // Arrange — an explicitly wrong cHash value must not cause a 404 for API paths.
+        // Act
+        const response = await request.get('/api/e2e/ping?cHash=invalidhash');
+
+        // Assert
+        expect(response.status()).toBe(200);
+    });
+
+    test('GET /api/e2e/ping?foo=bar (with unknown query params) → correct JSON body', async ({ request }) => {
+        // Arrange — query parameters must not corrupt the endpoint response body.
+        // Act
+        const response = await request.get('/api/e2e/ping?foo=bar');
+        const body = await response.json();
+
+        // Assert
+        expect(body.ok).toBe(true);
+        expect(body.method).toBe('GET');
+    });
+});
+
+test.describe('Routing — custom base path /rest/ (skipped: infrastructure out of scope)', () => {
+    // TODO: Replace with proper E2E test once a second CI site fixture with
+    // settings.simple_rest_api.basePath: '/rest/' is available.
+    // Requires: a separate TYPO3 page tree, site config, and CI fixture.
+    // Tracked under issue #15 / dedicated infrastructure issue.
+
+    test.skip('GET /rest/e2e/ping on a site with basePath=/rest/ → 200', async ({ request }) => {
+        const response = await request.get('/rest/e2e/ping');
+        expect(response.status()).toBe(200);
+    });
+
+    test.skip('GET /api/e2e/ping on a site with basePath=/rest/ → 404 (wrong prefix)', async ({ request }) => {
+        const response = await request.get('/api/e2e/ping');
+        expect(response.status()).toBe(404);
+    });
+});
+
+test.describe('Routing — multi-language path prefix (skipped: infrastructure out of scope)', () => {
+    // TODO: Replace with proper E2E test once the site config includes a second
+    // language with a path prefix (e.g. base: /en/). Adding that language now
+    // would change CacheHashFixer's basePath calculation and risk breaking all
+    // existing E2E tests. Tracked under issue #15.
+
+    test.skip('GET /en/api/e2e/ping on a site with language prefix /en/ → 200', async ({ request }) => {
+        const response = await request.get('/en/api/e2e/ping');
+        expect(response.status()).toBe(200);
+    });
+});
