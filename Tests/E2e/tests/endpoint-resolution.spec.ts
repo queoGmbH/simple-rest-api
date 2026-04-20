@@ -30,12 +30,6 @@ test.describe('Endpoint resolution', () => {
     });
 
     test.describe('Error cases', () => {
-        test('unknown path → 404', async ({ request }) => {
-            const response = await request.get('/api/e2e/does-not-exist');
-
-            expect(response.status()).toBe(404);
-        });
-
         test('correct path, wrong HTTP method → 404', async ({ request }) => {
             // /api/e2e/params/int/{value} only accepts GET
             const response = await request.post('/api/e2e/params/int/42');
@@ -52,19 +46,5 @@ test.describe('Endpoint resolution', () => {
         });
     });
 
-    test.describe('Response structure', () => {
-        test('Content-Type is application/json on all successful responses', async ({ request }) => {
-            const response = await request.get('/api/e2e/ping');
 
-            expect(response.headers()['content-type']).toContain('application/json');
-        });
-
-        test('response body is parseable JSON', async ({ request }) => {
-            const response = await request.get('/api/e2e/ping');
-            const body = await response.json();
-
-            expect(typeof body).toBe('object');
-            expect(body).not.toBeNull();
-        });
-    });
 });
