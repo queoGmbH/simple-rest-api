@@ -4,6 +4,7 @@
 [![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg?style=flat-square)](https://www.php.net/)
 [![License](https://img.shields.io/badge/license-GPL--2.0--or--later-green.svg?style=flat-square)](LICENSE)
 [![Latest Release](https://img.shields.io/badge/release-0.4.0-blue.svg?style=flat-square)](https://gitlab.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/-/tags)
+[![Coverage](https://gitlab.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/badges/main/coverage.svg?style=flat-square)](https://gitlab.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api/-/pipelines)
 
 A TYPO3 extension that provides a simple REST API framework to create endpoints via PHP attributes. It focuses on simplicity - handling routing and simple parameters from the URL, while leaving everything else to the developer.
 
