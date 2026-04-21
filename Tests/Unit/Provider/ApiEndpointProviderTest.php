@@ -88,4 +88,77 @@ final class ApiEndpointProviderTest extends UnitTestCase
         $this->assertSame('My API Summary', $actualEndpoint->summary);
         $this->assertSame('This is a detailed description of the API endpoint', $actualEndpoint->description);
     }
+
+    #[Test]
+    public function adds_endpoint_with_tags(): void // phpcs:ignore
+    {
+        // Arrange
+        $apiEndpointProvider = new ApiEndpointProvider();
+        $apiEndpointProvider->addEndpoint(
+            stdClass::class,
+            'myEndpoint',
+            'GET',
+            '/v1/tagged-endpoint',
+            '',
+            '',
+            ['public', 'cached']
+        );
+
+        $apiRequest = $this->createStub(ApiRequestInterface::class);
+        $apiRequest->method('getHttpMethod')->willReturn('GET');
+        $apiRequest->method('getEndpointPath')->willReturn('/v1/tagged-endpoint');
+
+        // Act
+        $actualEndpoint = $apiEndpointProvider->getEndpoint($apiRequest);
+
+        // Assert
+        $this->assertNotNull($actualEndpoint);
+        $this->assertSame(['public', 'cached'], $actualEndpoint->tags);
+    }
+
+    #[Test]
+    public function returns_null_when_no_endpoint_matches_request(): void // phpcs:ignore
+    {
+        // Arrange
+        $apiEndpointProvider = new ApiEndpointProvider();
+        $apiEndpointProvider->addEndpoint(stdClass::class, 'myEndpoint', 'GET', '/v1/known-endpoint');
+
+        $apiRequest = $this->createStub(ApiRequestInterface::class);
+        $apiRequest->method('getHttpMethod')->willReturn('GET');
+        $apiRequest->method('getEndpointPath')->willReturn('/v1/unknown-endpoint');
+
+        // Act
+        $actualEndpoint = $apiEndpointProvider->getEndpoint($apiRequest);
+
+        // Assert
+        $this->assertNull($actualEndpoint);
+    }
+
+    #[Test]
+    public function returns_all_registered_endpoints(): void // phpcs:ignore
+    {
+        // Arrange
+        $apiEndpointProvider = new ApiEndpointProvider();
+        $apiEndpointProvider->addEndpoint(stdClass::class, 'firstEndpoint', 'GET', '/v1/first');
+        $apiEndpointProvider->addEndpoint(stdClass::class, 'secondEndpoint', 'POST', '/v1/second');
+
+        // Act
+        $allEndpoints = $apiEndpointProvider->getAllEndpoints();
+
+        // Assert
+        $this->assertCount(2, $allEndpoints);
+    }
+
+    #[Test]
+    public function returns_empty_array_when_no_endpoints_are_registered(): void // phpcs:ignore
+    {
+        // Arrange
+        $apiEndpointProvider = new ApiEndpointProvider();
+
+        // Act
+        $allEndpoints = $apiEndpointProvider->getAllEndpoints();
+
+        // Assert
+        $this->assertSame([], $allEndpoints);
+    }
 }

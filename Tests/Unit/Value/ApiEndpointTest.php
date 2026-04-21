@@ -6,8 +6,10 @@ namespace Queo\SimpleRestApi\Tests\Unit\Value;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Http\Message\ServerRequestInterface;
 use Queo\SimpleRestApi\Collection\ApiEndpointParameterCollection;
 use Queo\SimpleRestApi\Value\ApiEndpoint;
+use Queo\SimpleRestApi\Value\ApiEndpointParameter;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 #[CoversClass(ApiEndpoint::class)]
@@ -355,5 +357,61 @@ final class ApiEndpointTest extends UnitTestCase
         );
 
         $this->assertSame($className, $apiEndpoint->getClass());
+    }
+
+    #[Test]
+    public function counts_total_parameters_including_request(): void // phpcs:ignore
+    {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
+        $apiEndpoint = new ApiEndpoint(
+            $className,
+            'myApiMethod',
+            '/v1/endpoint/{id}',
+            'GET',
+            new ApiEndpointParameterCollection(
+                new ApiEndpointParameter('id', 'int'),
+                new ApiEndpointParameter('request', ServerRequestInterface::class)
+            )
+        );
+
+        $this->assertSame(2, $apiEndpoint->parameterCount());
+    }
+
+    #[Test]
+    public function counts_path_parameters_excluding_server_request(): void // phpcs:ignore
+    {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
+        $apiEndpoint = new ApiEndpoint(
+            $className,
+            'myApiMethod',
+            '/v1/endpoint/{id}',
+            'GET',
+            new ApiEndpointParameterCollection(
+                new ApiEndpointParameter('id', 'int'),
+                new ApiEndpointParameter('request', ServerRequestInterface::class)
+            )
+        );
+
+        $this->assertSame(1, $apiEndpoint->pathParameterCount());
+    }
+
+    #[Test]
+    public function counts_path_parameters_as_zero_when_only_request_parameter_exists(): void // phpcs:ignore
+    {
+        /** @phpstan-var class-string $className */
+        $className = 'MyApiController';
+        $apiEndpoint = new ApiEndpoint(
+            $className,
+            'myApiMethod',
+            '/v1/endpoint',
+            'GET',
+            new ApiEndpointParameterCollection(
+                new ApiEndpointParameter('request', ServerRequestInterface::class)
+            )
+        );
+
+        $this->assertSame(0, $apiEndpoint->pathParameterCount());
     }
 }

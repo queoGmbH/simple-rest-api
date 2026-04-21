@@ -57,25 +57,25 @@ parameters:
 		-
 			message: '#^Cannot access offset ''FE'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 5
+			count: 7
 			path: Tests/Integration/Middleware/CacheHashFixerTest.php
 
 		-
 			message: '#^Cannot access offset ''cacheHash'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
+			count: 5
 			path: Tests/Integration/Middleware/CacheHashFixerTest.php
 
 		-
 			message: '#^Cannot access offset ''enforceValidation'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
+			count: 5
 			path: Tests/Integration/Middleware/CacheHashFixerTest.php
 
 		-
 			message: '#^Cannot access offset ''pageNotFoundOnCHashError'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 6
+			count: 8
 			path: Tests/Integration/Middleware/CacheHashFixerTest.php
 
 		-
@@ -201,7 +201,7 @@ parameters:
 		-
 			message: '#^PHPDoc tag @var with type class\-string is not subtype of native type ''MyApiController''\.$#'
 			identifier: varTag.nativeType
-			count: 14
+			count: 17
 			path: Tests/Unit/Value/ApiEndpointTest.php
 
 		-

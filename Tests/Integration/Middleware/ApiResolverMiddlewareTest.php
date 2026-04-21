@@ -12,10 +12,13 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Queo\SimpleRestApi\Configuration\ExtensionConfiguration;
+use Queo\SimpleRestApi\Event\AfterParameterMappingEvent;
+use Queo\SimpleRestApi\Event\BeforeParameterMappingEvent;
 use Queo\SimpleRestApi\Event\ModifyApiResponseEvent;
 use Queo\SimpleRestApi\Middleware\ApiResolverMiddleware;
 use Queo\SimpleRestApi\Provider\ApiEndpointProvider;
 use Queo\SimpleRestApi\Tests\Integration\Middleware\Fixture\DummyController;
+use RuntimeException;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\Uri;
@@ -171,5 +174,118 @@ final class ApiResolverMiddlewareTest extends AbstractMiddlewareTestCase
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertTrue($response->hasHeader('X-Test-Header'), 'Response should have the custom header added by event listener');
         $this->assertEquals(['test-value'], $response->getHeader('X-Test-Header'));
+    }
+
+    #[Test]
+    public function middleware_returns_400_when_parameter_cannot_be_coerced_to_declared_type(): void // phpcs:ignore
+    {
+        // Arrange
+        $apiEndpointProvider = GeneralUtility::makeInstance(ApiEndpointProvider::class);
+        // requiresIntParam expects an int but we pass 'not-an-int'
+        $apiEndpointProvider->addEndpoint(DummyController::class, 'requiresIntParam', 'GET', '/v1/typed/{id}');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning');
+
+        $middleware = $this->makeMiddleware($apiEndpointProvider, $this->makePassthroughDispatcher(), $logger);
+        $request = $this->makeRequest('http://example.com/lang/api/v1/typed/not-an-int');
+
+        // Act
+        $response = $middleware->process($request, $this->createStub(RequestHandlerInterface::class));
+
+        // Assert
+        self::assertSame(400, $response->getStatusCode());
+        $body = json_decode($response->getBody()->getContents(), true);
+        self::assertIsArray($body);
+        self::assertArrayHasKey('error', $body);
+    }
+
+    #[Test]
+    public function middleware_throws_runtime_exception_when_endpoint_returns_non_response(): void // phpcs:ignore
+    {
+        // Arrange
+        $apiEndpointProvider = GeneralUtility::makeInstance(ApiEndpointProvider::class);
+        $apiEndpointProvider->addEndpoint(DummyController::class, 'returnsNonResponse', 'GET', '/v1/bad-endpoint');
+
+        $middleware = $this->makeMiddleware($apiEndpointProvider, $this->makePassthroughDispatcher());
+        $request = $this->makeRequest('http://example.com/lang/api/v1/bad-endpoint');
+
+        // Act + Assert
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('has to return a ResponseInterface');
+
+        $middleware->process($request, $this->createStub(RequestHandlerInterface::class));
+    }
+
+    #[Test]
+    public function middleware_dispatches_before_parameter_mapping_event(): void // phpcs:ignore
+    {
+        // Arrange
+        $apiEndpointProvider = GeneralUtility::makeInstance(ApiEndpointProvider::class);
+        $apiEndpointProvider->addEndpoint(DummyController::class, 'dummyApiMethod', 'GET', '/v1/event-test');
+
+        $beforeEventDispatched = false;
+        $eventDispatcher = new class ($beforeEventDispatched) implements EventDispatcherInterface {
+            public bool $beforeDispatched = false;
+
+            public function __construct(bool &$flag)
+            {
+                $this->beforeDispatched = &$flag;
+            }
+
+            public function dispatch(object $event): object
+            {
+                if ($event instanceof BeforeParameterMappingEvent) {
+                    $this->beforeDispatched = true;
+                }
+
+                return $event;
+            }
+        };
+
+        $middleware = $this->makeMiddleware($apiEndpointProvider, $eventDispatcher);
+        $request = $this->makeRequest('http://example.com/lang/api/v1/event-test');
+
+        // Act
+        $middleware->process($request, $this->createStub(RequestHandlerInterface::class));
+
+        // Assert
+        self::assertTrue($eventDispatcher->beforeDispatched);
+    }
+
+    #[Test]
+    public function middleware_dispatches_after_parameter_mapping_event(): void // phpcs:ignore
+    {
+        // Arrange
+        $apiEndpointProvider = GeneralUtility::makeInstance(ApiEndpointProvider::class);
+        $apiEndpointProvider->addEndpoint(DummyController::class, 'dummyApiMethod', 'GET', '/v1/event-after-test');
+
+        $afterEventDispatched = false;
+        $eventDispatcher = new class ($afterEventDispatched) implements EventDispatcherInterface {
+            public bool $afterDispatched = false;
+
+            public function __construct(bool &$flag)
+            {
+                $this->afterDispatched = &$flag;
+            }
+
+            public function dispatch(object $event): object
+            {
+                if ($event instanceof AfterParameterMappingEvent) {
+                    $this->afterDispatched = true;
+                }
+
+                return $event;
+            }
+        };
+
+        $middleware = $this->makeMiddleware($apiEndpointProvider, $eventDispatcher);
+        $request = $this->makeRequest('http://example.com/lang/api/v1/event-after-test');
+
+        // Act
+        $middleware->process($request, $this->createStub(RequestHandlerInterface::class));
+
+        // Assert
+        self::assertTrue($eventDispatcher->afterDispatched);
     }
 }

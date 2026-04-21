@@ -15,6 +15,7 @@ use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Site\Entity\NullSite;
 use TYPO3\CMS\Core\Site\Entity\Site;
+use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 #[CoversClass(CacheHashFixer::class)]
@@ -159,5 +160,37 @@ final class CacheHashFixerTest extends AbstractMiddlewareTestCase
 
         // Act
         $middleware->process($request, $handler);
+    }
+
+    #[Test]
+    public function uses_language_base_path_when_site_language_is_present(): void // phpcs:ignore
+    {
+        // Arrange
+        $middleware = $this->makeMiddleware();
+
+        $GLOBALS['TYPO3_CONF_VARS']['FE']['pageNotFoundOnCHashError'] = true;
+        $GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash']['enforceValidation'] = true;
+
+        $site = new Site('test', 1, ['base' => 'https://example.com/', 'settings' => []]);
+        $uri = new Uri('https://example.com/de/api/v1/my-endpoint');
+        $request = new ServerRequest($uri, 'GET');
+        $request = $request->withAttribute('site', $site);
+
+        $siteLanguage = $this->createStub(SiteLanguage::class);
+        $siteLanguage->method('getBase')->willReturn(new Uri('https://example.com/de/'));
+        $request = $request->withAttribute('language', $siteLanguage);
+
+        $capturedPageNotFound = null;
+        $handler = $this->createMock(RequestHandlerInterface::class);
+        $handler->method('handle')->willReturnCallback(function () use (&$capturedPageNotFound): ResponseInterface {
+            $capturedPageNotFound = $GLOBALS['TYPO3_CONF_VARS']['FE']['pageNotFoundOnCHashError'];
+            return new JsonResponse([]);
+        });
+
+        // Act
+        $middleware->process($request, $handler);
+
+        // Assert — cache hash was disabled during handler execution (language-based path matched)
+        self::assertFalse($capturedPageNotFound);
     }
 }
