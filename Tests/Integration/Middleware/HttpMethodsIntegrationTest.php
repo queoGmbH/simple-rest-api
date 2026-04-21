@@ -69,6 +69,7 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         $_SERVER['SERVER_NAME'] = 'example.com';
         $_SERVER['HTTP_HOST'] = 'example.com';
         $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $_SERVER['SCRIPT_FILENAME'] = '/index.php';
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
 
         if ($queryParams !== []) {
