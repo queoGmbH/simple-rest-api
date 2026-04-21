@@ -55,6 +55,66 @@ parameters:
 			path: Classes/Routing/Enhancer/SimpleRestApiEnhancer.php
 
 		-
+			message: '#^Cannot access offset ''FE'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 5
+			path: Tests/Integration/Middleware/CacheHashFixerTest.php
+
+		-
+			message: '#^Cannot access offset ''cacheHash'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 4
+			path: Tests/Integration/Middleware/CacheHashFixerTest.php
+
+		-
+			message: '#^Cannot access offset ''enforceValidation'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 4
+			path: Tests/Integration/Middleware/CacheHashFixerTest.php
+
+		-
+			message: '#^Cannot access offset ''pageNotFoundOnCHashError'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 6
+			path: Tests/Integration/Middleware/CacheHashFixerTest.php
+
+		-
+			message: '#^Cannot access offset ''EXTENSIONS'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: Tests/Unit/Configuration/ExtensionConfigurationTest.php
+
+		-
+			message: '#^Cannot access offset ''debugMode'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/Unit/Configuration/ExtensionConfigurationTest.php
+
+		-
+			message: '#^Cannot access offset ''simple_rest_api'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: Tests/Unit/Configuration/ExtensionConfigurationTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type class\-string is not subtype of native type ''TestController''\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Event/AfterParameterMappingEventTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type class\-string is not subtype of native type ''TestController''\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/Event/BeforeParameterMappingEventTest.php
+
+		-
+			message: '#^PHPDoc tag @var with type class\-string is not subtype of native type ''TestController''\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: Tests/Unit/EventListener/ApiResponseModifierExampleTest.php
+
+		-
 			message: '#^PHPDoc tag @var with type array\<class\-string, array\<string\>\> is not subtype of native type array\{MyApiController\: array\{''firstMethod'', ''myApiMethod'', ''thirdMethod''\}\}\.$#'
 			identifier: varTag.nativeType
 			count: 1
