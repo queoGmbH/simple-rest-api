@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Tests\Unit\Http;
 
+use RuntimeException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -225,5 +226,78 @@ final class ApiRequestTest extends UnitTestCase
 
         $this->assertTrue($apiRequest->isApiRequest());
         $this->assertSame('/v1/my/example/endpoint', $apiRequest->getEndpointPath());
+    }
+
+    #[Test]
+    public function provides_underlying_server_request(): void // phpcs:ignore
+    {
+        // Arrange
+        $currentRequest = $this->createMock(ServerRequestInterface::class);
+        $site = $this->createMock(SiteInterface::class);
+        $extensionConfiguration = $this->createMock(ExtensionConfigurationInterface::class);
+
+        $currentRequest->expects(self::exactly(2))
+            ->method('getAttribute')
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
+                'site' => $site,
+                'language' => null,
+                default => null
+            });
+        $currentRequest->expects(self::once())->method('getUri')->willReturn(new Uri('https://example.com/api/v1/endpoint'));
+        $site->expects(self::once())->method('getBase')->willReturn(new Uri('https://example.com/'));
+        $extensionConfiguration->expects(self::once())->method('getApiBasePath')->willReturn('/api/');
+
+        $apiRequest = new ApiRequest($currentRequest, $extensionConfiguration);
+
+        // Act + Assert
+        $this->assertSame($currentRequest, $apiRequest->getRequest());
+    }
+
+    #[Test]
+    public function throws_runtime_exception_when_no_site_attribute_on_request(): void // phpcs:ignore
+    {
+        // Arrange
+        $currentRequest = $this->createMock(ServerRequestInterface::class);
+        $extensionConfiguration = $this->createMock(ExtensionConfigurationInterface::class);
+
+        $currentRequest->expects(self::once())
+            ->method('getAttribute')
+            ->with('site')
+            ->willReturn(null);
+
+        // Act + Assert
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('No site provided!');
+
+        new ApiRequest($currentRequest, $extensionConfiguration);
+    }
+
+    #[Test]
+    public function returns_empty_path_when_incoming_path_does_not_start_with_site_base_or_api_base(): void // phpcs:ignore
+    {
+        // Arrange — request URI does not start with the site base path
+        $currentRequest = $this->createMock(ServerRequestInterface::class);
+        $site = $this->createMock(SiteInterface::class);
+        $extensionConfiguration = $this->createMock(ExtensionConfigurationInterface::class);
+
+        $currentRequest->expects(self::exactly(2))
+            ->method('getAttribute')
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
+                'site' => $site,
+                'language' => null,
+                default => null
+            });
+        // URI path '/other/path' does not start with site base '/lang/'
+        $currentRequest->expects(self::once())->method('getUri')->willReturn(new Uri('https://example.com/other/path'));
+        $site->expects(self::once())->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
+        $extensionConfiguration->expects(self::once())->method('getApiBasePath')->willReturn('/api/');
+
+        $apiRequest = new ApiRequest($currentRequest, $extensionConfiguration);
+
+        // Act
+        $endpointPath = $apiRequest->getEndpointPath();
+
+        // Assert — returns empty string when path does not match any known base
+        $this->assertSame('', $endpointPath);
     }
 }
