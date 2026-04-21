@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Queo\SimpleRestApi\Tests\Integration\Middleware;
 
+use TYPO3\CMS\Core\Core\ApplicationContext;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
@@ -15,19 +16,21 @@ abstract class AbstractMiddlewareTestCase extends UnitTestCase
     {
         parent::setUp();
 
-        // TYPO3 14 tightened Environment::getCurrentScript() to a non-nullable
-        // return type. The testing bootstrap may leave $currentScript as null,
-        // causing a TypeError when ServerRequestFactory::fromGlobals() is called.
-        // Re-initialise with all existing values + a valid currentScript.
+        // TYPO3 14 tightened Environment static getters to non-nullable return
+        // types. The testing bootstrap may leave them as null, causing TypeErrors
+        // when ServerRequestFactory::fromGlobals() is called via NormalizedParams.
+        // Initialise with computed paths — do NOT read from Environment here
+        // since it may itself be uninitialised at this point.
+        $projectPath = (string)realpath(dirname(__DIR__, 3));
         Environment::initialize(
-            Environment::getContext(),
-            Environment::isCli(),
-            Environment::isComposerMode(),
-            Environment::getProjectPath(),
-            Environment::getPublicPath(),
-            Environment::getVarPath(),
-            Environment::getConfigPath(),
-            Environment::getPublicPath() . '/index.php',
+            new ApplicationContext('Testing'),
+            PHP_SAPI === 'cli',
+            true,
+            $projectPath,
+            $projectPath . '/.Build/Web',
+            $projectPath . '/.Build/var',
+            $projectPath . '/config',
+            $projectPath . '/.Build/Web/index.php',
             PHP_OS_FAMILY === 'Windows' ? 'WINDOWS' : 'UNIX'
         );
     }
