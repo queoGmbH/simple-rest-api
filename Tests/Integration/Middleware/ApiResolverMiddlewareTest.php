@@ -17,17 +17,14 @@ use Queo\SimpleRestApi\Middleware\ApiResolverMiddleware;
 use Queo\SimpleRestApi\Provider\ApiEndpointProvider;
 use Queo\SimpleRestApi\Tests\Integration\Middleware\Fixture\DummyController;
 use TYPO3\CMS\Core\Http\JsonResponse;
-use TYPO3\CMS\Core\Http\ServerRequestFactory;
+use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 #[CoversClass(ApiResolverMiddleware::class)]
-final class ApiResolverMiddlewareTest extends UnitTestCase
+final class ApiResolverMiddlewareTest extends AbstractMiddlewareTestCase
 {
-    protected bool $resetSingletonInstances = true;
-
     private function makeMiddleware(
         ApiEndpointProvider $provider,
         EventDispatcherInterface $eventDispatcher,
@@ -54,25 +51,23 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
         };
     }
 
+    private function makeRequest(string $uri, string $method = 'GET'): ServerRequest
+    {
+        $site = $this->createStub(SiteInterface::class);
+        $site->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
+
+        return (new ServerRequest(new Uri($uri), $method))
+            ->withAttribute('site', $site);
+    }
+
     #[Test]
-    public function middleware_routs_api_request_to_endpoint(): void //phpcs:ignore
+    public function middleware_routes_api_request_to_endpoint(): void //phpcs:ignore
     {
         $apiEndpointProvider = GeneralUtility::makeInstance(ApiEndpointProvider::class);
         $apiEndpointProvider->addEndpoint(DummyController::class, 'dummyApiMethod', 'GET', '/v1/my/api-endpoint');
 
         $middleware = $this->makeMiddleware($apiEndpointProvider, $this->makePassthroughDispatcher());
-
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        $_SERVER['REQUEST_URI'] = '/lang/api/v1/my/api-endpoint';
-        $_SERVER['SERVER_NAME'] = 'example.com';
-        $_SERVER['HTTP_HOST'] = 'example.com';
-        $_SERVER['SCRIPT_NAME'] = '/index.php';
-        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
-
-        $site = $this->createStub(SiteInterface::class);
-        $site->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
-        $request = ServerRequestFactory::fromGlobals();
-        $request = $request->withAttribute('site', $site);
+        $request = $this->makeRequest('http://example.com/lang/api/v1/my/api-endpoint');
 
         $response = $middleware->process($request, $this->createStub(RequestHandlerInterface::class));
 
@@ -87,18 +82,7 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
         $apiEndpointProvider->addEndpoint(DummyController::class, 'dummyApiMethodWithParams', 'GET', '/v1/my/api-endpoint/{param1}/{param2}');
 
         $middleware = $this->makeMiddleware($apiEndpointProvider, $this->makePassthroughDispatcher());
-
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        $_SERVER['REQUEST_URI'] = '/lang/api/v1/my/api-endpoint/123/parValue';
-        $_SERVER['SERVER_NAME'] = 'example.com';
-        $_SERVER['HTTP_HOST'] = 'example.com';
-        $_SERVER['SCRIPT_NAME'] = '/index.php';
-        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
-
-        $site = $this->createStub(SiteInterface::class);
-        $site->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
-        $request = ServerRequestFactory::fromGlobals();
-        $request = $request->withAttribute('site', $site);
+        $request = $this->makeRequest('http://example.com/lang/api/v1/my/api-endpoint/123/parValue');
 
         $response = $middleware->process($request, $this->createStub(RequestHandlerInterface::class));
 
@@ -131,19 +115,7 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
             );
 
         $middleware = $this->makeMiddleware($apiEndpointProvider, $this->makePassthroughDispatcher(), $logger);
-
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        $_SERVER['REQUEST_URI'] = '/lang/api/v1/unknown-endpoint';
-        $_SERVER['SERVER_NAME'] = 'example.com';
-        $_SERVER['HTTP_HOST'] = 'example.com';
-        $_SERVER['SCRIPT_NAME'] = '/index.php';
-        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
-
-        $site = $this->createStub(SiteInterface::class);
-        $site->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
-        $request = ServerRequestFactory::fromGlobals();
-        $request = $request->withAttribute('site', $site);
-
+        $request = $this->makeRequest('http://example.com/lang/api/v1/unknown-endpoint');
         $handler = $this->createMock(RequestHandlerInterface::class);
         $handler->expects($this->never())->method('handle');
 
@@ -164,18 +136,7 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
         $logger->expects($this->never())->method('warning');
 
         $middleware = $this->makeMiddleware($apiEndpointProvider, $this->makePassthroughDispatcher(), $logger);
-
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        $_SERVER['REQUEST_URI'] = '/lang/not-api/some-page';
-        $_SERVER['SERVER_NAME'] = 'example.com';
-        $_SERVER['HTTP_HOST'] = 'example.com';
-        $_SERVER['SCRIPT_NAME'] = '/index.php';
-        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
-
-        $site = $this->createStub(SiteInterface::class);
-        $site->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
-        $request = ServerRequestFactory::fromGlobals();
-        $request = $request->withAttribute('site', $site);
+        $request = $this->makeRequest('http://example.com/lang/not-api/some-page');
 
         $handler = $this->createMock(RequestHandlerInterface::class);
         $handler->expects($this->once())->method('handle')->willReturn(new JsonResponse([]));
@@ -203,18 +164,7 @@ final class ApiResolverMiddlewareTest extends UnitTestCase
         };
 
         $middleware = $this->makeMiddleware($apiEndpointProvider, $eventDispatcher);
-
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        $_SERVER['REQUEST_URI'] = '/lang/api/v1/my/api-endpoint';
-        $_SERVER['SERVER_NAME'] = 'example.com';
-        $_SERVER['HTTP_HOST'] = 'example.com';
-        $_SERVER['SCRIPT_NAME'] = '/index.php';
-        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
-
-        $site = $this->createStub(SiteInterface::class);
-        $site->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
-        $request = ServerRequestFactory::fromGlobals();
-        $request = $request->withAttribute('site', $site);
+        $request = $this->makeRequest('http://example.com/lang/api/v1/my/api-endpoint');
 
         $response = $middleware->process($request, $this->createStub(RequestHandlerInterface::class));
 

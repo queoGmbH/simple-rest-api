@@ -169,6 +169,135 @@ final class ExtensionConfigurationTest extends UnitTestCase
         }
     }
 
+    #[Test]
+    public function returnsDebugModeAsTrueWhenSiteSettingIsBoolTrue(): void
+    {
+        // Arrange
+        $site = $this->createSiteWithSettings([
+            'simple_rest_api' => [
+                'debugMode' => true,
+            ],
+        ]);
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request->expects(self::once())
+            ->method('getAttribute')
+            ->with('site')
+            ->willReturn($site);
+
+        $config = new ExtensionConfiguration($request);
+
+        // Act
+        $result = $config->isDebugMode();
+
+        // Assert
+        self::assertTrue($result);
+    }
+
+    #[Test]
+    public function returnsDebugModeAsFalseWhenSiteSettingIsBoolFalse(): void
+    {
+        // Arrange
+        $site = $this->createSiteWithSettings([
+            'simple_rest_api' => [
+                'debugMode' => false,
+            ],
+        ]);
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request->expects(self::once())
+            ->method('getAttribute')
+            ->with('site')
+            ->willReturn($site);
+
+        $config = new ExtensionConfiguration($request);
+
+        // Act
+        $result = $config->isDebugMode();
+
+        // Assert
+        self::assertFalse($result);
+    }
+
+    #[Test]
+    public function returnsDebugModeAsTrueWhenSiteSettingIsStringTrue(): void
+    {
+        // Arrange
+        $site = $this->createSiteWithSettings([
+            'simple_rest_api' => [
+                'debugMode' => 'true',
+            ],
+        ]);
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request->expects(self::once())
+            ->method('getAttribute')
+            ->with('site')
+            ->willReturn($site);
+
+        $config = new ExtensionConfiguration($request);
+
+        // Act
+        $result = $config->isDebugMode();
+
+        // Assert
+        self::assertTrue($result);
+    }
+
+    #[Test]
+    public function returnsDebugModeAsTrueWhenSiteSettingIsStringOne(): void
+    {
+        // Arrange
+        $site = $this->createSiteWithSettings([
+            'simple_rest_api' => [
+                'debugMode' => '1',
+            ],
+        ]);
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request->expects(self::once())
+            ->method('getAttribute')
+            ->with('site')
+            ->willReturn($site);
+
+        $config = new ExtensionConfiguration($request);
+
+        // Act
+        $result = $config->isDebugMode();
+
+        // Assert
+        self::assertTrue($result);
+    }
+
+    #[Test]
+    public function returnsDebugModeAsFalseWhenNoSiteAndNothingSet(): void
+    {
+        // Arrange
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api']);
+
+        $config = new ExtensionConfiguration();
+
+        // Act
+        $result = $config->isDebugMode();
+
+        // Assert
+        self::assertFalse($result);
+    }
+
+    #[Test]
+    public function returnsDebugModeAsTrueWhenSetViaTypo3ConfVars(): void
+    {
+        // Arrange
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api']['debugMode'] = true;
+
+        $config = new ExtensionConfiguration();
+
+        // Act
+        $result = $config->isDebugMode();
+
+        // Cleanup
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api']);
+
+        // Assert
+        self::assertTrue($result);
+    }
+
     /**
      * @param array<string, mixed> $settings
      */

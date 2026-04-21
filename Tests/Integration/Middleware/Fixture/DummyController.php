@@ -181,6 +181,18 @@ final class DummyController
         );
     }
 
+    // Method that returns a non-ResponseInterface value (invalid endpoint implementation)
+    public function returnsNonResponse(): string
+    {
+        return 'this is not a ResponseInterface';
+    }
+
+    // Method with an int parameter that fails coercion when given a non-integer URL segment
+    public function requiresIntParam(int $id): ResponseInterface
+    {
+        return new JsonResponse(['id' => $id]);
+    }
+
     // Method with validation that returns 400
     public function validateInput(ServerRequestInterface $request): ResponseInterface
     {

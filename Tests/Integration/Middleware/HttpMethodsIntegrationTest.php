@@ -8,30 +8,22 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\NullLogger;
 use Queo\SimpleRestApi\Configuration\ExtensionConfiguration;
 use Queo\SimpleRestApi\Middleware\ApiResolverMiddleware;
 use Queo\SimpleRestApi\Provider\ApiEndpointProvider;
 use Queo\SimpleRestApi\Tests\Integration\Middleware\Fixture\DummyController;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\ServerRequest;
-use TYPO3\CMS\Core\Http\ServerRequestFactory;
 use TYPO3\CMS\Core\Http\Stream;
 use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
-use Psr\Log\NullLogger;
 
-/**
- * Comprehensive integration tests for all HTTP methods
- *
- * @class-string
- */
+// Comprehensive integration tests for all HTTP methods
 #[CoversClass(ApiResolverMiddleware::class)]
-final class HttpMethodsIntegrationTest extends UnitTestCase
+final class HttpMethodsIntegrationTest extends AbstractMiddlewareTestCase
 {
-    protected bool $resetSingletonInstances = true;
-
     private function createMiddleware(ApiEndpointProvider $provider): ApiResolverMiddleware
     {
         $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
@@ -63,26 +55,12 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
         array $headers = [],
         array $queryParams = []
     ): ServerRequest {
-        // Set up $_SERVER globals like existing tests do
-        $_SERVER['REQUEST_METHOD'] = $method;
-        $_SERVER['REQUEST_URI'] = '/lang' . $path;
-        $_SERVER['SERVER_NAME'] = 'example.com';
-        $_SERVER['HTTP_HOST'] = 'example.com';
-        $_SERVER['SCRIPT_NAME'] = '/index.php';
-        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
-
+        $uri = 'http://example.com/lang' . $path;
         if ($queryParams !== []) {
-            $_SERVER['QUERY_STRING'] = http_build_query($queryParams);
-            $_SERVER['REQUEST_URI'] .= '?' . $_SERVER['QUERY_STRING'];
+            $uri .= '?' . http_build_query($queryParams);
         }
 
-        // Set headers in $_SERVER
-        foreach ($headers as $name => $value) {
-            $serverKey = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
-            $_SERVER[$serverKey] = $value;
-        }
-
-        $request = ServerRequestFactory::fromGlobals();
+        $request = new ServerRequest(new Uri($uri), $method, 'php://input', $headers);
 
         // Add body if provided
         if ($body !== []) {
@@ -102,7 +80,7 @@ final class HttpMethodsIntegrationTest extends UnitTestCase
             $request = $request->withQueryParams($queryParams);
         }
 
-        $site = $this->createMock(SiteInterface::class);
+        $site = $this->createStub(SiteInterface::class);
         $site->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
 
         return $request->withAttribute('site', $site);
