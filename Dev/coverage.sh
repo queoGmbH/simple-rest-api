@@ -16,3 +16,4 @@ docker run --rm \
     php .Build/bin/phpunit -c phpunit-integration.xml --coverage-text && \
     php .Build/bin/phpunit -c phpunit.xml --coverage-text
   "
+

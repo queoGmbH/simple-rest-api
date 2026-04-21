@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\NullLogger;
 use Queo\SimpleRestApi\Configuration\ExtensionConfiguration;
 use Queo\SimpleRestApi\Middleware\ApiResolverMiddleware;
 use Queo\SimpleRestApi\Provider\ApiEndpointProvider;
@@ -18,13 +19,8 @@ use TYPO3\CMS\Core\Http\Stream;
 use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use Psr\Log\NullLogger;
 
-/**
- * Comprehensive integration tests for all HTTP methods
- *
- * @class-string
- */
+// Comprehensive integration tests for all HTTP methods
 #[CoversClass(ApiResolverMiddleware::class)]
 final class HttpMethodsIntegrationTest extends AbstractMiddlewareTestCase
 {
@@ -84,7 +80,7 @@ final class HttpMethodsIntegrationTest extends AbstractMiddlewareTestCase
             $request = $request->withQueryParams($queryParams);
         }
 
-        $site = $this->createMock(SiteInterface::class);
+        $site = $this->createStub(SiteInterface::class);
         $site->method('getBase')->willReturn(new Uri('https://example.com/lang/'));
 
         return $request->withAttribute('site', $site);

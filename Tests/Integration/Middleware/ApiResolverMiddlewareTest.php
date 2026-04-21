@@ -61,7 +61,7 @@ final class ApiResolverMiddlewareTest extends AbstractMiddlewareTestCase
     }
 
     #[Test]
-    public function middleware_routs_api_request_to_endpoint(): void //phpcs:ignore
+    public function middleware_routes_api_request_to_endpoint(): void //phpcs:ignore
     {
         $apiEndpointProvider = GeneralUtility::makeInstance(ApiEndpointProvider::class);
         $apiEndpointProvider->addEndpoint(DummyController::class, 'dummyApiMethod', 'GET', '/v1/my/api-endpoint');
@@ -114,7 +114,6 @@ final class ApiResolverMiddlewareTest extends AbstractMiddlewareTestCase
                 $this->arrayHasKey('method')
             );
 
-        // Arrange
         $middleware = $this->makeMiddleware($apiEndpointProvider, $this->makePassthroughDispatcher(), $logger);
         $request = $this->makeRequest('http://example.com/lang/api/v1/unknown-endpoint');
         $handler = $this->createMock(RequestHandlerInterface::class);
