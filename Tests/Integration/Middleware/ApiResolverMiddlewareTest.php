@@ -21,13 +21,10 @@ use TYPO3\CMS\Core\Http\ServerRequestFactory;
 use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 #[CoversClass(ApiResolverMiddleware::class)]
-final class ApiResolverMiddlewareTest extends UnitTestCase
+final class ApiResolverMiddlewareTest extends AbstractMiddlewareTestCase
 {
-    protected bool $resetSingletonInstances = true;
-
     private function makeMiddleware(
         ApiEndpointProvider $provider,
         EventDispatcherInterface $eventDispatcher,

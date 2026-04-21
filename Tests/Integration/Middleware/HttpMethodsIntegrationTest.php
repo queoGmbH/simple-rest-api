@@ -19,7 +19,6 @@ use TYPO3\CMS\Core\Http\Stream;
 use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 use Psr\Log\NullLogger;
 
 /**
@@ -28,10 +27,8 @@ use Psr\Log\NullLogger;
  * @class-string
  */
 #[CoversClass(ApiResolverMiddleware::class)]
-final class HttpMethodsIntegrationTest extends UnitTestCase
+final class HttpMethodsIntegrationTest extends AbstractMiddlewareTestCase
 {
-    protected bool $resetSingletonInstances = true;
-
     private function createMiddleware(ApiEndpointProvider $provider): ApiResolverMiddleware
     {
         $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
