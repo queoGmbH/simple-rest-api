@@ -14,7 +14,7 @@ variables:
 
 .php-grumphp:
   stage: test
-  image: kanti/buildy:${PHP_VERSION}
+  image: $TEST_RUNNER_REGISTRY/test-runner:${PHP_VERSION}
   cache:
     key: composer-cache-${PHP_VERSION}
     paths:
@@ -28,7 +28,7 @@ variables:
 
 .php-unit-test:
   stage: test
-  image: kanti/buildy:${PHP_VERSION}
+  image: $TEST_RUNNER_REGISTRY/test-runner:${PHP_VERSION}
   cache:
     key: composer-cache-${PHP_VERSION}
     paths:
@@ -81,7 +81,7 @@ php-unit-test-8.5-13:
 # so we strip analysis-only dev packages that conflict before pinning TYPO3 14.
 .php-unit-test-typo3-14:
   stage: test
-  image: kanti/buildy:${PHP_VERSION}
+  image: $TEST_RUNNER_REGISTRY/test-runner:${PHP_VERSION}
   cache:
     key: composer-cache-${PHP_VERSION}
     paths:
