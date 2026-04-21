@@ -114,14 +114,16 @@ final class ApiResolverMiddlewareTest extends AbstractMiddlewareTestCase
                 $this->arrayHasKey('method')
             );
 
+        // Arrange
         $middleware = $this->makeMiddleware($apiEndpointProvider, $this->makePassthroughDispatcher(), $logger);
         $request = $this->makeRequest('http://example.com/lang/api/v1/unknown-endpoint');
-
         $handler = $this->createMock(RequestHandlerInterface::class);
         $handler->expects($this->never())->method('handle');
 
+        // Act
         $response = $middleware->process($request, $handler);
 
+        // Assert
         self::assertSame(404, $response->getStatusCode());
         self::assertSame(['error' => 'Not Found'], json_decode($response->getBody()->getContents(), true));
     }
