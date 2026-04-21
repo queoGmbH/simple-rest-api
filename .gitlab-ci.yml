@@ -1,4 +1,5 @@
 stages:
+  - build-images
   - test
   - release
   - mirror
@@ -9,6 +10,7 @@ variables:
   TYPO3_PATH_ROOT: "$CI_PROJECT_DIR/.Build/Web"
   GIT_STRATEGY: fetch   # Tags werden benötigt
   GIT_DEPTH: 0          # Voller Clone, um Tags zu bekommen
+  TEST_RUNNER_REGISTRY: "dockerhub.cloud.queo.org/pwmuc/packages/typo3/simple-rest-api"
 
 .php-grumphp:
   stage: test
@@ -116,6 +118,79 @@ php-unit-test-8.5-14:
   variables:
     PHP_VERSION: "8.5"
     TYPO3_VERSION: "^14"
+
+# --- Test runner image build ---------------------------------------------------
+
+.build-test-runner-image:
+  stage: build-images
+  image: docker:27
+  services:
+    - docker:27-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" -u "$CI_REGISTRY_USER" --password-stdin
+  script:
+    - |
+      docker build \
+        --build-arg PHP_VERSION=${PHP_VERSION} \
+        -t "$CI_REGISTRY_IMAGE/test-runner:${PHP_VERSION}" \
+        -f Dev/Dockerfile.test-runner \
+        .
+    - docker push "$CI_REGISTRY_IMAGE/test-runner:${PHP_VERSION}"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - Dev/Dockerfile.test-runner
+    - when: never
+
+build-test-runner-8.2:
+  extends: .build-test-runner-image
+  variables:
+    PHP_VERSION: "8.2"
+
+build-test-runner-8.3:
+  extends: .build-test-runner-image
+  variables:
+    PHP_VERSION: "8.3"
+
+build-test-runner-8.4:
+  extends: .build-test-runner-image
+  variables:
+    PHP_VERSION: "8.4"
+
+build-test-runner-8.5:
+  extends: .build-test-runner-image
+  variables:
+    PHP_VERSION: "8.5"
+
+# --- Coverage ------------------------------------------------------------------
+
+coverage:
+  stage: test
+  image: $TEST_RUNNER_REGISTRY/test-runner:8.4
+  cache:
+    key: composer-cache-coverage
+    paths:
+      - .composer-cache/
+  before_script:
+    - composer req typo3/cms-core:^13.4 typo3/cms-frontend:^13.4
+    - composer req --dev typo3/cms-backend:^13.4 typo3/cms-fluid-styled-content:^13.4 typo3/cms-info:^13.4 typo3/cms-install:^13.4 typo3/cms-workspaces:^13.4
+    - composer install --no-progress --no-interaction
+  script:
+    # Integration first — Cobertura only (different bootstrap, no stdout needed for badge)
+    - php .Build/bin/phpunit -c phpunit-integration.xml --coverage-cobertura=coverage-integration.xml
+    # Unit last — Cobertura + text so the badge regex captures unit coverage percentage
+    - php .Build/bin/phpunit -c phpunit.xml --coverage-cobertura=coverage-unit.xml --coverage-text
+  coverage: '/Lines:\s+\d+\.\d+%/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: "coverage-*.xml"
+
+# -------------------------------------------------------------------------------
 
 release_composer_package:
   stage: release
