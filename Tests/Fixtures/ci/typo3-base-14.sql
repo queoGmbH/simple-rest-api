@@ -1,4 +1,4 @@
--- TYPO3 13 minimal E2E fixture dump
+-- TYPO3 14 minimal E2E fixture dump
 -- Schema: all TYPO3 tables (from fresh typo3 setup)
 -- Data: pages (with language 1 overlay), sys_template, be_users, sys_registry
 -- Admin credentials: admin / Password1!
@@ -64,6 +64,7 @@ CREATE TABLE `be_groups` (
   `groupMods` longtext DEFAULT NULL,
   `mfa_providers` longtext DEFAULT NULL,
   `TSconfig` longtext DEFAULT NULL,
+  `tsconfig_includes` varchar(255) DEFAULT '',
   `subgroup` varchar(255) DEFAULT '',
   `category_perms` longtext DEFAULT NULL,
   PRIMARY KEY (`uid`),
@@ -100,11 +101,11 @@ CREATE TABLE `be_users` (
   `starttime` int(10) unsigned NOT NULL DEFAULT 0,
   `endtime` int(10) unsigned NOT NULL DEFAULT 0,
   `description` text DEFAULT NULL,
-  `lang` varchar(10) NOT NULL DEFAULT 'default',
   `uc` mediumblob DEFAULT NULL,
+  `user_settings` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`user_settings`)),
   `workspace_id` int(11) NOT NULL DEFAULT 0,
   `mfa` mediumblob DEFAULT NULL,
-  `password_reset_token` varchar(100) NOT NULL DEFAULT '',
+  `password_reset_token` varchar(128) NOT NULL DEFAULT '',
   `username` varchar(50) NOT NULL DEFAULT '',
   `password` varchar(255) NOT NULL DEFAULT '',
   `usergroup` varchar(512) DEFAULT '',
@@ -117,15 +118,17 @@ CREATE TABLE `be_users` (
   `options` smallint(5) unsigned NOT NULL DEFAULT 3,
   `file_permissions` longtext DEFAULT NULL,
   `workspace_perms` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `lang` varchar(10) NOT NULL DEFAULT 'en',
   `userMods` longtext DEFAULT NULL,
   `allowed_languages` varchar(255) NOT NULL DEFAULT '',
   `TSconfig` longtext DEFAULT NULL,
+  `tsconfig_includes` varchar(255) DEFAULT '',
   `lastlogin` bigint(20) NOT NULL DEFAULT 0,
   `category_perms` longtext DEFAULT NULL,
   PRIMARY KEY (`uid`),
   KEY `username` (`username`),
   KEY `parent` (`pid`,`deleted`,`disable`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Table structure for table `cache_hash`
@@ -195,7 +198,7 @@ CREATE TABLE `cache_rootline` (
   `content` longblob DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `cache_id` (`identifier`(180),`expires`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Table structure for table `cache_rootline_tags`
@@ -209,7 +212,7 @@ CREATE TABLE `cache_rootline_tags` (
   PRIMARY KEY (`id`),
   KEY `cache_id` (`identifier`(191)),
   KEY `cache_tag` (`tag`(191))
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Table structure for table `fe_groups`
@@ -326,7 +329,7 @@ CREATE TABLE `pages` (
   `shortcut` int(10) unsigned NOT NULL DEFAULT 0,
   `content_from_pid` int(10) unsigned NOT NULL DEFAULT 0,
   `mount_pid` int(10) unsigned NOT NULL DEFAULT 0,
-  `doktype` int(10) unsigned NOT NULL DEFAULT 0,
+  `doktype` int(10) unsigned NOT NULL DEFAULT 1,
   `title` varchar(255) NOT NULL DEFAULT '',
   `slug` text DEFAULT NULL,
   `TSconfig` longtext DEFAULT NULL,
@@ -338,7 +341,7 @@ CREATE TABLE `pages` (
   `nav_hide` smallint(5) unsigned NOT NULL DEFAULT 0,
   `subtitle` varchar(255) NOT NULL DEFAULT '',
   `target` varchar(80) NOT NULL DEFAULT '',
-  `url` varchar(255) NOT NULL DEFAULT '',
+  `link` text NOT NULL DEFAULT '',
   `lastUpdated` bigint(20) NOT NULL DEFAULT 0,
   `newUntil` bigint(20) NOT NULL DEFAULT 0,
   `cache_timeout` int(10) unsigned NOT NULL DEFAULT 0,
@@ -360,12 +363,13 @@ CREATE TABLE `pages` (
   `tsconfig_includes` varchar(255) DEFAULT '',
   PRIMARY KEY (`uid`),
   KEY `determineSiteRoot` (`is_siteroot`),
-  KEY `language_identifier` (`l10n_parent`,`sys_language_uid`),
+  KEY `contentFromPid` (`content_from_pid`),
   KEY `slug` (`slug`(127)),
   KEY `parent` (`pid`,`deleted`,`hidden`),
+  KEY `language_identifier` (`l10n_parent`,`sys_language_uid`),
   KEY `translation_source` (`l10n_source`),
   KEY `t3ver_oid` (`t3ver_oid`,`t3ver_wsid`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Table structure for table `sys_be_shortcuts`
@@ -380,8 +384,23 @@ CREATE TABLE `sys_be_shortcuts` (
   `description` varchar(255) NOT NULL DEFAULT '',
   `sorting` int(11) NOT NULL DEFAULT 0,
   `sc_group` smallint(6) NOT NULL DEFAULT 0,
+  `group_uuid` char(36) DEFAULT NULL COMMENT '(DC2Type:guid)',
   PRIMARY KEY (`uid`),
   KEY `event` (`userid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+
+--
+-- Table structure for table `sys_be_shortcuts_group`
+--
+
+DROP TABLE IF EXISTS `sys_be_shortcuts_group`;
+CREATE TABLE `sys_be_shortcuts_group` (
+  `uuid` char(36) NOT NULL COMMENT '(DC2Type:guid)',
+  `userid` int(10) unsigned NOT NULL DEFAULT 0,
+  `label` varchar(255) NOT NULL DEFAULT '',
+  `sorting` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`uuid`),
+  KEY `user_groups` (`userid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
@@ -415,6 +434,7 @@ CREATE TABLE `sys_category` (
   KEY `category_parent` (`parent`),
   KEY `category_list` (`pid`,`deleted`,`sys_language_uid`),
   KEY `parent` (`pid`,`deleted`,`hidden`),
+  KEY `language_identifier` (`l10n_parent`,`sys_language_uid`),
   KEY `t3ver_oid` (`t3ver_oid`,`t3ver_wsid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
@@ -469,10 +489,10 @@ CREATE TABLE `sys_file` (
   `sha1` varchar(40) NOT NULL DEFAULT '',
   `creation_date` int(11) NOT NULL DEFAULT 0,
   `modification_date` int(11) NOT NULL DEFAULT 0,
+  `size` bigint(20) NOT NULL DEFAULT 0,
   `storage` int(10) unsigned NOT NULL DEFAULT 0,
   `type` int(10) unsigned NOT NULL DEFAULT 0,
   `mime_type` varchar(255) NOT NULL DEFAULT '',
-  `size` int(11) NOT NULL DEFAULT 0,
   `missing` smallint(5) unsigned NOT NULL DEFAULT 0,
   `metadata` int(10) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`uid`),
@@ -515,6 +535,7 @@ CREATE TABLE `sys_file_collection` (
   `category` int(10) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`uid`),
   KEY `parent` (`pid`,`deleted`,`hidden`),
+  KEY `language_identifier` (`l10n_parent`,`sys_language_uid`),
   KEY `t3ver_oid` (`t3ver_oid`,`t3ver_wsid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
@@ -545,8 +566,8 @@ CREATE TABLE `sys_file_metadata` (
   `height` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`uid`),
   KEY `file` (`file`),
-  KEY `fal_filelist` (`l10n_parent`,`sys_language_uid`),
   KEY `parent` (`pid`),
+  KEY `language_identifier` (`l10n_parent`,`sys_language_uid`),
   KEY `t3ver_oid` (`t3ver_oid`,`t3ver_wsid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
@@ -614,6 +635,7 @@ CREATE TABLE `sys_file_reference` (
   KEY `uid_foreign` (`uid_foreign`),
   KEY `combined_1` (`l10n_parent`,`t3ver_oid`,`t3ver_wsid`,`t3ver_state`,`deleted`),
   KEY `parent` (`pid`,`deleted`,`hidden`),
+  KEY `language_identifier` (`l10n_parent`,`sys_language_uid`),
   KEY `t3ver_oid` (`t3ver_oid`,`t3ver_wsid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
@@ -637,11 +659,11 @@ CREATE TABLE `sys_file_storage` (
   `is_writable` smallint(5) unsigned NOT NULL DEFAULT 1,
   `is_online` smallint(5) unsigned NOT NULL DEFAULT 1,
   `auto_extract_metadata` smallint(5) unsigned NOT NULL DEFAULT 1,
-  `driver` varchar(255) NOT NULL DEFAULT '',
+  `driver` varchar(255) NOT NULL DEFAULT 'Local',
   `configuration` longtext DEFAULT NULL,
   PRIMARY KEY (`uid`),
   KEY `parent` (`pid`,`deleted`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Table structure for table `sys_filemounts`
@@ -683,7 +705,7 @@ CREATE TABLE `sys_history` (
   PRIMARY KEY (`uid`),
   KEY `recordident_1` (`tablename`(100),`recuid`),
   KEY `recordident_2` (`tablename`(100),`tstamp`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Table structure for table `sys_http_report`
@@ -726,7 +748,7 @@ CREATE TABLE `sys_lockedrecords` (
   `feuserid` int(10) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`uid`),
   KEY `event` (`userid`,`tstamp`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Table structure for table `sys_log`
@@ -745,7 +767,6 @@ CREATE TABLE `sys_log` (
   `details` text DEFAULT NULL,
   `type` smallint(5) unsigned NOT NULL DEFAULT 0,
   `channel` varchar(20) NOT NULL DEFAULT 'default',
-  `details_nr` smallint(6) NOT NULL DEFAULT 0,
   `IP` varchar(39) NOT NULL DEFAULT '',
   `log_data` text DEFAULT NULL,
   `event_pid` int(11) NOT NULL DEFAULT -1,
@@ -765,7 +786,7 @@ CREATE TABLE `sys_log` (
   KEY `errorcount` (`tstamp`,`error`),
   KEY `index_channel` (`channel`),
   KEY `index_level` (`level`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Table structure for table `sys_messenger_messages`
@@ -864,7 +885,7 @@ CREATE TABLE `sys_registry` (
   `entry_value` mediumblob DEFAULT NULL,
   PRIMARY KEY (`uid`),
   UNIQUE KEY `entry_identifier` (`entry_namespace`,`entry_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Table structure for table `sys_template`
@@ -894,7 +915,7 @@ CREATE TABLE `sys_template` (
   PRIMARY KEY (`uid`),
   KEY `roottemplate` (`deleted`,`hidden`,`root`),
   KEY `parent` (`pid`,`deleted`,`hidden`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Table structure for table `sys_workspace`
@@ -908,16 +929,16 @@ CREATE TABLE `sys_workspace` (
   `deleted` smallint(5) unsigned NOT NULL DEFAULT 0,
   `description` text DEFAULT NULL,
   `title` varchar(30) NOT NULL DEFAULT '',
+  `color` varchar(255) NOT NULL DEFAULT 'orange',
   `adminusers` longtext DEFAULT NULL,
   `members` longtext DEFAULT NULL,
   `db_mountpoints` longtext DEFAULT NULL,
   `file_mountpoints` varchar(255) DEFAULT '',
   `publish_time` bigint(20) NOT NULL DEFAULT 0,
-  `freeze` smallint(5) unsigned NOT NULL DEFAULT 0,
   `live_edit` smallint(5) unsigned NOT NULL DEFAULT 0,
   `publish_access` smallint(5) unsigned NOT NULL DEFAULT 0,
   `previewlink_lifetime` int(11) NOT NULL DEFAULT 0,
-  `stagechg_notification` int(10) unsigned NOT NULL DEFAULT 0,
+  `stagechg_notification` smallint(5) unsigned NOT NULL DEFAULT 1,
   `custom_stages` int(10) unsigned NOT NULL DEFAULT 0,
   `edit_notification_defaults` longtext DEFAULT NULL,
   `edit_allow_notificaton_settings` smallint(5) unsigned NOT NULL DEFAULT 3,
@@ -984,7 +1005,7 @@ CREATE TABLE `tt_content` (
   `frame_class` varchar(60) NOT NULL DEFAULT 'default',
   `colPos` int(10) unsigned NOT NULL DEFAULT 0,
   `table_caption` varchar(255) DEFAULT NULL,
-  `CType` varchar(255) NOT NULL DEFAULT '',
+  `CType` varchar(255) NOT NULL DEFAULT 'text',
   `categories` int(10) unsigned NOT NULL DEFAULT 0,
   `layout` int(10) unsigned NOT NULL DEFAULT 0,
   `space_before_class` varchar(60) NOT NULL DEFAULT '',
@@ -998,15 +1019,14 @@ CREATE TABLE `tt_content` (
   `bodytext` longtext DEFAULT NULL,
   `image` int(10) unsigned NOT NULL DEFAULT 0,
   `assets` int(10) unsigned NOT NULL DEFAULT 0,
-  `imagewidth` int(10) unsigned NOT NULL DEFAULT 0,
-  `imageheight` int(10) unsigned NOT NULL DEFAULT 0,
+  `imagewidth` int(10) unsigned DEFAULT NULL,
+  `imageheight` int(10) unsigned DEFAULT NULL,
   `imageorient` int(10) unsigned NOT NULL DEFAULT 0,
   `imageborder` smallint(5) unsigned NOT NULL DEFAULT 0,
   `image_zoom` smallint(5) unsigned NOT NULL DEFAULT 0,
-  `imagecols` int(10) unsigned NOT NULL DEFAULT 0,
+  `imagecols` int(10) unsigned NOT NULL DEFAULT 2,
   `pages` longtext DEFAULT NULL,
   `recursive` int(10) unsigned NOT NULL DEFAULT 0,
-  `list_type` varchar(255) NOT NULL DEFAULT '',
   `media` int(10) unsigned NOT NULL DEFAULT 0,
   `records` longtext DEFAULT NULL,
   `sectionIndex` smallint(5) unsigned NOT NULL DEFAULT 1,
@@ -1017,7 +1037,7 @@ CREATE TABLE `tt_content` (
   `bullets_type` int(10) unsigned NOT NULL DEFAULT 0,
   `cols` int(10) unsigned NOT NULL DEFAULT 0,
   `table_class` varchar(60) NOT NULL DEFAULT '',
-  `table_delimiter` int(10) unsigned NOT NULL DEFAULT 0,
+  `table_delimiter` int(10) unsigned NOT NULL DEFAULT 124,
   `table_enclosure` int(10) unsigned NOT NULL DEFAULT 0,
   `table_header_position` int(10) unsigned NOT NULL DEFAULT 0,
   `table_tfoot` smallint(5) unsigned NOT NULL DEFAULT 0,
@@ -1030,10 +1050,10 @@ CREATE TABLE `tt_content` (
   `uploads_type` int(10) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`uid`),
   KEY `parent` (`pid`,`sorting`),
-  KEY `t3ver_oid` (`t3ver_oid`,`t3ver_wsid`),
-  KEY `language` (`l18n_parent`,`sys_language_uid`),
-  KEY `translation_source` (`l10n_source`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+  KEY `language_identifier` (`l18n_parent`,`sys_language_uid`),
+  KEY `translation_source` (`l10n_source`),
+  KEY `t3ver_oid` (`t3ver_oid`,`t3ver_wsid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -1044,7 +1064,7 @@ CREATE TABLE `tt_content` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-04-22 10:48:18
+-- Dump completed on 2026-04-22 11:11:43
 
 --
 -- Dumping data for table `pages`
@@ -1053,8 +1073,8 @@ CREATE TABLE `tt_content` (
 LOCK TABLES `pages` WRITE;
 /*!40000 ALTER TABLE `pages` DISABLE KEYS */;
 INSERT INTO `pages` VALUES
-(1,0,1761904597,1761904597,0,0,0,0,'0',0,NULL,0,0,0,0,NULL,NULL,0,0,0,0,1,1,31,31,1,1761904597,0,0,0,1,'Home','/',NULL,0,0,0,0,'',0,'','','',0,0,0,'',0,0,NULL,NULL,NULL,'','',0,1,0,'',0,'','',''),
-(3,0,1761904597,1761904597,0,0,0,0,'0',0,NULL,0,1,1,1,NULL,NULL,0,0,0,0,1,1,31,31,1,0,0,0,0,1,'Home','/',NULL,0,0,0,0,'',0,'','','',0,0,0,'',0,0,NULL,NULL,NULL,'','',0,1,0,'',0,'','','');
+(1,0,1776849070,1776849070,0,0,0,0,'0',0,NULL,0,0,0,0,NULL,NULL,0,0,0,0,1,1,31,31,1,0,0,0,0,1,'Home','/',NULL,0,0,0,0,'',0,'','','',0,0,0,'',0,0,NULL,NULL,NULL,'','',0,1,0,'',0,'','',''),
+(2,0,1776849070,1776849070,0,0,0,0,'0',0,NULL,0,1,1,1,NULL,NULL,0,0,0,0,1,1,31,31,1,0,0,0,0,1,'Home','/',NULL,0,0,0,0,'',0,'','','',0,0,0,'',0,0,NULL,NULL,NULL,'','',0,1,0,'',0,'','','');
 /*!40000 ALTER TABLE `pages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1064,8 +1084,6 @@ UNLOCK TABLES;
 
 LOCK TABLES `sys_template` WRITE;
 /*!40000 ALTER TABLE `sys_template` DISABLE KEYS */;
-INSERT INTO `sys_template` VALUES
-(1,1,1761904597,1761904597,0,0,0,0,0,'This is an Empty Site Package TypoScript record.\n\nFor each website you need a TypoScript record on the main page of your website (on the top level). For better maintenance all TypoScript should be extracted into external files via @import \'EXT:site_myproject/Configuration/TypoScript/setup.typoscript\'','Main TypoScript Rendering',1,3,'','EXT:fluid_styled_content/Configuration/TypoScript/,EXT:fluid_styled_content/Configuration/TypoScript/Styling/',NULL,0,'page = PAGE\npage.10 = TEXT\npage.10.value (\n   <div style=\"width: 800px; margin: 15% auto;\">\n      <div style=\"width: 300px;\">\n        <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 150 42\"><path d=\"M60.2 14.4v27h-3.8v-27h-6.7v-3.3h17.1v3.3h-6.6zm20.2 12.9v14h-3.9v-14l-7.7-16.2h4.1l5.7 12.2 5.7-12.2h3.9l-7.8 16.2zm19.5 2.6h-3.6v11.4h-3.8V11.1s3.7-.3 7.3-.3c6.6 0 8.5 4.1 8.5 9.4 0 6.5-2.3 9.7-8.4 9.7m.4-16c-2.4 0-4.1.3-4.1.3v12.6h4.1c2.4 0 4.1-1.6 4.1-6.3 0-4.4-1-6.6-4.1-6.6m21.5 27.7c-7.1 0-9-5.2-9-15.8 0-10.2 1.9-15.1 9-15.1s9 4.9 9 15.1c.1 10.6-1.8 15.8-9 15.8m0-27.7c-3.9 0-5.2 2.6-5.2 12.1 0 9.3 1.3 12.4 5.2 12.4 3.9 0 5.2-3.1 5.2-12.4 0-9.4-1.3-12.1-5.2-12.1m19.9 27.7c-2.1 0-5.3-.6-5.7-.7v-3.1c1 .2 3.7.7 5.6.7 2.2 0 3.6-1.9 3.6-5.2 0-3.9-.6-6-3.7-6H138V24h3.1c3.5 0 3.7-3.6 3.7-5.3 0-3.4-1.1-4.8-3.2-4.8-1.9 0-4.1.5-5.3.7v-3.2c.5-.1 3-.7 5.2-.7 4.4 0 7 1.9 7 8.3 0 2.9-1 5.5-3.3 6.3 2.6.2 3.8 3.1 3.8 7.3 0 6.6-2.5 9-7.3 9\"/><path fill=\"#FF8700\" d=\"M31.7 28.8c-.6.2-1.1.2-1.7.2-5.2 0-12.9-18.2-12.9-24.3 0-2.2.5-3 1.3-3.6C12 1.9 4.3 4.2 1.9 7.2 1.3 8 1 9.1 1 10.6c0 9.5 10.1 31 17.3 31 3.3 0 8.8-5.4 13.4-12.8M28.4.5c6.6 0 13.2 1.1 13.2 4.8 0 7.6-4.8 16.7-7.2 16.7-4.4 0-9.9-12.1-9.9-18.2C24.5 1 25.6.5 28.4.5\"/></svg>\n      </div>\n      <h4 style=\"font-family: sans-serif;\">Welcome to a default website made with <a href=\"https://typo3.org\">TYPO3</a></h4>\n   </div>\n)\npage.100 = CONTENT\npage.100 {\n    table = tt_content\n    select {\n        orderBy = sorting\n        where = {#colPos}=0\n    }\n}\n',0);
 /*!40000 ALTER TABLE `sys_template` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1076,8 +1094,7 @@ UNLOCK TABLES;
 LOCK TABLES `be_users` WRITE;
 /*!40000 ALTER TABLE `be_users` DISABLE KEYS */;
 INSERT INTO `be_users` VALUES
-(1,0,1765292977,1761904587,0,0,0,0,NULL,'default','a:5:{s:10:\"moduleData\";a:3:{s:8:\"web_info\";a:1:{s:6:\"action\";s:17:\"web_info_overview\";}s:12:\"pagetsconfig\";a:1:{s:6:\"action\";s:18:\"pagetsconfig_pages\";}s:12:\"system_dbint\";a:5:{s:8:\"function\";s:6:\"search\";s:8:\"language\";N;s:19:\"constant_editor_cat\";N;s:6:\"search\";s:3:\"raw\";s:22:\"search_query_makeQuery\";s:3:\"all\";}}s:14:\"emailMeAtLogin\";i:0;s:8:\"titleLen\";i:50;s:20:\"edit_docModuleUpload\";s:1:\"1\";s:15:\"moduleSessionID\";a:3:{s:8:\"web_info\";s:40:\"0d79c7a712833161f8b0317ebcc1e297dd6c1fc5\";s:12:\"pagetsconfig\";s:40:\"cf613be6b9579312da9ebed25104a1f903cd2317\";s:12:\"system_dbint\";s:40:\"93b95afd4d9492f280e7fd163848293c0b71f414\";}}',0,NULL,'','admin','$argon2i$v=19$m=65536,t=16,p=1$S1AuYWdBc1IzQXdYM0JHdQ$+42qBFxALU8xa+nz54K+j97noaNTsZO+amXJzE8dq5A','',0,NULL,'','s.hofer@queo-group.com','',1,3,NULL,0,NULL,'',NULL,1765463033,NULL),
-(2,0,1765292898,1765292898,0,0,0,0,NULL,'default','a:4:{s:10:\"moduleData\";a:0:{}s:14:\"emailMeAtLogin\";i:0;s:8:\"titleLen\";i:50;s:20:\"edit_docModuleUpload\";s:1:\"1\";}',0,NULL,'','_cli_','$argon2i$v=19$m=65536,t=16,p=1$dTFxL254bGRtY3ViNDVTUQ$yM3UP53mstEHA6uhmQ62oGY/oFv2RxIDcaobjVYdTh8','',0,NULL,'','','',1,3,NULL,0,NULL,'',NULL,0,NULL);
+(1,0,1776849066,1776849066,0,0,0,0,NULL,NULL,NULL,0,NULL,'','admin','$argon2i$v=19$m=65536,t=16,p=1$QVpFcS9kOTN3SWsvUkVuWA$aWIk46ds7Q4zeKkXQoW3bhpn+0NX+yiBZDXg8DudnS4','',0,NULL,'','admin@example.com','',1,3,NULL,0,'en',NULL,'',NULL,'',0,NULL);
 /*!40000 ALTER TABLE `be_users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1088,19 +1105,16 @@ UNLOCK TABLES;
 LOCK TABLES `sys_registry` WRITE;
 /*!40000 ALTER TABLE `sys_registry` DISABLE KEYS */;
 INSERT INTO `sys_registry` VALUES
-(1,'installUpdate','TYPO3\\CMS\\Install\\Updates\\BackendGroupsExplicitAllowDenyMigration','i:1;'),
-(2,'installUpdate','TYPO3\\CMS\\Install\\Updates\\BackendModulePermissionMigration','i:1;'),
-(3,'installUpdate','TYPO3\\CMS\\Install\\Updates\\IndexedSearchCTypeMigration','i:1;'),
-(4,'installUpdate','TYPO3\\CMS\\Install\\Updates\\MigrateSiteSettingsConfigUpdate','i:1;'),
-(5,'installUpdate','TYPO3\\CMS\\Install\\Updates\\PagesRecyclerDoktypeMigration','i:1;'),
-(6,'installUpdate','TYPO3\\CMS\\Install\\Updates\\SynchronizeColPosAndCTypeWithDefaultLanguage','i:1;'),
-(7,'installUpdate','TYPO3\\CMS\\Install\\Updates\\SysFileCollectionIdentifierMigration','i:1;'),
-(8,'installUpdate','TYPO3\\CMS\\Install\\Updates\\SysFileMountIdentifierMigration','i:1;'),
-(9,'installUpdate','TYPO3\\CMS\\Install\\Updates\\SysLogSerializationUpdate','i:1;'),
-(10,'installUpdate','TYPO3\\CMS\\Install\\Updates\\SysTemplateNoWorkspaceMigration','i:1;'),
-(11,'installUpdateRows','rowUpdatersDone','a:1:{i:0;s:69:\"TYPO3\\CMS\\Install\\Updates\\RowUpdater\\SysRedirectRootPageMoveMigration\";}'),
-(12,'core','formProtectionSessionToken:1','s:64:\"8152d8d19f6ed02616f5974d789a4b5f05a658e85d00975dbaa2cdfbdb0fd064\";'),
-(14,'core','sys_refindex_lastUpdate','i:1765464636;');
+(1,'installUpdate','TYPO3\\CMS\\Core\\Upgrades\\BackendUserLanguageMigration','i:1;'),
+(2,'installUpdate','TYPO3\\CMS\\Core\\Upgrades\\MigrateExtensionDataImportRegistryKeysUpdate','i:1;'),
+(3,'installUpdate','TYPO3\\CMS\\Core\\Upgrades\\PageDoktypeLinkMigration','i:1;'),
+(4,'installUpdate','TYPO3\\CMS\\Core\\Upgrades\\PagesRecyclerDoktypeMigration','i:1;'),
+(5,'installUpdate','TYPO3\\CMS\\Core\\Upgrades\\UserPermissionsForRenamedModulesMigration','i:1;'),
+(6,'installUpdate','TYPO3\\CMS\\Frontend\\Upgrades\\SynchronizeColPosAndCTypeWithDefaultLanguage','i:1;'),
+(7,'installUpdate','TYPO3\\CMS\\Backend\\Upgrades\\UserSettingsMigration','i:1;'),
+(8,'installUpdate','TYPO3\\CMS\\Backend\\Upgrades\\UserSettingsNormalizationMigration','i:1;'),
+(9,'installUpdate','TYPO3\\CMS\\Backend\\Upgrades\\UserSettingsScrubbingMigration','i:1;'),
+(10,'installUpdateRows','rowUpdatersDone','a:0:{}');
 /*!40000 ALTER TABLE `sys_registry` ENABLE KEYS */;
 UNLOCK TABLES;
 
