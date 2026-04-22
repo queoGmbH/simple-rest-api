@@ -5,7 +5,7 @@ languages:
     title: English
     enabled: true
     languageId: 0
-    base: /
+    base: /site-b/
     locale: en_US.UTF-8
     navigationTitle: English
     flag: us
@@ -13,7 +13,7 @@ languages:
     title: English (EN)
     enabled: true
     languageId: 1
-    base: /en/
+    base: /site-b/en/
     locale: en_US.UTF-8
     navigationTitle: English (EN)
     flag: gb
