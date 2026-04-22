@@ -9,6 +9,17 @@ languages:
     locale: en_US.UTF-8
     navigationTitle: English
     flag: us
+  -
+    title: English (EN)
+    enabled: true
+    languageId: 1
+    base: /en/
+    locale: en_US.UTF-8
+    navigationTitle: English (EN)
+    flag: gb
+    fallbackType: fallback
+    fallbacks:
+      - 0
 rootPageId: 1
 routes: {  }
 routeEnhancers:
