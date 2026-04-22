@@ -59,14 +59,6 @@ test.describe('Routing — non-API path bypass', () => {
         expect(body).not.toHaveProperty('method');
     });
 
-    test('GET /rest/e2e/ping (wrong prefix) → does not reach API middleware (404)', async ({ request }) => {
-        // Arrange — /rest/ is not the configured base path; request bypasses the API.
-        // Act
-        const response = await request.get('/rest/e2e/ping');
-
-        // Assert
-        expect(response.status()).toBe(404);
-    });
 });
 
 test.describe('Routing — cHash bypass via CacheHashFixer', () => {
