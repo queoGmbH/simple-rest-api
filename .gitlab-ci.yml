@@ -251,6 +251,7 @@ release_composer_package:
     TYPO3_DB_USERNAME: root
     TYPO3_DB_PASSWORD: root
     E2E_DB_FIXTURE: "Tests/Fixtures/ci/typo3-base-13.sql"
+    E2E_SITE_CONFIG: "Tests/Fixtures/ci/site-config.yaml"
   script:
     - cd Tests/E2e
     - npm ci
@@ -274,7 +275,7 @@ release_composer_package:
     - cp Tests/Fixtures/ci/settings.php config/system/settings.php
     - printf '<?php\n$GLOBALS["TYPO3_CONF_VARS"]["SYS"]["trustedHostsPattern"] = ".*";\n' > config/system/additional.php
     - mkdir -p config/sites/main
-    - cp Tests/Fixtures/ci/site-config.yaml config/sites/main/config.yaml
+    - cp "${E2E_SITE_CONFIG}" config/sites/main/config.yaml
     - php .Build/bin/typo3 cache:flush
     - php -S 0.0.0.0:8080 -t .Build/Web/ Tests/Fixtures/ci/router.php &
     - until curl -s -o /dev/null http://localhost:8080/ 2>/dev/null; do sleep 1; done
@@ -297,6 +298,21 @@ e2e_tests_typo3_14:
     - composer req --dev typo3/cms-backend:^14 typo3/cms-fluid-styled-content:^14 typo3/cms-info:^14 typo3/cms-install:^14 typo3/cms-workspaces:^14
     - composer install --no-progress --no-interaction
     - !reference [.e2e-typo3-setup, before_script]
+
+e2e_tests_custom_base_path:
+  extends: .e2e-base
+  variables:
+    E2E_SITE_CONFIG: "Tests/Fixtures/ci/site-config-rest-base.yaml"
+    E2E_CUSTOM_BASE_PATH: "1"
+  before_script:
+    - apk add --no-cache nodejs npm mariadb-client netcat-openbsd
+    - composer install --no-progress --no-interaction
+    - !reference [.e2e-typo3-setup, before_script]
+  script:
+    - cd Tests/E2e
+    - npm ci
+    - npm audit --audit-level=high
+    - npx playwright test --grep "custom base path"
 
 mirror_to_github:
   stage: mirror

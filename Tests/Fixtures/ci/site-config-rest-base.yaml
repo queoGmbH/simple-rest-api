@@ -1,0 +1,28 @@
+base: 'http://localhost:8080/'
+errorHandling: {  }
+languages:
+  -
+    title: English
+    enabled: true
+    languageId: 0
+    base: /
+    locale: en_US.UTF-8
+    navigationTitle: English
+    flag: us
+  -
+    title: English (EN)
+    enabled: true
+    languageId: 1
+    base: /en/
+    locale: en_US.UTF-8
+    navigationTitle: English (EN)
+    flag: gb
+rootPageId: 1
+routes: {  }
+routeEnhancers:
+  SimpleRestApiEnhancer:
+    type: SimpleRestApiEnhancer
+settings:
+  simple_rest_api:
+    debugMode: true
+    basePath: '/rest/'

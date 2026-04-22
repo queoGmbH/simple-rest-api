@@ -17,13 +17,10 @@ import { test, expect } from '@playwright/test';
  *   - Non-API path bypass — requests without /api/ prefix pass through to TYPO3
  *   - cHash bypass — CacheHashFixer disables cHash enforcement for API paths
  *
- * SKIPPED:
- *   - Custom base path /rest/ — requires a second TYPO3 site with a different
- *     site setting. Cannot be set up in CI without a dedicated page tree and
- *     site fixture. Out of scope for this issue.
- *   - Multi-language routing with path prefix — adding a second language (e.g.
- *     base: /en/) to the site config risks breaking existing tests that depend
- *     on the current single-language setup. Out of scope for this issue.
+ * SKIPPED unless E2E_CUSTOM_BASE_PATH=1:
+ *   - Custom base path /rest/ — requires a site fixture with basePath=/rest/.
+ *     Run via the e2e_tests_custom_base_path CI job which sets E2E_CUSTOM_BASE_PATH=1
+ *     and swaps the site config to site-config-rest-base.yaml.
  */
 
 test.describe('Routing — default base path /api/', () => {
@@ -109,18 +106,18 @@ test.describe('Routing — cHash bypass via CacheHashFixer', () => {
     });
 });
 
-test.describe('Routing — custom base path /rest/ (skipped: infrastructure out of scope)', () => {
-    // TODO: Replace with proper E2E test once a second CI site fixture with
-    // settings.simple_rest_api.basePath: '/rest/' is available.
-    // Requires: a separate TYPO3 page tree, site config, and CI fixture.
-    // Tracked under issue #15 / dedicated infrastructure issue.
+test.describe('Routing — custom base path /rest/', () => {
+    // These tests require a TYPO3 site configured with basePath=/rest/.
+    // In CI they run in the e2e_tests_custom_base_path job, which uses
+    // site-config-rest-base.yaml and sets E2E_CUSTOM_BASE_PATH=1.
+    test.skip(!process.env.E2E_CUSTOM_BASE_PATH, 'Requires site with basePath=/rest/. Set E2E_CUSTOM_BASE_PATH=1 to enable.');
 
-    test.skip('GET /rest/e2e/ping on a site with basePath=/rest/ → 200', async ({ request }) => {
+    test('GET /rest/e2e/ping on a site with basePath=/rest/ → 200', async ({ request }) => {
         const response = await request.get('/rest/e2e/ping');
         expect(response.status()).toBe(200);
     });
 
-    test.skip('GET /api/e2e/ping on a site with basePath=/rest/ → 404 (wrong prefix)', async ({ request }) => {
+    test('GET /api/e2e/ping on a site with basePath=/rest/ → 404 (wrong prefix)', async ({ request }) => {
         const response = await request.get('/api/e2e/ping');
         expect(response.status()).toBe(404);
     });
