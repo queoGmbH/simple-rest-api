@@ -19,8 +19,10 @@ import { test, expect } from '@playwright/test';
  *
  * TESTABLE (requires two-site CI fixture):
  *   - Custom base path /rest/ — a second TYPO3 site (rootPageId=10) with
- *     basePath='/rest/' coexists in the same instance; TYPO3's router selects
- *     the correct site via the SimpleRestApiEnhancer route patterns.
+ *     basePath='/rest/' is hosted under /site-b/ so TYPO3's BestUrlMatcher
+ *     can distinguish it from the main site by path score. Requests to
+ *     /site-b/rest/e2e/ping reach the "rest" site; /rest/e2e/ping (no /site-b/
+ *     prefix) falls through to the main site and returns 404.
  */
 
 test.describe('Routing — default base path /api/', () => {
@@ -59,6 +61,15 @@ test.describe('Routing — non-API path bypass', () => {
         expect(body).not.toHaveProperty('method');
     });
 
+    test('GET /rest/e2e/ping (wrong prefix) → does not reach API middleware (404)', async ({ request }) => {
+        // Arrange — /rest/ is not the configured base path of the main site (/api/);
+        // the request is handled by TYPO3's page resolver, which returns 404.
+        // Act
+        const response = await request.get('/rest/e2e/ping');
+
+        // Assert
+        expect(response.status()).toBe(404);
+    });
 });
 
 test.describe('Routing — cHash bypass via CacheHashFixer', () => {
@@ -99,18 +110,22 @@ test.describe('Routing — cHash bypass via CacheHashFixer', () => {
 });
 
 test.describe('Routing — custom base path /rest/', () => {
-    // The CI fixture includes a second TYPO3 site (rootPageId=10) configured
-    // with basePath='/rest/'. TYPO3's router selects this site for /rest/* paths
-    // via the SimpleRestApiEnhancer, so both sites coexist on the same server.
+    // The CI fixture includes a second TYPO3 site (rootPageId=10) with
+    // basePath='/rest/', hosted under the /site-b/ path prefix so TYPO3's
+    // BestUrlMatcher selects it by path score over the main site.
+    // After site selection, TYPO3 strips the /site-b/ prefix, leaving
+    // /rest/e2e/ping as the site-relative path for the SimpleRestApiEnhancer.
 
-    test('GET /rest/e2e/ping on a site with basePath=/rest/ → 200', async ({ request }) => {
-        const response = await request.get('/rest/e2e/ping');
+    test('GET /site-b/rest/e2e/ping on a site with basePath=/rest/ → 200', async ({ request }) => {
+        const response = await request.get('/site-b/rest/e2e/ping');
         expect(response.status()).toBe(200);
     });
 
-    test('GET /api/e2e/ping on a site with basePath=/rest/ → 404 (wrong prefix)', async ({ request }) => {
-        const response = await request.get('/api/e2e/ping');
-        expect(response.status()).toBe(404);
+    test('GET /site-b/rest/e2e/ping → correct JSON body', async ({ request }) => {
+        const response = await request.get('/site-b/rest/e2e/ping');
+        const body = await response.json();
+        expect(body.ok).toBe(true);
+        expect(body.method).toBe('GET');
     });
 });
 
