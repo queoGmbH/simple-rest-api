@@ -17,12 +17,11 @@ import { test, expect } from '@playwright/test';
  *   - Non-API path bypass — requests without /api/ prefix pass through to TYPO3
  *   - cHash bypass — CacheHashFixer disables cHash enforcement for API paths
  *
- * TESTABLE (requires two-site CI fixture):
+ * TESTABLE (requires two-site CI fixture, REST_BASE_URL set):
  *   - Custom base path /rest/ — a second TYPO3 site (rootPageId=10) with
- *     basePath='/rest/' is hosted under /site-b/ so TYPO3's BestUrlMatcher
- *     can distinguish it from the main site by path score. Requests to
- *     /site-b/rest/e2e/ping reach the "rest" site; /rest/e2e/ping (no /site-b/
- *     prefix) falls through to the main site and returns 404.
+ *     basePath='/rest/' is served under http://rest.test:8080/. A distinct
+ *     hostname is used so TYPO3's site resolver can distinguish it from the
+ *     main site (http://main.test:8080/) unambiguously.
  */
 
 test.describe('Routing — default base path /api/', () => {
@@ -110,19 +109,22 @@ test.describe('Routing — cHash bypass via CacheHashFixer', () => {
 });
 
 test.describe('Routing — custom base path /rest/', () => {
-    // The CI fixture includes a second TYPO3 site (rootPageId=10) with
-    // basePath='/rest/', hosted under the /site-b/ path prefix so TYPO3's
-    // BestUrlMatcher selects it by path score over the main site.
-    // After site selection, TYPO3 strips the /site-b/ prefix, leaving
-    // /rest/e2e/ping as the site-relative path for the SimpleRestApiEnhancer.
+    // The CI fixture includes a second TYPO3 site (rootPageId=10) served under
+    // http://rest.test:8080/ with basePath='/rest/'. A separate hostname is used
+    // so TYPO3's site resolver can distinguish the two sites unambiguously.
+    // REST_BASE_URL must be set for these tests to run (CI-only).
 
-    test('GET /site-b/rest/e2e/ping on a site with basePath=/rest/ → 200', async ({ request }) => {
-        const response = await request.get('/site-b/rest/e2e/ping');
+    const restBaseUrl = process.env.REST_BASE_URL;
+
+    test.skip(!restBaseUrl, 'REST_BASE_URL not set — skipping custom base path tests');
+
+    test('GET /rest/e2e/ping on a site with basePath=/rest/ → 200', async ({ request }) => {
+        const response = await request.get(`${restBaseUrl}/rest/e2e/ping`);
         expect(response.status()).toBe(200);
     });
 
-    test('GET /site-b/rest/e2e/ping → correct JSON body', async ({ request }) => {
-        const response = await request.get('/site-b/rest/e2e/ping');
+    test('GET /rest/e2e/ping → correct JSON body', async ({ request }) => {
+        const response = await request.get(`${restBaseUrl}/rest/e2e/ping`);
         const body = await response.json();
         expect(body.ok).toBe(true);
         expect(body.method).toBe('GET');

@@ -1,11 +1,11 @@
-base: 'http://localhost:8080/site-b/'
+base: 'http://rest.test:8080/'
 errorHandling: {  }
 languages:
   -
     title: English
     enabled: true
     languageId: 0
-    base: /site-b/
+    base: /
     locale: en_US.UTF-8
     navigationTitle: English
     flag: us
@@ -13,7 +13,7 @@ languages:
     title: English (EN)
     enabled: true
     languageId: 1
-    base: /site-b/en/
+    base: /en/
     locale: en_US.UTF-8
     navigationTitle: English (EN)
     flag: gb

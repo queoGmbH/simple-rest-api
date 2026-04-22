@@ -243,7 +243,8 @@ release_composer_package:
     MYSQL_ROOT_PASSWORD: root
     MYSQL_DATABASE: typo3_test
     TYPO3_CONTEXT: Development
-    BASE_URL: "http://localhost:8080"
+    BASE_URL: "http://main.test:8080"
+    REST_BASE_URL: "http://rest.test:8080"
     TYPO3_DB_DRIVER: mysqli
     TYPO3_DB_HOST: mariadb
     TYPO3_DB_PORT: "3306"
@@ -270,6 +271,7 @@ release_composer_package:
     - for i in $(seq 1 60); do mariadb-admin ping -h mariadb -u root -proot --skip-ssl 2>/dev/null && break; sleep 2; done
     - mariadb-admin ping -h mariadb -u root -proot --skip-ssl
     - mariadb -h mariadb -u root -proot --skip-ssl typo3_test < "${E2E_DB_FIXTURE}"
+    - echo "127.0.0.1 main.test rest.test" >> /etc/hosts
     - mkdir -p config/system
     - cp Tests/Fixtures/ci/settings.php config/system/settings.php
     - printf '<?php\n$GLOBALS["TYPO3_CONF_VARS"]["SYS"]["trustedHostsPattern"] = ".*";\n' > config/system/additional.php
@@ -278,7 +280,7 @@ release_composer_package:
     - cp Tests/Fixtures/ci/site-config-rest-base.yaml config/sites/rest/config.yaml
     - php .Build/bin/typo3 cache:flush
     - php -S 0.0.0.0:8080 -t .Build/Web/ Tests/Fixtures/ci/router.php &
-    - until curl -s -o /dev/null http://localhost:8080/ 2>/dev/null; do sleep 1; done
+    - until curl -s -o /dev/null http://main.test:8080/ 2>/dev/null; do sleep 1; done
 
 e2e_tests_typo3_13:
   extends: .e2e-base
