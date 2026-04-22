@@ -1076,7 +1076,7 @@ UNLOCK TABLES;
 LOCK TABLES `be_users` WRITE;
 /*!40000 ALTER TABLE `be_users` DISABLE KEYS */;
 INSERT INTO `be_users` VALUES
-(1,0,1765292977,1761904587,0,0,0,0,NULL,'default','a:5:{s:10:\"moduleData\";a:3:{s:8:\"web_info\";a:1:{s:6:\"action\";s:17:\"web_info_overview\";}s:12:\"pagetsconfig\";a:1:{s:6:\"action\";s:18:\"pagetsconfig_pages\";}s:12:\"system_dbint\";a:5:{s:8:\"function\";s:6:\"search\";s:8:\"language\";N;s:19:\"constant_editor_cat\";N;s:6:\"search\";s:3:\"raw\";s:22:\"search_query_makeQuery\";s:3:\"all\";}}s:14:\"emailMeAtLogin\";i:0;s:8:\"titleLen\";i:50;s:20:\"edit_docModuleUpload\";s:1:\"1\";s:15:\"moduleSessionID\";a:3:{s:8:\"web_info\";s:40:\"0d79c7a712833161f8b0317ebcc1e297dd6c1fc5\";s:12:\"pagetsconfig\";s:40:\"cf613be6b9579312da9ebed25104a1f903cd2317\";s:12:\"system_dbint\";s:40:\"93b95afd4d9492f280e7fd163848293c0b71f414\";}}',0,NULL,'','admin','$argon2i$v=19$m=65536,t=16,p=1$S1AuYWdBc1IzQXdYM0JHdQ$+42qBFxALU8xa+nz54K+j97noaNTsZO+amXJzE8dq5A','',0,NULL,'','s.hofer@queo-group.com','',1,3,NULL,0,NULL,'',NULL,1765463033,NULL),
+(1,0,1765292977,1761904587,0,0,0,0,NULL,'default','a:5:{s:10:\"moduleData\";a:3:{s:8:\"web_info\";a:1:{s:6:\"action\";s:17:\"web_info_overview\";}s:12:\"pagetsconfig\";a:1:{s:6:\"action\";s:18:\"pagetsconfig_pages\";}s:12:\"system_dbint\";a:5:{s:8:\"function\";s:6:\"search\";s:8:\"language\";N;s:19:\"constant_editor_cat\";N;s:6:\"search\";s:3:\"raw\";s:22:\"search_query_makeQuery\";s:3:\"all\";}}s:14:\"emailMeAtLogin\";i:0;s:8:\"titleLen\";i:50;s:20:\"edit_docModuleUpload\";s:1:\"1\";s:15:\"moduleSessionID\";a:3:{s:8:\"web_info\";s:40:\"0d79c7a712833161f8b0317ebcc1e297dd6c1fc5\";s:12:\"pagetsconfig\";s:40:\"cf613be6b9579312da9ebed25104a1f903cd2317\";s:12:\"system_dbint\";s:40:\"93b95afd4d9492f280e7fd163848293c0b71f414\";}}',0,NULL,'','admin','$argon2i$v=19$m=65536,t=16,p=1$S1AuYWdBc1IzQXdYM0JHdQ$+42qBFxALU8xa+nz54K+j97noaNTsZO+amXJzE8dq5A','',0,NULL,'','admin@example.com','',1,3,NULL,0,NULL,'',NULL,1765463033,NULL),
 (2,0,1765292898,1765292898,0,0,0,0,NULL,'default','a:4:{s:10:\"moduleData\";a:0:{}s:14:\"emailMeAtLogin\";i:0;s:8:\"titleLen\";i:50;s:20:\"edit_docModuleUpload\";s:1:\"1\";}',0,NULL,'','_cli_','$argon2i$v=19$m=65536,t=16,p=1$dTFxL254bGRtY3ViNDVTUQ$yM3UP53mstEHA6uhmQ62oGY/oFv2RxIDcaobjVYdTh8','',0,NULL,'','','',1,3,NULL,0,NULL,'',NULL,0,NULL);
 /*!40000 ALTER TABLE `be_users` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -1098,9 +1098,7 @@ INSERT INTO `sys_registry` VALUES
 (8,'installUpdate','TYPO3\\CMS\\Install\\Updates\\SysFileMountIdentifierMigration','i:1;'),
 (9,'installUpdate','TYPO3\\CMS\\Install\\Updates\\SysLogSerializationUpdate','i:1;'),
 (10,'installUpdate','TYPO3\\CMS\\Install\\Updates\\SysTemplateNoWorkspaceMigration','i:1;'),
-(11,'installUpdateRows','rowUpdatersDone','a:1:{i:0;s:69:\"TYPO3\\CMS\\Install\\Updates\\RowUpdater\\SysRedirectRootPageMoveMigration\";}'),
-(12,'core','formProtectionSessionToken:1','s:64:\"8152d8d19f6ed02616f5974d789a4b5f05a658e85d00975dbaa2cdfbdb0fd064\";'),
-(14,'core','sys_refindex_lastUpdate','i:1765464636;');
+(11,'installUpdateRows','rowUpdatersDone','a:1:{i:0;s:69:\"TYPO3\\CMS\\Install\\Updates\\RowUpdater\\SysRedirectRootPageMoveMigration\";}');
 /*!40000 ALTER TABLE `sys_registry` ENABLE KEYS */;
 UNLOCK TABLES;
 

@@ -1,6 +1,6 @@
 -- TYPO3 14 minimal E2E fixture dump
 -- Schema: all TYPO3 tables (from fresh typo3 setup)
--- Data: pages (with language 1 overlay), sys_template, be_users, sys_registry
+-- Data: pages (with language 1 overlay), be_users, sys_registry
 -- Admin credentials: admin / Password1!
 
 SET NAMES utf8mb4;
