@@ -250,6 +250,7 @@ release_composer_package:
     TYPO3_DB_DBNAME: typo3_test
     TYPO3_DB_USERNAME: root
     TYPO3_DB_PASSWORD: root
+    E2E_DB_FIXTURE: "Tests/Fixtures/ci/typo3-base-13.sql"
   script:
     - cd Tests/E2e
     - npm ci
@@ -268,16 +269,12 @@ release_composer_package:
     - for i in $(seq 1 90); do nc -z mariadb 3306 2>/dev/null && break; sleep 1; done
     - for i in $(seq 1 60); do mariadb-admin ping -h mariadb -u root -proot --skip-ssl 2>/dev/null && break; sleep 2; done
     - mariadb-admin ping -h mariadb -u root -proot --skip-ssl
-    - >
-      TYPO3_SETUP_ADMIN_USERNAME=admin
-      TYPO3_SETUP_ADMIN_PASSWORD=Password1!
-      TYPO3_SETUP_ADMIN_EMAIL=admin@example.com
-      TYPO3_SETUP_CREATE_SITE="http://localhost:8080/"
-      TYPO3_PROJECT_NAME=main
-      TYPO3_SERVER_TYPE=apache
-      php .Build/bin/typo3 setup --no-interaction --force
+    - mariadb -h mariadb -u root -proot --skip-ssl typo3_test < "${E2E_DB_FIXTURE}"
+    - mkdir -p config/system
+    - cp Tests/Fixtures/ci/settings.php config/system/settings.php
     - printf '<?php\n$GLOBALS["TYPO3_CONF_VARS"]["SYS"]["trustedHostsPattern"] = ".*";\n' > config/system/additional.php
-    - find config/sites -name "config.yaml" | xargs -I{} cp Tests/Fixtures/ci/site-config.yaml {}
+    - mkdir -p config/sites/main
+    - cp Tests/Fixtures/ci/site-config.yaml config/sites/main/config.yaml
     - php .Build/bin/typo3 cache:flush
     - php -S 0.0.0.0:8080 -t .Build/Web/ Tests/Fixtures/ci/router.php &
     - until curl -s -o /dev/null http://localhost:8080/ 2>/dev/null; do sleep 1; done
@@ -291,6 +288,8 @@ e2e_tests_typo3_13:
 
 e2e_tests_typo3_14:
   extends: .e2e-base
+  variables:
+    E2E_DB_FIXTURE: "Tests/Fixtures/ci/typo3-base-14.sql"
   before_script:
     - apk add --no-cache nodejs npm mariadb-client netcat-openbsd
     - composer remove --dev saschaegerer/phpstan-typo3 --no-update
