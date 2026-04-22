@@ -126,14 +126,21 @@ test.describe('Routing — custom base path /rest/ (skipped: infrastructure out 
     });
 });
 
-test.describe('Routing — multi-language path prefix (skipped: infrastructure out of scope)', () => {
-    // TODO: Replace with proper E2E test once the site config includes a second
-    // language with a path prefix (e.g. base: /en/). Adding that language now
-    // would change CacheHashFixer's basePath calculation and risk breaking all
-    // existing E2E tests. Tracked under issue #15.
+test.describe('Routing — multi-language path prefix', () => {
+    // The site fixture now includes a second language with base: /en/.
+    // Both ApiRequest and CacheHashFixer use the language attribute set by
+    // TYPO3's SiteResolver to build the correct base path, so the API is
+    // reachable under /en/api/ without any extension code changes.
 
-    test.skip('GET /en/api/e2e/ping on a site with language prefix /en/ → 200', async ({ request }) => {
+    test('GET /en/api/e2e/ping on a site with language prefix /en/ → 200', async ({ request }) => {
         const response = await request.get('/en/api/e2e/ping');
         expect(response.status()).toBe(200);
+    });
+
+    test('GET /en/api/e2e/ping → correct JSON body', async ({ request }) => {
+        const response = await request.get('/en/api/e2e/ping');
+        const body = await response.json();
+        expect(body.ok).toBe(true);
+        expect(body.method).toBe('GET');
     });
 });
