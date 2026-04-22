@@ -273,7 +273,8 @@ release_composer_package:
     - mkdir -p config/system
     - cp Tests/Fixtures/ci/settings.php config/system/settings.php
     - printf '<?php\n$GLOBALS["TYPO3_CONF_VARS"]["SYS"]["trustedHostsPattern"] = ".*";\n' > config/system/additional.php
-    - find config/sites -name "config.yaml" | xargs -I{} cp Tests/Fixtures/ci/site-config.yaml {}
+    - mkdir -p config/sites/main
+    - cp Tests/Fixtures/ci/site-config.yaml config/sites/main/config.yaml
     - php .Build/bin/typo3 cache:flush
     - php -S 0.0.0.0:8080 -t .Build/Web/ Tests/Fixtures/ci/router.php &
     - until curl -s -o /dev/null http://localhost:8080/ 2>/dev/null; do sleep 1; done
