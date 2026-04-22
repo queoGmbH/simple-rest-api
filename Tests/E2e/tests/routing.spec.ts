@@ -17,10 +17,10 @@ import { test, expect } from '@playwright/test';
  *   - Non-API path bypass — requests without /api/ prefix pass through to TYPO3
  *   - cHash bypass — CacheHashFixer disables cHash enforcement for API paths
  *
- * SKIPPED unless E2E_CUSTOM_BASE_PATH=1:
- *   - Custom base path /rest/ — requires a site fixture with basePath=/rest/.
- *     Run via the e2e_tests_custom_base_path CI job which sets E2E_CUSTOM_BASE_PATH=1
- *     and swaps the site config to site-config-rest-base.yaml.
+ * TESTABLE (requires two-site CI fixture):
+ *   - Custom base path /rest/ — a second TYPO3 site (rootPageId=10) with
+ *     basePath='/rest/' coexists in the same instance; TYPO3's router selects
+ *     the correct site via the SimpleRestApiEnhancer route patterns.
  */
 
 test.describe('Routing — default base path /api/', () => {
@@ -107,10 +107,9 @@ test.describe('Routing — cHash bypass via CacheHashFixer', () => {
 });
 
 test.describe('Routing — custom base path /rest/', () => {
-    // These tests require a TYPO3 site configured with basePath=/rest/.
-    // In CI they run in the e2e_tests_custom_base_path job, which uses
-    // site-config-rest-base.yaml and sets E2E_CUSTOM_BASE_PATH=1.
-    test.skip(!process.env.E2E_CUSTOM_BASE_PATH, 'Requires site with basePath=/rest/. Set E2E_CUSTOM_BASE_PATH=1 to enable.');
+    // The CI fixture includes a second TYPO3 site (rootPageId=10) configured
+    // with basePath='/rest/'. TYPO3's router selects this site for /rest/* paths
+    // via the SimpleRestApiEnhancer, so both sites coexist on the same server.
 
     test('GET /rest/e2e/ping on a site with basePath=/rest/ → 200', async ({ request }) => {
         const response = await request.get('/rest/e2e/ping');

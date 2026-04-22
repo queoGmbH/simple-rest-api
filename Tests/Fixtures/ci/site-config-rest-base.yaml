@@ -17,7 +17,7 @@ languages:
     locale: en_US.UTF-8
     navigationTitle: English (EN)
     flag: gb
-rootPageId: 1
+rootPageId: 10
 routes: {  }
 routeEnhancers:
   SimpleRestApiEnhancer:
