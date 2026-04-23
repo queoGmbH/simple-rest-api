@@ -83,8 +83,10 @@ Valid Base Paths
 The base path must follow these requirements:
 
 * Must start and end with a forward slash
-* Only letters, numbers, hyphens, and underscores are allowed
-* Pattern: ``^/[a-zA-Z0-9_-]*/$``
+* Each path segment must contain only letters, numbers, hyphens, and underscores
+* Must have at least one path segment (e.g. ``/api/``)
+* Supports multi-segment paths (e.g. ``/api/v2/``)
+* Pattern: ``^\/([a-zA-Z0-9_-]+\/)+$``
 
 **Examples of valid base paths:**
 
@@ -105,6 +107,35 @@ With custom base path ``/rest/``:
 
 * Endpoint path: ``/v1/users``
 * Full URL: ``https://example.com/rest/v1/users``
+
+Debug Mode
+==========
+
+By default, the extension hides its own internal endpoints (from the
+``Queo\SimpleRestApi\`` namespace) in the backend module. This prevents
+example or test controllers bundled with the extension from cluttering the
+endpoint list in production installations.
+
+To show all endpoints including the extension's own, enable debug mode:
+
+**Via Site Settings:**
+
+.. code-block:: yaml
+
+   settings:
+     simple_rest_api:
+       debugMode: true
+
+**Via LocalConfiguration:**
+
+.. code-block:: php
+
+   <?php
+   $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['simple_rest_api']['debugMode'] = true;
+
+.. note::
+   Debug mode only affects the backend module display. It does not expose
+   additional routes or change any API behavior.
 
 Backend Module Access
 =====================
@@ -141,7 +172,7 @@ The extension automatically configures a cache for API endpoints:
 
    <?php
    // Automatically configured by the extension
-   $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['somple_rest_api'] = [
+   $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['simple_rest_api'] = [
        'frontend' => VariableFrontend::class,
        'backend' => FileBackend::class,
        'options' => [
@@ -177,8 +208,8 @@ Custom Middleware
 -----------------
 
 If you need to add custom middleware for your API endpoints, you can register
-it before or after the `simple-rest-api/api-resolver` middleware in your
-`Configuration/RequestMiddlewares.php`:
+it before or after the ``queo/simple-rest-api/api-resolver-middleware`` middleware
+in your ``Configuration/RequestMiddlewares.php``:
 
 .. code-block:: php
 
@@ -189,7 +220,7 @@ it before or after the `simple-rest-api/api-resolver` middleware in your
            'my-extension/custom-api-middleware' => [
                'target' => \MyVendor\MyExtension\Middleware\CustomApiMiddleware::class,
                'before' => [
-                   'simple-rest-api/api-resolver',
+                   'queo/simple-rest-api/api-resolver-middleware',
                ],
            ],
        ],

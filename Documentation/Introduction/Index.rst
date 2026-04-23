@@ -19,7 +19,7 @@ Key Features
 
 * **Simple method configuration** - Mark any method as an API endpoint using the
   `#[AsApiEndpoint]` PHP attribute
-* **Automatic routing** - All endpoints are automatically routed under `/api/`
+* **Automatic routing** - All endpoints are automatically routed under a configurable base path (default: ``/api/``)
 * **Parameter handling** - Scalar parameters from the URL path are automatically
   mapped to method arguments
 * **ServerRequest support** - Access the full PSR-7 ServerRequest for complex scenarios

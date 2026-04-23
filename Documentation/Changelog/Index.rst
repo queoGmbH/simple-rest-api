@@ -8,6 +8,60 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
+Version 0.5.0
+=============
+
+Released: 23.04.2026
+
+Added
+-----
+
+* **SQL fixture dumps for E2E tests** — TYPO3 13 and TYPO3 14 database fixture
+  dumps committed to the repository, enabling reproducible end-to-end test runs
+  without a full TYPO3 installation setup
+
+* **``debugMode`` configuration option documented** — the ``debugMode`` setting
+  (introduced in 0.2.2) now has a dedicated section in the Configuration reference
+
+Documentation
+-------------
+
+* **Corrected middleware key** — all references to the middleware identifier now
+  use the correct key ``queo/simple-rest-api/api-resolver-middleware`` (was
+  ``simple-rest-api/api-resolver``)
+
+* **Corrected cache configuration key typo** — ``somple_rest_api`` →
+  ``simple_rest_api`` in the Cache Configuration example
+
+* **Corrected base path validation pattern** — the documented regex now matches
+  the actual runtime pattern ``^\/([a-zA-Z0-9_-]+\/)+$``; the previous pattern
+  ``^/[a-zA-Z0-9_-]*/$`` incorrectly allowed an empty path segment
+
+* **Corrected ``AsApiEndpoint::TAG_NAME``** — documented value corrected from
+  ``'simple_rest_api.endpoint'`` to ``'api.endpoint'``
+
+* **Corrected ``ApiEndpoint`` constructor** — ``$parameters`` type corrected from
+  ``array`` to ``ApiEndpointParameterCollection``
+
+* **Corrected ``EndpointListController``** — ``listAction()`` signature documented
+  without its ``ServerRequestInterface`` parameter (it has none), and missing
+  ``ExtensionConfigurationInterface`` constructor dependency added
+
+* **Fixed ``BeforeParameterMappingEvent`` API reference** — return type and
+  parameter type corrected from ``Parameters`` to ``EndpointParameterResolver``
+
+* **Fixed event listener examples** — ``new Parameters(...)`` replaced with
+  ``new EndpointParameterResolver(...)`` throughout the Events documentation
+
+* **Fixed unit test example** — ``ApiEndpoint`` constructed with
+  ``new ApiEndpointParameterCollection()`` instead of ``[]``
+
+* **Removed stale roadmap entry** — the 0.4.0 roadmap item was removed (0.4.0
+  has already been released)
+
+* **Updated coding standards reference** — "PSR-12 coding standards" replaced
+  with "TYPO3 Coding Standards" in the Developer Guide
+
 Version 0.4.0
 =============
 
@@ -614,14 +668,6 @@ Roadmap
 
 Planned for Future Versions
 ----------------------------
-
-Version 0.4.0
-~~~~~~~~~~~~~
-
-* Built-in request validation framework
-* Response serialization helpers
-* More PSR-14 events for customization
-* CLI command to list and test endpoints
 
 Version 1.0.0
 ~~~~~~~~~~~~~

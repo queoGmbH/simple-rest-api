@@ -36,13 +36,14 @@ PHP 8 attribute that marks methods as API endpoints:
    #[\Attribute(\Attribute::TARGET_METHOD)]
    final readonly class AsApiEndpoint
    {
-       public const TAG_NAME = 'simple_rest_api.endpoint';
+       public const TAG_NAME = 'api.endpoint';
 
        public function __construct(
            public string $method,
            public string $path,
            public string $summary = '',
-           public string $description = ''
+           public string $description = '',
+           public array $tags = []
        ) {}
    }
 
@@ -98,7 +99,7 @@ Represents a single API endpoint:
            public string $method,
            public string $path,
            public string $httpMethod,
-           public array $parameters = [],
+           public ApiEndpointParameterCollection $parameters,
            public string $summary = '',
            public string $description = '',
            public array $tags = []
@@ -127,10 +128,13 @@ Registration in `Configuration/RequestMiddlewares.php`:
 
    <?php
    'frontend' => [
-       'simple-rest-api/api-resolver' => [
+       'queo/simple-rest-api/api-resolver-middleware' => [
            'target' => ApiResolverMiddleware::class,
+           'before' => [
+               'typo3/cms-frontend/shortcut-and-mountpoint-redirect',
+           ],
            'after' => [
-               'typo3/cms-frontend/page-resolver',
+               'typo3/cms-frontend/prepare-tsfe-rendering',
            ],
        ],
    ]
@@ -301,15 +305,6 @@ For complete documentation including:
 Filtering Event Listeners by Endpoint
 --------------------------------------
 
-When working with events, you often want to restrict listeners to specific endpoints
-rather than executing for all API requests.
-
-The extension provides three approaches for filtering:
-
-1. **Helper Methods** - Direct endpoint checking on events
-2. **Tags** - Group endpoints by functionality
-3. **EndpointMatcher Service** - Advanced filtering with wildcards
-
 **See:** :ref:`filtering-event-listeners`
 
 Backend Module
@@ -328,13 +323,14 @@ Backend controller that displays all registered endpoints:
    final class EndpointListController
    {
        public function __construct(
-           private readonly ApiEndpointProvider $apiEndpointProvider,
-           private readonly ModuleTemplateFactory $moduleTemplateFactory
+           private readonly ApiEndpointProvider $endpointProvider,
+           private readonly ModuleTemplateFactory $moduleTemplateFactory,
+           private readonly ExtensionConfigurationInterface $extensionConfiguration
        ) {}
 
-       public function listAction(ServerRequestInterface $request): ResponseInterface
+       public function listAction(): ResponseInterface
        {
-           $endpoints = $this->apiEndpointProvider->getAllEndpoints();
+           $endpoints = $this->endpointProvider->getAllEndpoints();
            // Render template
        }
    }
@@ -404,10 +400,10 @@ Running Tests
 .. code-block:: bash
 
    # Unit tests
-   .Build/bin/phpunit -c phpunit.xml
+   ddev exec .Build/bin/phpunit -c phpunit.xml
 
    # Integration tests
-   .Build/bin/phpunit -c phpunit-integration.xml
+   ddev exec .Build/bin/phpunit -c phpunit-integration.xml
 
 Code Quality
 ============
@@ -419,7 +415,7 @@ Static analysis at level 9:
 
 .. code-block:: bash
 
-   .Build/bin/phpstan analyse
+   ddev exec .Build/bin/phpstan analyse
 
 Configuration: `phpstan.neon`
 
@@ -429,10 +425,10 @@ PHP_CodeSniffer
 .. code-block:: bash
 
    # Check
-   .Build/bin/phpcs
+   ddev exec .Build/bin/phpcs
 
    # Fix
-   .Build/bin/phpcbf
+   ddev exec .Build/bin/phpcbf
 
 Rector
 ------
@@ -441,7 +437,7 @@ Automated refactoring:
 
 .. code-block:: bash
 
-   .Build/bin/rector process
+   ddev exec .Build/bin/rector process
 
 Configuration: `rector.php`
 
@@ -452,7 +448,7 @@ Pre-commit hooks:
 
 .. code-block:: bash
 
-   .Build/vendor/bin/grumphp run
+   ddev exec .Build/vendor/bin/grumphp run
 
 Contributing
 ============
@@ -483,14 +479,11 @@ Using DDEV
    git clone <repository-url>
    cd simple-rest-api
 
-   # Install dependencies
-   composer install
-
-   # Run tests
-   .Build/bin/phpunit -c phpunit.xml
-
-   # Start development
+   # Start DDEV environment
    ddev start
+
+   # Install dependencies
+   ddev composer install
 
 Code Standards
 --------------
@@ -498,7 +491,7 @@ Code Standards
 * PHP 8.2+ features encouraged
 * Type hints required for all parameters and return values
 * PHPDoc required for complex methods
-* Follow PSR-12 coding standards
+* Follow TYPO3 Coding Standards
 * Use `final` for classes by default
 * Use `readonly` for immutable properties
 
@@ -607,10 +600,3 @@ API Reference
 For complete API documentation, see the inline PHPDoc comments in the source code
 and the backend module which provides a visual overview of all endpoints.
 
-Additional Topics
-=================
-
-.. toctree::
-   :maxdepth: 1
-
-   FilteringEventListeners

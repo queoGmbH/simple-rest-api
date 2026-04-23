@@ -54,10 +54,10 @@ Event API
    // API Reference
    final class BeforeParameterMappingEvent
    {
-       public function getPathParameters(): Parameters;
+       public function getPathParameters(): EndpointParameterResolver;
        public function getApiEndpoint(): ApiEndpoint;
        public function getApiRequest(): ApiRequest;
-       public function overrideParameters(Parameters $pathParameters): void;
+       public function overrideParameters(EndpointParameterResolver $pathParameters): void;
    }
 
 Use Cases
@@ -81,7 +81,7 @@ Example: Adding Default Parameters
    namespace MyVendor\MyExtension\EventListener;
 
    use Queo\SimpleRestApi\Event\BeforeParameterMappingEvent;
-   use Queo\SimpleRestApi\Collection\Parameters;
+   use Queo\SimpleRestApi\Collection\EndpointParameterResolver;
 
    final readonly class DefaultParameterListener
    {
@@ -94,12 +94,12 @@ Example: Adding Default Parameters
            if (str_contains($endpoint->path, '/list')) {
                // Access and modify the raw parameter array
                $rawParams = $parameters->getParameterArray();
-               if (!isset($rawParams['limit'])) {
-                   $rawParams['limit'] = '10'; // String value
+               if (!isset($rawParams[0])) {
+                   $rawParams[] = '10'; // String value for default limit
                }
 
-               // Create new Parameters object with modified values
-               $newParameters = new Parameters(
+               // Create new EndpointParameterResolver with modified values
+               $newParameters = new EndpointParameterResolver(
                    $endpoint->parameters,
                    $rawParams,
                    $event->getApiRequest()->getRequest()
@@ -136,7 +136,7 @@ Example: Parameter Normalization
        // Convert all parameters to lowercase
        $normalizedParams = array_map('strtolower', $rawParams);
 
-       $newParameters = new Parameters(
+       $newParameters = new EndpointParameterResolver(
            $event->getApiEndpoint()->parameters,
            $normalizedParams,
            $event->getApiRequest()->getRequest()
@@ -651,6 +651,7 @@ Unit Test Example
 
    use MyVendor\MyExtension\EventListener\CorsHeaderListener;
    use PHPUnit\Framework\TestCase;
+   use Queo\SimpleRestApi\Collection\ApiEndpointParameterCollection;
    use Queo\SimpleRestApi\Event\ModifyApiResponseEvent;
    use Queo\SimpleRestApi\Http\ApiRequestInterface;
    use Queo\SimpleRestApi\Value\ApiEndpoint;
@@ -663,7 +664,13 @@ Unit Test Example
            $listener = new CorsHeaderListener();
 
            $response = new JsonResponse(['data' => 'test']);
-           $endpoint = new ApiEndpoint('TestClass', 'testMethod', '/v1/test', 'GET', []);
+           $endpoint = new ApiEndpoint(
+               'TestClass',
+               'testMethod',
+               '/v1/test',
+               'GET',
+               new ApiEndpointParameterCollection()
+           );
            $apiRequest = $this->createMock(ApiRequestInterface::class);
 
            $event = new ModifyApiResponseEvent($response, $endpoint, $apiRequest);
@@ -683,3 +690,9 @@ See Also
 * :ref:`usage` - Basic endpoint usage
 * :ref:`developer` - Advanced development topics
 * Example listeners: ``Classes/EventListener/ApiResponseModifierExample.php``
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   FilteringEventListeners

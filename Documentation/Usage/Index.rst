@@ -31,7 +31,11 @@ The simplest API endpoint returns a JSON response:
        }
    }
 
-This endpoint will be accessible at: `/api/v1/hello`
+This endpoint will be accessible at: ``/api/v1/hello`` (with the default base path).
+
+.. note::
+   The base path ``/api/`` is the default and can be changed per site. See
+   :ref:`configuration` for details on customizing the base path.
 
 With Documentation
 ------------------
