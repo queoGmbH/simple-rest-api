@@ -297,8 +297,10 @@ final class ApiRequestTest extends UnitTestCase
         $site->expects(self::never())->method('getBase');
         $extensionConfiguration->expects(self::once())->method('getApiBasePath')->willReturn('/api/');
 
+        // Act
         $apiRequest = new ApiRequest($currentRequest, $extensionConfiguration);
 
+        // Assert
         self::assertTrue($apiRequest->isApiRequest());
     }
 
@@ -326,8 +328,10 @@ final class ApiRequestTest extends UnitTestCase
         $site->expects(self::never())->method('getBase');
         $extensionConfiguration->expects(self::once())->method('getApiBasePath')->willReturn('/api/');
 
+        // Act
         $apiRequest = new ApiRequest($currentRequest, $extensionConfiguration);
 
+        // Assert
         self::assertSame('/v1/my/endpoint', $apiRequest->getEndpointPath());
     }
 
@@ -351,10 +355,13 @@ final class ApiRequestTest extends UnitTestCase
             ->willReturn(new Uri('http://localhost:8080/subdir/some-page'));
         $siteLanguage->expects(self::once())->method('getBase')
             ->willReturn(new Uri('http://localhost:8080/subdir/'));
+        $site->expects(self::never())->method('getBase');
         $extensionConfiguration->expects(self::once())->method('getApiBasePath')->willReturn('/api/');
 
+        // Act
         $apiRequest = new ApiRequest($currentRequest, $extensionConfiguration);
 
+        // Assert
         self::assertFalse($apiRequest->isApiRequest());
     }
 
