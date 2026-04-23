@@ -30,3 +30,4 @@ Example: `2026-04-10-v0.2.4.md`
 | 2026-04-10 | [v0.3.0](./2026-04-10-v0.3.0.md) | ✅ Passed | 0 findings (all v0.2.4 findings resolved) |
 | 2026-04-16 | [v0.3.1](./2026-04-16-v0.3.1.md) | ✅ Passed | 0 findings (metadata release) |
 | 2026-04-17 | [v0.4.0](./2026-04-17-v0.4.0.md) | ✅ Passed | 0 findings (TYPO3 14 + PHP 8.5 compatibility) |
+| 2026-04-23 | [v0.5.0](./2026-04-23-v0.5.0.md) | ✅ Passed | 0 findings (subdirectory routing, Dev endpoint context guard, hard 404) |

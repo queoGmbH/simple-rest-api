@@ -3,6 +3,19 @@
 All notable changes are documented here. For full details see
 [Documentation/Changelog/Index.rst](Documentation/Changelog/Index.rst).
 
+## [0.5.0] — 2026-04-23
+
+### Added
+- SQL fixture dumps for E2E tests (TYPO3 13 and 14), enabling reproducible end-to-end test runs
+- `debugMode` configuration option documented in Configuration reference
+
+### Documentation
+- Corrected middleware key, cache config key typo, base path validation pattern
+- Corrected `AsApiEndpoint::TAG_NAME`, `ApiEndpoint` constructor, `EndpointListController` signature
+- Fixed `BeforeParameterMappingEvent` API reference and event listener examples
+- Fixed Developer Guide: `ddev start` before `ddev composer install`, `ddev exec` prefixes
+- Moved `FilteringEventListeners` page from Developer to Events section
+
 ## [0.4.0] — 2026-04-17
 
 ### Added
