@@ -305,15 +305,6 @@ For complete documentation including:
 Filtering Event Listeners by Endpoint
 --------------------------------------
 
-When working with events, you often want to restrict listeners to specific endpoints
-rather than executing for all API requests.
-
-The extension provides three approaches for filtering:
-
-1. **Helper Methods** - Direct endpoint checking on events
-2. **Tags** - Group endpoints by functionality
-3. **EndpointMatcher Service** - Advanced filtering with wildcards
-
 **See:** :ref:`filtering-event-listeners`
 
 Backend Module
@@ -409,10 +400,10 @@ Running Tests
 .. code-block:: bash
 
    # Unit tests
-   .Build/bin/phpunit -c phpunit.xml
+   ddev exec .Build/bin/phpunit -c phpunit.xml
 
    # Integration tests
-   .Build/bin/phpunit -c phpunit-integration.xml
+   ddev exec .Build/bin/phpunit -c phpunit-integration.xml
 
 Code Quality
 ============
@@ -424,7 +415,7 @@ Static analysis at level 9:
 
 .. code-block:: bash
 
-   .Build/bin/phpstan analyse
+   ddev exec .Build/bin/phpstan analyse
 
 Configuration: `phpstan.neon`
 
@@ -434,10 +425,10 @@ PHP_CodeSniffer
 .. code-block:: bash
 
    # Check
-   .Build/bin/phpcs
+   ddev exec .Build/bin/phpcs
 
    # Fix
-   .Build/bin/phpcbf
+   ddev exec .Build/bin/phpcbf
 
 Rector
 ------
@@ -446,7 +437,7 @@ Automated refactoring:
 
 .. code-block:: bash
 
-   .Build/bin/rector process
+   ddev exec .Build/bin/rector process
 
 Configuration: `rector.php`
 
@@ -457,7 +448,7 @@ Pre-commit hooks:
 
 .. code-block:: bash
 
-   .Build/vendor/bin/grumphp run
+   ddev exec .Build/vendor/bin/grumphp run
 
 Contributing
 ============
@@ -488,14 +479,11 @@ Using DDEV
    git clone <repository-url>
    cd simple-rest-api
 
-   # Install dependencies
-   composer install
-
-   # Run tests
-   .Build/bin/phpunit -c phpunit.xml
-
-   # Start development
+   # Start DDEV environment
    ddev start
+
+   # Install dependencies
+   ddev composer install
 
 Code Standards
 --------------
@@ -612,10 +600,3 @@ API Reference
 For complete API documentation, see the inline PHPDoc comments in the source code
 and the backend module which provides a visual overview of all endpoints.
 
-Additional Topics
-=================
-
-.. toctree::
-   :maxdepth: 1
-
-   FilteringEventListeners

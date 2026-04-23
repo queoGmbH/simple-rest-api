@@ -690,3 +690,9 @@ See Also
 * :ref:`usage` - Basic endpoint usage
 * :ref:`developer` - Advanced development topics
 * Example listeners: ``Classes/EventListener/ApiResponseModifierExample.php``
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   FilteringEventListeners
