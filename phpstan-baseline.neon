@@ -57,25 +57,25 @@ parameters:
 		-
 			message: '#^Cannot access offset ''FE'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 7
+			count: 14
 			path: Tests/Integration/Middleware/CacheHashFixerTest.php
 
 		-
 			message: '#^Cannot access offset ''cacheHash'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 5
+			count: 10
 			path: Tests/Integration/Middleware/CacheHashFixerTest.php
 
 		-
 			message: '#^Cannot access offset ''enforceValidation'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 5
+			count: 10
 			path: Tests/Integration/Middleware/CacheHashFixerTest.php
 
 		-
 			message: '#^Cannot access offset ''pageNotFoundOnCHashError'' on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 8
+			count: 14
 			path: Tests/Integration/Middleware/CacheHashFixerTest.php
 
 		-

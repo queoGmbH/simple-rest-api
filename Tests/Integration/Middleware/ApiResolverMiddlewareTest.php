@@ -264,14 +264,17 @@ final class ApiResolverMiddlewareTest extends AbstractMiddlewareTestCase
     #[Test]
     public function middleware_routes_request_when_site_has_custom_base_path(): void // phpcs:ignore
     {
+        // Arrange
         $apiEndpointProvider = GeneralUtility::makeInstance(ApiEndpointProvider::class);
         $apiEndpointProvider->addEndpoint(DummyController::class, 'dummyApiMethod', 'GET', '/v1/my/api-endpoint');
 
         $middleware = $this->makeMiddleware($apiEndpointProvider, $this->makePassthroughDispatcher());
         $request = $this->makeRequestForSiteWithCustomBasePath('http://rest.test:8080/rest/v1/my/api-endpoint');
 
+        // Act
         $response = $middleware->process($request, $this->createStub(RequestHandlerInterface::class));
 
+        // Assert
         self::assertInstanceOf(JsonResponse::class, $response);
         self::assertSame(['success' => true], json_decode($response->getBody()->getContents(), true));
     }
@@ -279,6 +282,7 @@ final class ApiResolverMiddlewareTest extends AbstractMiddlewareTestCase
     #[Test]
     public function middleware_does_not_route_default_api_prefix_when_site_has_custom_base_path(): void // phpcs:ignore
     {
+        // Arrange — site configured with /rest/; a request to /api/ must fall through to the handler
         $apiEndpointProvider = GeneralUtility::makeInstance(ApiEndpointProvider::class);
         $apiEndpointProvider->addEndpoint(DummyController::class, 'dummyApiMethod', 'GET', '/v1/my/api-endpoint');
 
@@ -286,9 +290,9 @@ final class ApiResolverMiddlewareTest extends AbstractMiddlewareTestCase
         $handler->expects($this->once())->method('handle')->willReturn(new JsonResponse([]));
 
         $middleware = $this->makeMiddleware($apiEndpointProvider, $this->makePassthroughDispatcher());
-        // /api/ is the default but this site is configured with /rest/ — must not match
         $request = $this->makeRequestForSiteWithCustomBasePath('http://rest.test:8080/api/v1/my/api-endpoint');
 
+        // Act
         $middleware->process($request, $handler);
     }
 
