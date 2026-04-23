@@ -180,6 +180,38 @@ test.describe('Routing — subdirectory site /subdir/', () => {
         expect(body).not.toHaveProperty('ok');
         expect(body).not.toHaveProperty('method');
     });
+
+    test('GET /subdir/de/api/e2e/ping (subdirectory + language prefix) → 200', async ({ request }) => {
+        // Arrange — site base is /subdir/, language base is /de/; TYPO3 combines them
+        // to http://sub.test:8080/subdir/de/. ApiRequest and CacheHashFixer both read
+        // SiteLanguage::getBase() which already includes the subdirectory prefix, so
+        // the combined path /subdir/de/api/ is resolved correctly.
+        // Act
+        const response = await request.get(`${subdirBaseUrl}/subdir/de/api/e2e/ping`);
+
+        // Assert
+        expect(response.status()).toBe(200);
+    });
+
+    test('GET /subdir/de/api/e2e/ping → correct JSON body', async ({ request }) => {
+        // Act
+        const response = await request.get(`${subdirBaseUrl}/subdir/de/api/e2e/ping`);
+        const body = await response.json();
+
+        // Assert
+        expect(body.ok).toBe(true);
+        expect(body.method).toBe('GET');
+    });
+
+    test('GET /subdir/de/api/e2e/ping?foo=bar (no cHash) → 200', async ({ request }) => {
+        // Arrange — CacheHashFixer must recognise /subdir/de/api/ as an API path and
+        // suppress cHash enforcement, even with the subdirectory + language double-prefix.
+        // Act
+        const response = await request.get(`${subdirBaseUrl}/subdir/de/api/e2e/ping?foo=bar`);
+
+        // Assert
+        expect(response.status()).toBe(200);
+    });
 });
 
 test.describe('Routing — multi-language path prefix', () => {
