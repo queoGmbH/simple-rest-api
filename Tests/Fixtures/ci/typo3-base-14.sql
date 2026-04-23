@@ -1075,7 +1075,8 @@ LOCK TABLES `pages` WRITE;
 INSERT INTO `pages` VALUES
 (1,0,1776849070,1776849070,0,0,0,0,'0',0,NULL,0,0,0,0,NULL,NULL,0,0,0,0,1,1,31,31,1,0,0,0,0,1,'Home','/',NULL,0,0,0,0,'',0,'','','',0,0,0,'',0,0,NULL,NULL,NULL,'','',0,1,0,'',0,'','',''),
 (2,0,1776849070,1776849070,0,0,0,0,'0',0,NULL,0,1,1,1,NULL,NULL,0,0,0,0,1,1,31,31,1,0,0,0,0,1,'Home','/',NULL,0,0,0,0,'',0,'','','',0,0,0,'',0,0,NULL,NULL,NULL,'','',0,1,0,'',0,'','',''),
-(10,0,1776849070,1776849070,0,0,0,0,'0',0,NULL,0,0,0,0,NULL,NULL,0,0,0,0,1,1,31,31,1,0,0,0,0,1,'REST Site','/',NULL,0,0,0,0,'',0,'','','',0,0,0,'',0,0,NULL,NULL,NULL,'','',0,1,0,'',0,'','','');
+(10,0,1776849070,1776849070,0,0,0,0,'0',0,NULL,0,0,0,0,NULL,NULL,0,0,0,0,1,1,31,31,1,0,0,0,0,1,'REST Site','/',NULL,0,0,0,0,'',0,'','','',0,0,0,'',0,0,NULL,NULL,NULL,'','',0,1,0,'',0,'','',''),
+(20,0,1776849070,1776849070,0,0,0,0,'0',0,NULL,0,0,0,0,NULL,NULL,0,0,0,0,1,1,31,31,1,0,0,0,0,1,'Subdir Site','/',NULL,0,0,0,0,'',0,'','','',0,0,0,'',0,0,NULL,NULL,NULL,'','',0,1,0,'',0,'','','');
 /*!40000 ALTER TABLE `pages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1087,7 +1088,8 @@ LOCK TABLES `sys_template` WRITE;
 /*!40000 ALTER TABLE `sys_template` DISABLE KEYS */;
 INSERT INTO `sys_template` VALUES
 (1,1,1776849070,1776849070,0,0,0,0,0,'CI root TypoScript template','Main TypoScript Rendering',1,3,'','EXT:fluid_styled_content/Configuration/TypoScript/',NULL,0,'page = PAGE\npage.10 = TEXT\npage.10.value = TYPO3 CI\n',0),
-(2,10,1776849070,1776849070,0,0,0,0,0,'CI root TypoScript template for REST site','REST Site TypoScript',1,3,'','EXT:fluid_styled_content/Configuration/TypoScript/',NULL,0,'page = PAGE\npage.10 = TEXT\npage.10.value = TYPO3 CI REST\n',0);
+(2,10,1776849070,1776849070,0,0,0,0,0,'CI root TypoScript template for REST site','REST Site TypoScript',1,3,'','EXT:fluid_styled_content/Configuration/TypoScript/',NULL,0,'page = PAGE\npage.10 = TEXT\npage.10.value = TYPO3 CI REST\n',0),
+(3,20,1776849070,1776849070,0,0,0,0,0,'CI root TypoScript template for Subdir site','Subdir Site TypoScript',1,3,'','EXT:fluid_styled_content/Configuration/TypoScript/',NULL,0,'page = PAGE\npage.10 = TEXT\npage.10.value = TYPO3 CI Subdir\n',0);
 /*!40000 ALTER TABLE `sys_template` ENABLE KEYS */;
 UNLOCK TABLES;
 

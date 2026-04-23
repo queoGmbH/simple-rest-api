@@ -9,7 +9,7 @@ languages:
     locale: en_US.UTF-8
     navigationTitle: English
     flag: us
-rootPageId: 3
+rootPageId: 20
 routes: {  }
 routeEnhancers:
   SimpleRestApiEnhancer:
