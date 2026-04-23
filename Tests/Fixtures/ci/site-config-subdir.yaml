@@ -1,0 +1,19 @@
+base: 'http://sub.test:8080/subdir/'
+errorHandling: {  }
+languages:
+  -
+    title: English
+    enabled: true
+    languageId: 0
+    base: /
+    locale: en_US.UTF-8
+    navigationTitle: English
+    flag: us
+rootPageId: 3
+routes: {  }
+routeEnhancers:
+  SimpleRestApiEnhancer:
+    type: SimpleRestApiEnhancer
+settings:
+  simple_rest_api:
+    debugMode: true

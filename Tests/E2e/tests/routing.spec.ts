@@ -131,6 +131,57 @@ test.describe('Routing — custom base path /rest/', () => {
     });
 });
 
+test.describe('Routing — subdirectory site /subdir/', () => {
+    // The CI fixture includes a third TYPO3 site (rootPageId=3) served under
+    // http://sub.test:8080/subdir/ with no custom basePath (defaults to /api/).
+    // SUBDIR_BASE_URL must be set for these tests to run (CI-only).
+
+    const subdirBaseUrl = process.env.SUBDIR_BASE_URL;
+
+    test.skip(!subdirBaseUrl, 'SUBDIR_BASE_URL not set — skipping subdirectory site tests');
+
+    test('GET /subdir/api/e2e/ping on a subdirectory site → 200', async ({ request }) => {
+        // Arrange — API base path is /api/ (default); site base is /subdir/;
+        // combined prefix is /subdir/api/.
+        // Act
+        const response = await request.get(`${subdirBaseUrl}/subdir/api/e2e/ping`);
+
+        // Assert
+        expect(response.status()).toBe(200);
+    });
+
+    test('GET /subdir/api/e2e/ping → correct JSON body', async ({ request }) => {
+        // Act
+        const response = await request.get(`${subdirBaseUrl}/subdir/api/e2e/ping`);
+        const body = await response.json();
+
+        // Assert
+        expect(body.ok).toBe(true);
+        expect(body.method).toBe('GET');
+    });
+
+    test('GET /subdir/api/e2e/ping?foo=bar (no cHash) → 200', async ({ request }) => {
+        // Arrange — CacheHashFixer must disable cHash enforcement for /subdir/api/ too.
+        // Act
+        const response = await request.get(`${subdirBaseUrl}/subdir/api/e2e/ping?foo=bar`);
+
+        // Assert
+        expect(response.status()).toBe(200);
+    });
+
+    test('GET /subdir/some-page (non-API path) → does not reach API middleware', async ({ request }) => {
+        // Arrange — /subdir/some-page has no /api/ segment; ApiResolverMiddleware
+        // returns false for isApiRequest() and passes through to TYPO3.
+        // Act
+        const response = await request.get(`${subdirBaseUrl}/subdir/some-page`);
+
+        // Assert — TYPO3 page handler responds (not the API JSON format)
+        const body = await response.json();
+        expect(body).not.toHaveProperty('ok');
+        expect(body).not.toHaveProperty('method');
+    });
+});
+
 test.describe('Routing — multi-language path prefix', () => {
     // The site fixture now includes a second language with base: /en/.
     // Both ApiRequest and CacheHashFixer use the language attribute set by
