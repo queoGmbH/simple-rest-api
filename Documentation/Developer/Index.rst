@@ -332,14 +332,14 @@ Backend controller that displays all registered endpoints:
    final class EndpointListController
    {
        public function __construct(
-           private readonly ApiEndpointProvider $apiEndpointProvider,
+           private readonly ApiEndpointProvider $endpointProvider,
            private readonly ModuleTemplateFactory $moduleTemplateFactory,
            private readonly ExtensionConfigurationInterface $extensionConfiguration
        ) {}
 
        public function listAction(): ResponseInterface
        {
-           $endpoints = $this->apiEndpointProvider->getAllEndpoints();
+           $endpoints = $this->endpointProvider->getAllEndpoints();
            // Render template
        }
    }
