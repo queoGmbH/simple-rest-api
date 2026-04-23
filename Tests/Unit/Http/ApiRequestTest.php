@@ -273,6 +273,92 @@ final class ApiRequestTest extends UnitTestCase
     }
 
     #[Test]
+    public function detects_api_request_on_subdirectory_site(): void // phpcs:ignore
+    {
+        // Arrange — TYPO3's Site constructor combines site base '/subdir/' with language
+        // base '/' and stores the result as the SiteLanguage base URI. Simulate that here
+        // by having the language mock return the already-combined 'http://localhost:8080/subdir/'.
+        $currentRequest = $this->createMock(ServerRequestInterface::class);
+        $site = $this->createMock(SiteInterface::class);
+        $siteLanguage = $this->createMock(SiteLanguage::class);
+        $extensionConfiguration = $this->createMock(ExtensionConfigurationInterface::class);
+
+        $currentRequest->expects(self::exactly(2))
+            ->method('getAttribute')
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
+                'site' => $site,
+                'language' => $siteLanguage,
+                default => null
+            });
+        $currentRequest->expects(self::once())->method('getUri')
+            ->willReturn(new Uri('http://localhost:8080/subdir/api/v1/my/endpoint'));
+        $siteLanguage->expects(self::once())->method('getBase')
+            ->willReturn(new Uri('http://localhost:8080/subdir/'));
+        $site->expects(self::never())->method('getBase');
+        $extensionConfiguration->expects(self::once())->method('getApiBasePath')->willReturn('/api/');
+
+        $apiRequest = new ApiRequest($currentRequest, $extensionConfiguration);
+
+        self::assertTrue($apiRequest->isApiRequest());
+    }
+
+    #[Test]
+    public function returns_correct_endpoint_path_for_subdirectory_site(): void // phpcs:ignore
+    {
+        // Arrange — same combined-URI assumption as the previous test; verifies that
+        // getEndpointPath() strips both the site prefix '/subdir/' and the API prefix '/api/'.
+        $currentRequest = $this->createMock(ServerRequestInterface::class);
+        $site = $this->createMock(SiteInterface::class);
+        $siteLanguage = $this->createMock(SiteLanguage::class);
+        $extensionConfiguration = $this->createMock(ExtensionConfigurationInterface::class);
+
+        $currentRequest->expects(self::exactly(2))
+            ->method('getAttribute')
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
+                'site' => $site,
+                'language' => $siteLanguage,
+                default => null
+            });
+        $currentRequest->expects(self::once())->method('getUri')
+            ->willReturn(new Uri('http://localhost:8080/subdir/api/v1/my/endpoint'));
+        $siteLanguage->expects(self::once())->method('getBase')
+            ->willReturn(new Uri('http://localhost:8080/subdir/'));
+        $site->expects(self::never())->method('getBase');
+        $extensionConfiguration->expects(self::once())->method('getApiBasePath')->willReturn('/api/');
+
+        $apiRequest = new ApiRequest($currentRequest, $extensionConfiguration);
+
+        self::assertSame('/v1/my/endpoint', $apiRequest->getEndpointPath());
+    }
+
+    #[Test]
+    public function detects_non_api_request_on_subdirectory_site(): void // phpcs:ignore
+    {
+        // Arrange — path '/subdir/some-page' does not start with '/subdir/api/'
+        $currentRequest = $this->createMock(ServerRequestInterface::class);
+        $site = $this->createMock(SiteInterface::class);
+        $siteLanguage = $this->createMock(SiteLanguage::class);
+        $extensionConfiguration = $this->createMock(ExtensionConfigurationInterface::class);
+
+        $currentRequest->expects(self::exactly(2))
+            ->method('getAttribute')
+            ->willReturnCallback(fn($key): ?MockObject => match ($key) {
+                'site' => $site,
+                'language' => $siteLanguage,
+                default => null
+            });
+        $currentRequest->expects(self::once())->method('getUri')
+            ->willReturn(new Uri('http://localhost:8080/subdir/some-page'));
+        $siteLanguage->expects(self::once())->method('getBase')
+            ->willReturn(new Uri('http://localhost:8080/subdir/'));
+        $extensionConfiguration->expects(self::once())->method('getApiBasePath')->willReturn('/api/');
+
+        $apiRequest = new ApiRequest($currentRequest, $extensionConfiguration);
+
+        self::assertFalse($apiRequest->isApiRequest());
+    }
+
+    #[Test]
     public function returns_empty_path_when_incoming_path_does_not_start_with_site_base_or_api_base(): void // phpcs:ignore
     {
         // Arrange — request URI does not start with the site base path

@@ -193,4 +193,120 @@ final class CacheHashFixerTest extends AbstractMiddlewareTestCase
         // Assert — cache hash was disabled during handler execution (language-based path matched)
         self::assertFalse($capturedPageNotFound);
     }
+
+    #[Test]
+    public function disables_cache_hash_for_subdirectory_site_default_language(): void // phpcs:ignore
+    {
+        // Arrange — site lives under /subdir/ on the same host; TYPO3's Site constructor
+        // resolves language base '/' to the full URL 'http://localhost:8080/subdir/', so
+        // getBase()->getPath() returns '/subdir/' — the prefix is included automatically.
+        $middleware = $this->makeMiddleware();
+
+        $GLOBALS['TYPO3_CONF_VARS']['FE']['pageNotFoundOnCHashError'] = true;
+        $GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash']['enforceValidation'] = true;
+
+        $site = new Site('subdir-site', 1, [
+            'base' => 'http://localhost:8080/subdir/',
+            'settings' => [],
+            'languages' => [
+                ['languageId' => 0, 'title' => 'English', 'enabled' => true,
+                 'base' => '/', 'locale' => 'en_US.UTF-8', 'navigationTitle' => 'English', 'flag' => 'us'],
+            ],
+        ]);
+        $language = $site->getLanguageById(0);
+
+        $uri = new Uri('http://localhost:8080/subdir/api/v1/my-endpoint');
+        $request = (new ServerRequest($uri, 'GET'))
+            ->withAttribute('site', $site)
+            ->withAttribute('language', $language);
+
+        $capturedPageNotFound = null;
+        $handler = $this->createMock(RequestHandlerInterface::class);
+        $handler->method('handle')->willReturnCallback(function () use (&$capturedPageNotFound): ResponseInterface {
+            $capturedPageNotFound = $GLOBALS['TYPO3_CONF_VARS']['FE']['pageNotFoundOnCHashError'];
+            return new JsonResponse([]);
+        });
+
+        // Act
+        $middleware->process($request, $handler);
+
+        // Assert — cache hash was disabled, confirming '/subdir/api/' matched the request path
+        self::assertFalse($capturedPageNotFound);
+    }
+
+    #[Test]
+    public function disables_cache_hash_for_subdirectory_site_with_language_prefix(): void // phpcs:ignore
+    {
+        // Arrange — language with base '/de/' resolves to 'http://localhost:8080/subdir/de/',
+        // so the compare path becomes '/subdir/de/api/' which must match the request.
+        $middleware = $this->makeMiddleware();
+
+        $GLOBALS['TYPO3_CONF_VARS']['FE']['pageNotFoundOnCHashError'] = true;
+        $GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash']['enforceValidation'] = true;
+
+        $site = new Site('subdir-site', 1, [
+            'base' => 'http://localhost:8080/subdir/',
+            'settings' => [],
+            'languages' => [
+                ['languageId' => 0, 'title' => 'English', 'enabled' => true,
+                 'base' => '/', 'locale' => 'en_US.UTF-8', 'navigationTitle' => 'English', 'flag' => 'us'],
+                ['languageId' => 1, 'title' => 'German', 'enabled' => true,
+                 'base' => '/de/', 'locale' => 'de_DE.UTF-8', 'navigationTitle' => 'German', 'flag' => 'de'],
+            ],
+        ]);
+        $language = $site->getLanguageById(1);
+
+        $uri = new Uri('http://localhost:8080/subdir/de/api/v1/my-endpoint');
+        $request = (new ServerRequest($uri, 'GET'))
+            ->withAttribute('site', $site)
+            ->withAttribute('language', $language);
+
+        $capturedPageNotFound = null;
+        $handler = $this->createMock(RequestHandlerInterface::class);
+        $handler->method('handle')->willReturnCallback(function () use (&$capturedPageNotFound): ResponseInterface {
+            $capturedPageNotFound = $GLOBALS['TYPO3_CONF_VARS']['FE']['pageNotFoundOnCHashError'];
+            return new JsonResponse([]);
+        });
+
+        // Act
+        $middleware->process($request, $handler);
+
+        // Assert
+        self::assertFalse($capturedPageNotFound);
+    }
+
+    #[Test]
+    public function passes_through_for_non_api_path_on_subdirectory_site(): void // phpcs:ignore
+    {
+        // Arrange — request targets a regular page, not the API — must not touch cache hash globals
+        $middleware = $this->makeMiddleware();
+
+        $GLOBALS['TYPO3_CONF_VARS']['FE']['pageNotFoundOnCHashError'] = true;
+        $GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash']['enforceValidation'] = true;
+
+        $site = new Site('subdir-site', 1, [
+            'base' => 'http://localhost:8080/subdir/',
+            'settings' => [],
+            'languages' => [
+                ['languageId' => 0, 'title' => 'English', 'enabled' => true,
+                 'base' => '/', 'locale' => 'en_US.UTF-8', 'navigationTitle' => 'English', 'flag' => 'us'],
+            ],
+        ]);
+        $language = $site->getLanguageById(0);
+
+        $uri = new Uri('http://localhost:8080/subdir/some-page');
+        $request = (new ServerRequest($uri, 'GET'))
+            ->withAttribute('site', $site)
+            ->withAttribute('language', $language);
+
+        $handler = $this->createMock(RequestHandlerInterface::class);
+        $handler->expects(self::once())->method('handle')->willReturn(new JsonResponse([]));
+
+        // Act
+        $middleware->process($request, $handler);
+
+        // Assert — globals must be untouched (pass-through, not an API path)
+        self::assertTrue($GLOBALS['TYPO3_CONF_VARS']['FE']['pageNotFoundOnCHashError']);
+        self::assertTrue($GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash']['enforceValidation']);
+    }
 }
