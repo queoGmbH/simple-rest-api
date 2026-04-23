@@ -1,4 +1,4 @@
-base: 'http://main.test:8080/'
+base: 'http://rest.test:8080/'
 errorHandling: {  }
 languages:
   -
@@ -17,12 +17,12 @@ languages:
     locale: en_US.UTF-8
     navigationTitle: English (EN)
     flag: gb
-rootPageId: 1
+rootPageId: 10
 routes: {  }
 routeEnhancers:
   SimpleRestApiEnhancer:
     type: SimpleRestApiEnhancer
 settings:
   simple_rest_api:
-    # Enables extra endpoints in the backend module list — no effect on routing or request handling.
     debugMode: true
+    basePath: '/rest/'

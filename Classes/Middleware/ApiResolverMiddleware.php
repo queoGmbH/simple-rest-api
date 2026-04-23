@@ -26,7 +26,6 @@ class ApiResolverMiddleware implements MiddlewareInterface
 {
     public function __construct(
         private readonly ApiEndpointProvider $endpointProvider,
-        private readonly ExtensionConfiguration $extensionConfiguration,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LoggerInterface $logger
     ) {
@@ -34,8 +33,10 @@ class ApiResolverMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class, $request);
+
         /** @var ApiRequest $apiRequest */
-        $apiRequest = GeneralUtility::makeInstance(ApiRequest::class, $request, $this->extensionConfiguration);
+        $apiRequest = GeneralUtility::makeInstance(ApiRequest::class, $request, $extensionConfiguration);
 
         // Check whether it is an API path (optional, for path prefix)
         if (!$apiRequest->isApiRequest()) {

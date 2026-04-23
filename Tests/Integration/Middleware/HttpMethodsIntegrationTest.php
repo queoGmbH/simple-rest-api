@@ -9,7 +9,6 @@ use PHPUnit\Framework\Attributes\Test;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\NullLogger;
-use Queo\SimpleRestApi\Configuration\ExtensionConfiguration;
 use Queo\SimpleRestApi\Middleware\ApiResolverMiddleware;
 use Queo\SimpleRestApi\Provider\ApiEndpointProvider;
 use Queo\SimpleRestApi\Tests\Integration\Middleware\Fixture\DummyController;
@@ -26,7 +25,6 @@ final class HttpMethodsIntegrationTest extends AbstractMiddlewareTestCase
 {
     private function createMiddleware(ApiEndpointProvider $provider): ApiResolverMiddleware
     {
-        $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
         $eventDispatcher = new class implements EventDispatcherInterface {
             public function dispatch(object $event): object
             {
@@ -37,7 +35,6 @@ final class HttpMethodsIntegrationTest extends AbstractMiddlewareTestCase
         return GeneralUtility::makeInstance(
             ApiResolverMiddleware::class,
             $provider,
-            $extensionConfiguration,
             $eventDispatcher,
             new NullLogger()
         );

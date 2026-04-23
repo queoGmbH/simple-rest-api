@@ -17,13 +17,11 @@ import { test, expect } from '@playwright/test';
  *   - Non-API path bypass — requests without /api/ prefix pass through to TYPO3
  *   - cHash bypass — CacheHashFixer disables cHash enforcement for API paths
  *
- * SKIPPED:
- *   - Custom base path /rest/ — requires a second TYPO3 site with a different
- *     site setting. Cannot be set up in CI without a dedicated page tree and
- *     site fixture. Out of scope for this issue.
- *   - Multi-language routing with path prefix — adding a second language (e.g.
- *     base: /en/) to the site config risks breaking existing tests that depend
- *     on the current single-language setup. Out of scope for this issue.
+ * TESTABLE (requires two-site CI fixture, REST_BASE_URL set):
+ *   - Custom base path /rest/ — a second TYPO3 site (rootPageId=10) with
+ *     basePath='/rest/' is served under http://rest.test:8080/. A distinct
+ *     hostname is used so TYPO3's site resolver can distinguish it from the
+ *     main site (http://main.test:8080/) unambiguously.
  */
 
 test.describe('Routing — default base path /api/', () => {
@@ -63,7 +61,8 @@ test.describe('Routing — non-API path bypass', () => {
     });
 
     test('GET /rest/e2e/ping (wrong prefix) → does not reach API middleware (404)', async ({ request }) => {
-        // Arrange — /rest/ is not the configured base path; request bypasses the API.
+        // Arrange — /rest/ is not the configured base path of the main site (/api/);
+        // the request is handled by TYPO3's page resolver, which returns 404.
         // Act
         const response = await request.get('/rest/e2e/ping');
 
@@ -109,20 +108,26 @@ test.describe('Routing — cHash bypass via CacheHashFixer', () => {
     });
 });
 
-test.describe('Routing — custom base path /rest/ (skipped: infrastructure out of scope)', () => {
-    // TODO: Replace with proper E2E test once a second CI site fixture with
-    // settings.simple_rest_api.basePath: '/rest/' is available.
-    // Requires: a separate TYPO3 page tree, site config, and CI fixture.
-    // Tracked under issue #15 / dedicated infrastructure issue.
+test.describe('Routing — custom base path /rest/', () => {
+    // The CI fixture includes a second TYPO3 site (rootPageId=10) served under
+    // http://rest.test:8080/ with basePath='/rest/'. A separate hostname is used
+    // so TYPO3's site resolver can distinguish the two sites unambiguously.
+    // REST_BASE_URL must be set for these tests to run (CI-only).
 
-    test.skip('GET /rest/e2e/ping on a site with basePath=/rest/ → 200', async ({ request }) => {
-        const response = await request.get('/rest/e2e/ping');
+    const restBaseUrl = process.env.REST_BASE_URL;
+
+    test.skip(!restBaseUrl, 'REST_BASE_URL not set — skipping custom base path tests');
+
+    test('GET /rest/e2e/ping on a site with basePath=/rest/ → 200', async ({ request }) => {
+        const response = await request.get(`${restBaseUrl}/rest/e2e/ping`);
         expect(response.status()).toBe(200);
     });
 
-    test.skip('GET /api/e2e/ping on a site with basePath=/rest/ → 404 (wrong prefix)', async ({ request }) => {
-        const response = await request.get('/api/e2e/ping');
-        expect(response.status()).toBe(404);
+    test('GET /rest/e2e/ping → correct JSON body', async ({ request }) => {
+        const response = await request.get(`${restBaseUrl}/rest/e2e/ping`);
+        const body = await response.json();
+        expect(body.ok).toBe(true);
+        expect(body.method).toBe('GET');
     });
 });
 

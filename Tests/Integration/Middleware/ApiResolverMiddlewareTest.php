@@ -11,7 +11,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Queo\SimpleRestApi\Configuration\ExtensionConfiguration;
 use Queo\SimpleRestApi\Event\AfterParameterMappingEvent;
 use Queo\SimpleRestApi\Event\BeforeParameterMappingEvent;
 use Queo\SimpleRestApi\Event\ModifyApiResponseEvent;
@@ -22,6 +21,7 @@ use RuntimeException;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\Uri;
+use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -33,12 +33,9 @@ final class ApiResolverMiddlewareTest extends AbstractMiddlewareTestCase
         EventDispatcherInterface $eventDispatcher,
         ?LoggerInterface $logger = null
     ): ApiResolverMiddleware {
-        $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
-
         return GeneralUtility::makeInstance(
             ApiResolverMiddleware::class,
             $provider,
-            $extensionConfiguration,
             $eventDispatcher,
             $logger ?? new NullLogger()
         );
@@ -251,6 +248,48 @@ final class ApiResolverMiddlewareTest extends AbstractMiddlewareTestCase
 
         // Assert
         self::assertTrue($eventDispatcher->beforeDispatched);
+    }
+
+    private function makeRequestForSiteWithCustomBasePath(string $uri, string $method = 'GET'): ServerRequest
+    {
+        $site = new Site('rest-site', 10, [
+            'base' => 'http://rest.test:8080/',
+            'settings' => ['simple_rest_api' => ['basePath' => '/rest/']],
+        ]);
+
+        return (new ServerRequest(new Uri($uri), $method))
+            ->withAttribute('site', $site);
+    }
+
+    #[Test]
+    public function middleware_routes_request_when_site_has_custom_base_path(): void // phpcs:ignore
+    {
+        $apiEndpointProvider = GeneralUtility::makeInstance(ApiEndpointProvider::class);
+        $apiEndpointProvider->addEndpoint(DummyController::class, 'dummyApiMethod', 'GET', '/v1/my/api-endpoint');
+
+        $middleware = $this->makeMiddleware($apiEndpointProvider, $this->makePassthroughDispatcher());
+        $request = $this->makeRequestForSiteWithCustomBasePath('http://rest.test:8080/rest/v1/my/api-endpoint');
+
+        $response = $middleware->process($request, $this->createStub(RequestHandlerInterface::class));
+
+        self::assertInstanceOf(JsonResponse::class, $response);
+        self::assertSame(['success' => true], json_decode($response->getBody()->getContents(), true));
+    }
+
+    #[Test]
+    public function middleware_does_not_route_default_api_prefix_when_site_has_custom_base_path(): void // phpcs:ignore
+    {
+        $apiEndpointProvider = GeneralUtility::makeInstance(ApiEndpointProvider::class);
+        $apiEndpointProvider->addEndpoint(DummyController::class, 'dummyApiMethod', 'GET', '/v1/my/api-endpoint');
+
+        $handler = $this->createMock(RequestHandlerInterface::class);
+        $handler->expects($this->once())->method('handle')->willReturn(new JsonResponse([]));
+
+        $middleware = $this->makeMiddleware($apiEndpointProvider, $this->makePassthroughDispatcher());
+        // /api/ is the default but this site is configured with /rest/ — must not match
+        $request = $this->makeRequestForSiteWithCustomBasePath('http://rest.test:8080/api/v1/my/api-endpoint');
+
+        $middleware->process($request, $handler);
     }
 
     #[Test]
