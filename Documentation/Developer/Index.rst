@@ -36,13 +36,14 @@ PHP 8 attribute that marks methods as API endpoints:
    #[\Attribute(\Attribute::TARGET_METHOD)]
    final readonly class AsApiEndpoint
    {
-       public const TAG_NAME = 'simple_rest_api.endpoint';
+       public const TAG_NAME = 'api.endpoint';
 
        public function __construct(
            public string $method,
            public string $path,
            public string $summary = '',
-           public string $description = ''
+           public string $description = '',
+           public array $tags = []
        ) {}
    }
 
@@ -98,7 +99,7 @@ Represents a single API endpoint:
            public string $method,
            public string $path,
            public string $httpMethod,
-           public array $parameters = [],
+           public ApiEndpointParameterCollection $parameters,
            public string $summary = '',
            public string $description = '',
            public array $tags = []
@@ -127,10 +128,13 @@ Registration in `Configuration/RequestMiddlewares.php`:
 
    <?php
    'frontend' => [
-       'simple-rest-api/api-resolver' => [
+       'queo/simple-rest-api/api-resolver-middleware' => [
            'target' => ApiResolverMiddleware::class,
+           'before' => [
+               'typo3/cms-frontend/shortcut-and-mountpoint-redirect',
+           ],
            'after' => [
-               'typo3/cms-frontend/page-resolver',
+               'typo3/cms-frontend/prepare-tsfe-rendering',
            ],
        ],
    ]
@@ -329,10 +333,11 @@ Backend controller that displays all registered endpoints:
    {
        public function __construct(
            private readonly ApiEndpointProvider $apiEndpointProvider,
-           private readonly ModuleTemplateFactory $moduleTemplateFactory
+           private readonly ModuleTemplateFactory $moduleTemplateFactory,
+           private readonly ExtensionConfigurationInterface $extensionConfiguration
        ) {}
 
-       public function listAction(ServerRequestInterface $request): ResponseInterface
+       public function listAction(): ResponseInterface
        {
            $endpoints = $this->apiEndpointProvider->getAllEndpoints();
            // Render template
@@ -498,7 +503,7 @@ Code Standards
 * PHP 8.2+ features encouraged
 * Type hints required for all parameters and return values
 * PHPDoc required for complex methods
-* Follow PSR-12 coding standards
+* Follow TYPO3 Coding Standards
 * Use `final` for classes by default
 * Use `readonly` for immutable properties
 
