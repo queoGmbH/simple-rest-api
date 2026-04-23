@@ -132,7 +132,7 @@ test.describe('Routing — custom base path /rest/', () => {
 });
 
 test.describe('Routing — subdirectory site /subdir/', () => {
-    // The CI fixture includes a third TYPO3 site (rootPageId=3) served under
+    // The CI fixture includes a third TYPO3 site (rootPageId=20) served under
     // http://sub.test:8080/subdir/ with no custom basePath (defaults to /api/).
     // SUBDIR_BASE_URL must be set for these tests to run (CI-only).
 
